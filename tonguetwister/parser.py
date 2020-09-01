@@ -1,189 +1,203 @@
-from pprint import pprint
-import json
 from collections import OrderedDict
 
-from chunks.lingo_script import LingoScript
-from chunks.lingo_namelist import LingoNamelist
-from chunks.styled_text import StyledText
-from chunks.font_map import FontMap
-from chunks.memory_map import MemoryMap
-from chunks.cast_library_info import CastLibraryInfo
-from chunks.cast_key_map import CastKeyMap
-from chunks.cast_member import CastMember
-from chunks.idealized_map import IdealizedMap
-from chunks.drcf import DRCF
-from chunks.cast_association_map import CastAssociationMap
-from chunks.lingo_context import LingoContext
-from lib.byte_block_io import ByteBlockIO
-from lib.helper import grouper
+from tonguetwister.chunks.cast_association_map import CastAssociationMap
+from tonguetwister.chunks.cast_key_map import CastKeyMap
+from tonguetwister.chunks.cast_library_info import CastLibraryInfo
+from tonguetwister.chunks.cast_member import CastMember
+from tonguetwister.chunks.drcf import DRCF
+from tonguetwister.chunks.font_map import FontMap
+from tonguetwister.chunks.idealized_map import IdealizedMap
+from tonguetwister.chunks.lingo_context import LingoContext
+from tonguetwister.chunks.lingo_namelist import LingoNamelist
+from tonguetwister.chunks.lingo_script import LingoScript
+from tonguetwister.chunks.memory_map import MemoryMap
+from tonguetwister.chunks.styled_text import StyledText
+from tonguetwister.lib.byte_block_io import ByteBlockIO
 
-class RifxParser(object):
-  FOUR_CC_FUNCTION_MAP = {
-    'CASt': 'parse_cast',
-    'STXT': 'parse_STXT', 
-    'Cinf': 'parse_Cinf', 
-    'Fmap': 'parse_fmap', 
-    'free': 'parse_undefined', 
-    'Lctx': 'parse_lctx',
-    'Lnam': 'parse_Lnam', 
-    'Lscr': 'parse_Lscr', 
-    'CAS*': 'parse_cas_star', 
-    'imap': 'parse_imap', 
-    'DRCF': 'parse_drcf', 
-    'ccl ': 'parse_undefined',
-    'RIFX': 'parse_RIFX', 
-    'mmap': 'parse_mmap', 
-    'KEY*': 'parse_key_star',
-    'RTE0': 'parse_undefined',
-    'RTE1': 'parse_undefined',
-    'RTE2': 'parse_undefined',
-    'FXmp': 'parse_undefined',
-    'MCsL': 'parse_undefined',
-    'Sord': 'parse_undefined'
-  }
+FOUR_CC_FUNCTION_MAP = {
+    'CASt': '_parse_cast',
+    'STXT': '_parse_stxt',
+    'Cinf': '_parse_cinf',
+    'Fmap': '_parse_fmap',
+    'free': '_parse_undefined',
+    'Lctx': '_parse_lctx',
+    'Lnam': '_parse_lnam',
+    'Lscr': '_parse_lscr',
+    'CAS*': '_parse_cas_star',
+    'imap': '_parse_imap',
+    'DRCF': '_parse_drcf',
+    'ccl ': '_parse_undefined',
+    'RIFX': '_parse_rifx',
+    'mmap': '_parse_mmap',
+    'KEY*': '_parse_key_star',
+    'RTE0': '_parse_undefined',
+    'RTE1': '_parse_undefined',
+    'RTE2': '_parse_undefined',
+    'FXmp': '_parse_undefined',
+    'MCsL': '_parse_undefined',
+    'Sord': '_parse_undefined'
+}
 
-  def __init__(self, filename, silent=False):
-    self.stack_depth = 0
-    self.silent = silent
 
-    with open(filename, 'rb') as f:
-      stream = ByteBlockIO(f.read())
-      four_cc, addr, chunk = self.__parse_command(stream)
-      
-      if four_cc == 'RIFX':
-        self.version = chunk.uint32()
-        self.stream = ByteBlockIO(chunk.read_bytes())
-      else:
-        raise Exception('Input file not a RIFX file.')
+class RifxParser:
+    def __init__(self, filename=None, silent=False):
+        # Logging variables
+        self.stack_depth = 0
+        self.silent = silent
 
-  def unpack(self):
-    while not self.stream.is_depleted():
-      four_cc, address, chunk_stream = self.__parse_command(self.stream)
-      self.current_four_cc = four_cc
-      self.current_address = address + 12  # Add 12 bytes for the RIFX chunk
-      
-      function_name = self.FOUR_CC_FUNCTION_MAP[four_cc]
-      func = getattr(self, function_name, self.__undefined_function)
-      func(chunk_stream)
+        # Parsing state variables
+        self.current_four_cc = None
+        self.current_address = None
+        self.version = None
+        self.stream = None
 
-      if not chunk_stream.is_depleted():
-        print chunk_stream.n_processed_bytes_string()
-        print chunk_stream.unprocessed_bytes()
-        raise Exception('[%s]: Unprocessed data remains.' % four_cc)
+        # Parse results
+        self.styled_texts = OrderedDict()
+        self.cast_members = OrderedDict()
+        self.font_map = None
+        self.namelist = None
+        self.cast_library_info = None
+        self.lingo_scripts = OrderedDict()
+        self._imap = None
+        self.cast_assoc_map = None
+        self.cast_key_map = None
+        self.memory_map = None
+        self.lingo_context = None
+        self.cast_lib = []
 
-  def __parse_command(self, stream):
-    address = stream.tell()
-    four_cc = stream.string(4)
+        # Maybe load file
+        if filename is not None:
+            self.load_file(filename)
 
-    chunk_length = stream.uint32()
-    chunk = ByteBlockIO(stream.read_bytes(chunk_length))
+    def load_file(self, filename):
+        with open(filename, 'rb') as f:
+            stream = ByteBlockIO(f.read())
+            four_cc, addr, chunk_stream = self._parse_command(stream)
 
-    # Remove padding for uneven blocks
-    if chunk_length % 2 != 0:
-      pad = stream.uint8()
-      if pad != 0:
-        raise Exception('Pad is non-zero')
+            if four_cc == 'RIFX':
+                self.version = chunk_stream.uint32()
+                self.stream = ByteBlockIO(chunk_stream.read_bytes())
+            else:
+                raise RuntimeError(f'Input file {filename} does not contain a RIFX file header')
 
-    return four_cc, address, chunk
+    def unpack(self):
+        while not self.stream.is_depleted():
+            four_cc, address, chunk_stream = self._parse_command(self.stream)
+            self.current_four_cc = four_cc
+            self.current_address = address + 12  # Add 12 bytes for the four_cc code
 
-  def __undefined_function(self, stream):
-    print self.__chunk_info('FOUR_CC PARSER FUNCTION NOT IMPLEMENTED')
-    stream.read_bytes()
+            chunk_parser_function = getattr(self, FOUR_CC_FUNCTION_MAP[four_cc], self._undefined_function)
+            chunk_parser_function(chunk_stream)
 
-  def __chunk_info(self, message=''):
-    args = (
-        self.__indent_string(),
-        self.current_address,
-        self.current_address,
-        self.current_four_cc,
-        message)
+            if not chunk_stream.is_depleted():
+                print(chunk_stream.get_processed_bytes_string())
+                print(chunk_stream.get_unprocessed_bytes_array())
+                raise RuntimeError(f'[{four_cc}]: Unprocessed data remains')
 
-    return '%s[%5d / %#6x] :: %s --> %s' % args if self.silent else ''
+    @staticmethod
+    def _parse_command(stream):
+        address = stream.tell()
+        four_cc = stream.string(4)
 
-  def __indent_string(self, offset=0):
-    return '    '*(self.stack_depth+offset)
+        chunk_length = stream.uint32()
+        chunk = ByteBlockIO(stream.read_bytes(chunk_length))
+        RifxParser._strip_padding_from_uneven_chunk(stream, chunk_length)
 
-  def __parse_pad(self, stream, n):
-    stream.read_bytes(n)
+        return four_cc, address, chunk
 
-  def parse_STXT(self, stream):
-    if not hasattr(self, 'styled_texts'):
-      self.styled_texts = OrderedDict()
+    @staticmethod
+    def _strip_padding_from_uneven_chunk(stream, chunk_length):
+        if chunk_length % 2 != 0:
+            padding = stream.uint8()
+            if padding != 0:
+                raise RuntimeError('Padding is non-zero')
 
-    self.styled_texts[self.current_address] = StyledText(stream)
-    print self.__chunk_info()
-    #print repr(self.styled_texts[self.current_address])
+    def _undefined_function(self, stream):
+        print(self._chunk_info('FOUR_CC PARSER FUNCTION NOT IMPLEMENTED'))
+        stream.read_bytes()
 
-  def parse_cast(self, stream):
-    if not hasattr(self, 'cast_members'):
-      self.cast_members = OrderedDict()
+    def _chunk_info(self, message=''):
+        if self.silent:
+            return ''
 
-    self.cast_members[self.current_address] = CastMember(stream)
-    print self.__chunk_info()
-    #print repr(self.cast_members[self.current_address])
+        return (
+            f'{self._indent_string()}'
+            f'[{self.current_address:2d} / {self.current_address:#6x}] :: '
+            f"{self.current_four_cc}{f' --> {message}' if message else ''}"
+        )
 
-  def parse_fmap(self, stream):
-    self.font_map = FontMap(stream)
-    print self.__chunk_info()
-    #print repr(self.font_map)
+    def _indent_string(self, offset=0):
+        return '    ' * (self.stack_depth + offset)
 
-  def parse_Lnam(self, stream):
-    self.namelist = LingoNamelist(stream)
-    print self.__chunk_info() 
-    #print repr(self.namelist)
+    def _parse_stxt(self, stream):
+        self.styled_texts[self.current_address] = StyledText(stream)
+        print(self._chunk_info())
+        # print repr(self.styled_texts[self.current_address])
 
-  def parse_Cinf(self, stream):
-    self.cast_library_info = CastLibraryInfo(stream)
-    print self.__chunk_info()
-    #print repr(self.cast_library_info)
+    def _parse_cast(self, stream):
+        self.cast_members[self.current_address] = CastMember(stream)
+        print(self._chunk_info())
+        # print repr(self.cast_members[self.current_address])
 
-  def parse_Lscr(self, stream):
-    if not hasattr(self, 'lingo_scripts'):
-      self.lingo_scripts = OrderedDict()
+    def _parse_fmap(self, stream):
+        self.font_map = FontMap(stream)
+        print(self._chunk_info())
+        # print repr(self.font_map)
 
-    self.lingo_scripts[self.current_address] = LingoScript(stream)
-    print self.__chunk_info()
-    #print repr(self.lingo_scripts[self.current_address])
-       
-  def parse_imap(self, stream):
-    self._imap = IdealizedMap(stream)
-    print self.__chunk_info()
-    #print repr(self._imap)
+    def _parse_lnam(self, stream):
+        self.namelist = LingoNamelist(stream)
+        print(self._chunk_info())
+        # print repr(self.namelist)
 
-  def parse_drcf(self, stream):
-    self._imap = DRCF(stream)
-    print self.__chunk_info()
-    #print repr(self._imap)
+    def _parse_cinf(self, stream):
+        self.cast_library_info = CastLibraryInfo(stream)
+        print(self._chunk_info())
+        # print repr(self.cast_library_info)
 
-  def parse_cas_star(self, stream):
-    self.cast_assoc_map = CastAssociationMap(stream)
-    print self.__chunk_info()
-    #print repr(self.cast_assoc_map)
+    def _parse_lscr(self, stream):
+        self.lingo_scripts[self.current_address] = LingoScript(stream)
+        print(self._chunk_info())
+        # print repr(self.lingo_scripts[self.current_address])
 
-  def parse_key_star(self, stream):
-    self.cast_key_map = CastKeyMap(stream)
-    print self.__chunk_info()
-    #print repr(self.cast_key_map)
+    def _parse_imap(self, stream):
+        self._imap = IdealizedMap(stream)
+        print(self._chunk_info())
+        # print repr(self._imap)
 
-  def parse_mmap(self, stream):
-    self.memory_map = MemoryMap(stream)
-    print self.__chunk_info()
-  #  print repr(self.memory_map)
+    def _parse_drcf(self, stream):
+        self._imap = DRCF(stream)
+        print(self._chunk_info())
+        # print repr(self._imap)
 
-  def parse_lctx(self, stream):
-    self.lingo_context = LingoContext(stream)
-    print self.__chunk_info()
-    #print repr(self.lingo_context)
+    def _parse_cas_star(self, stream):
+        self.cast_assoc_map = CastAssociationMap(stream)
+        print(self._chunk_info())
+        # print repr(self.cast_assoc_map)
 
-  def __create_cast_lib(self):
-    self.cast_lib = []
+    def _parse_key_star(self, stream):
+        self.cast_key_map = CastKeyMap(stream)
+        print(self._chunk_info())
+        # print repr(self.cast_key_map)
 
-    """
-    Iterate the CAS*:
-      Add CASt to cast library AS entry:
-        i = mmap-index of CASt in mmap
-        Lookup mmap[i], add CASt data to entry
+    def _parse_mmap(self, stream):
+        self.memory_map = MemoryMap(stream)
+        print(self._chunk_info())
+        # print repr(self.memory_map)
 
-        k = mmap-index of key*(cast_mmap_idx=i)
-        Lookup mmap[k] and add media type data to entry
-    """
+    def _parse_lctx(self, stream):
+        self.lingo_context = LingoContext(stream)
+        print(self._chunk_info())
+        # print repr(self.lingo_context)
+
+    def _create_cast_lib(self):
+        self.cast_lib = []
+
+        """
+        Iterate the CAS*:
+          Add CASt to cast library AS entry:
+            i = mmap-index of CASt in mmap
+            Lookup mmap[i], add CASt data to entry
+
+            k = mmap-index of key*(cast_mmap_idx=i)
+            Lookup mmap[k] and add media type data to entry
+        """

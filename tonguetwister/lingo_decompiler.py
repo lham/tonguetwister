@@ -1,20 +1,24 @@
-from decompiler.detokenizer import detokenize
-from decompiler.name_parser import replace_names
-from decompiler.reconstructor import reconstruct_statements
-from decompiler.code_generator import generate_code
+from tonguetwister.decompiler.code_generator import generate_code
+from tonguetwister.decompiler.detokenizer import detokenize
+from tonguetwister.decompiler.name_parser import replace_names
+from tonguetwister.decompiler.reconstructor import reconstruct_statements
 
-class Decompiler(object):
-  def twist_to_pseudo(self, function, namelist, script):
-    operator_list = detokenize(function.bytecode)
-    print '-----------------------------------'
-    replace_names(operator_list, function, namelist, script)
-    print '-----------------------------------'
-    reconstruct_statements(operator_list)
-    print '-----------------------------------'
-    generate_code(operator_list, function, namelist)
 
-  def twist_to_c(object):
-    pass
+class Decompiler:
+    @staticmethod
+    def to_pseudo_code(function, namelist, script):
+        operator_list = detokenize(function.bytecode)
+        print('-------------------------------')
+        replace_names(operator_list, function, namelist, script)
+        print('-------------------------------')
+        reconstruct_statements(operator_list)
+        print('-------------------------------')
+        generate_code(operator_list, function, namelist)
 
-  def twist_to_lingo(object):
-    pass
+    @staticmethod
+    def to_c_code(function, namelist, script):
+        pass
+
+    @staticmethod
+    def to_lingo_code(function, namelist, script):
+        pass

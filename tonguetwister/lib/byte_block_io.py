@@ -1,84 +1,88 @@
+from io import BytesIO
 from struct import unpack
-from StringIO import StringIO
 
-class ByteBlockIO(object):
-  BIG_ENDIAN = '>'
-  LITTLE_ENDIAN = '<'
 
-  def __init__(self, byte_block):
-    self.stream = StringIO(byte_block)
-    self.endianess = self.LITTLE_ENDIAN
-    self.n_processed_bytes = 0
-    self.stream_size = len(byte_block)
-    self.byte_is_unprocessed = [True] * self.stream_size
+class ByteBlockIO:
+    ENCODING = 'latin-1'  # Assumed
+    BIG_ENDIAN = '>'
+    LITTLE_ENDIAN = '<'
 
-  def __read(self, n=-1):
-    word = self.stream.read(n)
-    
-    if len(word) != n:
-      raise BufferError('Unable to read %d bytes from the stream.' % n)
-    else:
-      self.n_processed_bytes += n
+    def __init__(self, byte_block):
+        self.stream = BytesIO(byte_block)
+        self.endianess = self.LITTLE_ENDIAN
+        self.total_bytes_processed = 0
+        self.total_bytes = len(byte_block)
+        self.byte_is_unprocessed = [True] * self.total_bytes
 
-      addr = self.stream.tell() - n
-      for i in xrange(0, n):
-        if self.byte_is_unprocessed[addr+i]:
-          self.byte_is_unprocessed[addr+i] = False
+    def _read(self, n_bytes=-1):
+        word = self.stream.read(n_bytes)
+        if len(word) != n_bytes:
+            raise BufferError(f'Unable to read {n_bytes} bytes from the stream')
+
+        self.total_bytes_processed += n_bytes
+        self._mark_bytes_as_read(n_bytes)
+
+        return word
+
+    def _mark_bytes_as_read(self, n_bytes):
+        addr = self.stream.tell() - n_bytes
+
+        for i in range(n_bytes):
+            if self.byte_is_unprocessed[addr + i]:
+                self.byte_is_unprocessed[addr + i] = False
+            else:
+                print(f'WARNING: Byte at address {addr + i} already read')
+
+    def uint32(self):
+        return unpack(self.endianess + 'I', self._read(4))[0]
+
+    def uint16(self):
+        return unpack(self.endianess + 'H', self._read(2))[0]
+
+    def uint8(self):
+        return unpack(self.endianess + 'B', self._read(1))[0]
+
+    def float(self):
+        return unpack(self.endianess + 'f', self._read(4))[0]
+
+    def double(self):
+        return unpack(self.endianess + 'd', self._read(8))[0]
+
+    def string(self, size):
+        word = self._read(size).decode(self.ENCODING)
+        if self.endianess == self.LITTLE_ENDIAN:
+            return word[::-1]
         else:
-          print 'WARNING: Reading byte already read: %d' % (addr+i)
+            return word
 
-      return word
+    def read_bytes(self, size=-1):
+        if size < 0:
+            size = self.size() - self.tell()
+        return self._read(size)
 
-  def uint32(self):
-    return unpack(self.endianess + 'I', self.__read(4))[0]
+    def read_pad(self, size):
+        return self.read_bytes(size)
 
-  def uint16(self):
-    return unpack(self.endianess + 'H', self.__read(2))[0]
+    def size(self):
+        return self.total_bytes
 
-  def uint8(self):
-    return unpack(self.endianess + 'B', self.__read(1))[0]
-  
-  def float(self):
-    return unpack(self.endianess + 'f', self.__read(4))[0]
+    def tell(self):
+        return self.stream.tell()
 
-  def double(self):
-    return unpack(self.endianess + 'd', self.__read(8))[0]
+    def seek(self, addr, direction=0):
+        return self.stream.seek(addr, direction)
 
-  def string(self, size):
-    word = self.__read(size)
-    if self.endianess == self.LITTLE_ENDIAN:
-      return word[::-1]
-    else:
-      return word
+    def is_depleted(self):
+        return self.total_bytes_processed >= self.total_bytes
 
-  def read_bytes(self, size=-1):
-    if size < 0:
-      size = self.size() - self.tell()
-    return self.__read(size)
+    def set_big_endian(self):
+        self.endianess = self.BIG_ENDIAN
 
-  def read_pad(self, size):
-    return self.read_bytes(size)
+    def set_little_endian(self):
+        self.endianess = self.LITTLE_ENDIAN
 
-  def size(self):
-    return self.stream_size
+    def get_processed_bytes_string(self):
+        return f'Used bytes: {self.total_bytes_processed}/{self.total_bytes}'
 
-  def tell(self):
-    return self.stream.tell()
-
-  def seek(self, addr, direction=0):
-    return self.stream.seek(addr, direction)
-
-  def is_depleted(self):
-    return self.n_processed_bytes >= self.stream_size
-
-  def set_big_endian(self):
-    self.endianess = self.BIG_ENDIAN
-
-  def set_little_endian(self):
-    self.endianess = self.LITTLE_ENDIAN
-
-  def n_processed_bytes_string(self):
-    return 'Used bytes: %d/%d' % (self.n_processed_bytes, self.stream_size)
-
-  def unprocessed_bytes(self):
-    return [i for i, x in enumerate(self.byte_is_unprocessed) if x]
+    def get_unprocessed_bytes_array(self):
+        return [i for (i, x) in enumerate(self.byte_is_unprocessed) if x]

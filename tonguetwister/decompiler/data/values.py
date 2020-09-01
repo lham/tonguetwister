@@ -1,153 +1,169 @@
-class HookMethodValueNode__str__(type):
-  def __init__(cls, name, bases, cls_dict):
-    if '__str__' in cls_dict:
-      def prefixed_str(self):
-        return self.__class__.__name__ + ':' + cls_dict['__str__'](self)
-      setattr(cls, '__str__', prefixed_str)
+class ValueStrOverride(type):
+    def __init__(cls, name, bases, cls_dict):
+        super().__init__(name, bases, cls_dict)
 
-class Value(object):
-  __metaclass__ = HookMethodValueNode__str__
+        if '__str__' in cls_dict:
+            def prefixed_str(self):
+                return f"{self.__class__.__name__}:{cls_dict['__str__'](self)}"
 
-  def class_name(self):
-    return self.__class__.__name__
+            setattr(cls, '__str__', prefixed_str)
 
-  def __str__(self):
-    return 'IMPLEMENT __STR__()'
 
-""" Literal values """
+class Value(metaclass=ValueStrOverride):
+    def class_name(self):
+        return self.__class__.__name__
+
+    def __str__(self):
+        return 'IMPLEMENT __STR__()'
+
+
 class Literal(Value):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
-  def __str__(self):
-    return str(self.value)
+    def __str__(self):
+        return str(self.value)
 
-  def code_gen_string(self):
-    return str(self.value)
+    def code_gen_string(self):
+        return str(self.value)
+
 
 class String(Literal):
-  def __str__(self):
-    return '"' + self.value.replace('\r', '\\r') + '"'
+    def __str__(self):
+        val = self.value.replace("\r", "\\r")
+        return f'"{val}"'
+
 
 class Integer(Literal):
-  pass
- 
+    pass
+
+
 class Float(Literal):
-  pass
+    pass
+
 
 class Symbol(Literal):
-  pass
+    pass
+
 
 class Object(Literal):
-  pass
+    pass
+
 
 class List(Literal):
-  def __init__(self, *literals):
-    super(List, self).__init__(literals)
+    def __init__(self, *literals):
+        super(List, self).__init__(literals)
 
-  def __str__(self):
-    return '[' + ', '.join(map(str, self.value)) + ']'
+    def __str__(self):
+        return f"[{', '.join(map(str, self.value))}]"
+
 
 class ArgumentList(List):
-  pass
+    pass
+
 
 class GotoLabel(Literal):
-  it = 0
+    it = 0
 
-  def __init__(self):
-    self.value = 'GOTO_label_%d' % GotoLabel.it
-    GotoLabel.it += 1
+    def __init__(self):
+        super().__init__(f'GOTO_label_{GotoLabel.it}')
+        GotoLabel.it += 1
 
-""" Variable values """
+
 class Variable(Value):
-  def __init__(self, name, value=None):
-    self.name = name
-    self.value = value
+    def __init__(self, name, value=None):
+        self.name = name
+        self.value = value
 
-  def __str__(self):
-    return '%s=%s' % (self.name, self.value)
+    def __str__(self):
+        return f'{self.name}={self.value}'
 
-  def code_gen_string(self):
-    if self.value:
-      return '%s = %s' % (self.name, self.value)
-    else:
-      return str(self.name)
+    def code_gen_string(self):
+        if self.value:
+            return f'{self.name} = {self.value}'
+        else:
+            return f'{self.name}'
+
 
 class GlobalVar(Variable):
-  pass
+    pass
+
 
 class LocalVar(Variable):
-  pass
+    pass
+
 
 class Property(Variable):
-  pass
+    pass
+
 
 class FunctionArgument(Variable):
-  pass
+    pass
+
 
 class LoopCounter(Variable):
-  it = 0
+    it = 0
 
-  def __init__(self):
-    var_names = ['i_', 'j_', 'k_', 'm_', 'n_', 'o_']
-    var_name = var_names[LoopCounter.it]
-    LoopCounter.it += 1
-    super(LoopCounter, self).__init__(var_name, None)
+    def __init__(self):
+        var_names = ['_i', '_j', '_k', '_l', '_m', '_n']
+        var_name = var_names[LoopCounter.it]
+        LoopCounter.it += 1
+        super().__init__(var_name, None)
 
 
-""" Function values """
 class Function(Value):
-  def __init__(self, script_id, name, arg):
-    self.script = script_id  # TODO
-    self.name = name
-    self.arg = arg
-    
-    if type(arg) == ArgumentList:
-      self.do_return = False
-    else:
-      self.do_return = True
-    
-  def __str__(self):
-    return '%s.%s(%s)' % (self.script, self.name, self.arg)
+    def __init__(self, script_id, name, arg):
+        self.script = script_id  # TODO
+        self.name = name
+        self.arg = arg
+        self.do_return = type(arg) != ArgumentList
+
+    def __str__(self):
+        return f'{self.script}.{self.name}({self.arg})'
+
 
 class LocalFunction(Function):
-  def __init__(self, name, arg):
-    super(LocalFunction, self).__init__('this', name, arg)
+    def __init__(self, name, arg):
+        super().__init__('this', name, arg)
+
 
 class ExternalFunction(Function):
-  def __init__(self, name, arg):
-    super(ExternalFunction, self).__init__('', name, arg)
+    def __init__(self, name, arg):
+        super().__init__('', name, arg)
 
-""" Other values """
+
 class FunctionResult(Value):
-  def __init__(self, function):
-    self.function = function
-    self.do_push = function.do_return
-  
-  def __str__(self):
-    return self.function.name
+    def __init__(self, function):
+        self.function = function
+        self.do_push = function.do_return
+
+    def __str__(self):
+        return self.function.name
+
 
 class BinaryResult(Value):
-  def __init__(self, op, left, right):
-    self.left = left
-    self.right = right
-    self.operand = op
-  
-  def __str__(self):
-    return '%s[%s, %s]' % (self.operand, self.left, self.right)
+    def __init__(self, op, left, right):
+        self.left = left
+        self.right = right
+        self.operand = op
+
+    def __str__(self):
+        return f'{self.operand}[{self.left}, {self.right}]'
+
 
 class UnaryResult(Value):
-  def __init__(self, operator, operand):
-    self.operator = operator
-    self.operand = operand
+    def __init__(self, operator, operand):
+        self.operator = operator
+        self.operand = operand
 
-  def __str__(self):
-    return '%s[%s]' % (self.operator, self.operand)
+    def __str__(self):
+        return f'{self.operator}[{self.operand}]'
+
 
 class ObjectProperty(Value):
-  def __init__(self, obj, property_name):
-    self.obj = obj
-    self.property_name = property_name
+    def __init__(self, obj, property_name):
+        self.obj = obj
+        self.property_name = property_name
 
-  def __str__(self):
-    return '(%s).%s' % (self.obj, self.property_name)
+    def __str__(self):
+        return f'({self.obj}).{self.property_name}'

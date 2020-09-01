@@ -5,12 +5,13 @@ from tonguetwister.lingo_decompiler import Decompiler
 
 def main(filepath, script_number, function_number):
     # Unpack a cst file.
-    data = RifxParser(filepath)
-    data.unpack()
+    parser = RifxParser()
+    parser.load_file(filepath)
+    parser.unpack()
 
     # Extract a specific lingo script
-    script = data.lingo_scripts.items()[script_number][1]
-    namelist = data.namelist
+    script = list(parser.lingo_scripts.items())[script_number][1]
+    namelist = parser.namelist
     function = script.functions[function_number]
 
     # Decompile the lingo script
