@@ -1,4 +1,5 @@
 import os
+import re
 
 # TODO: Change to using kivy.config?
 os.environ['KIVY_NO_CONSOLELOG'] = '0'
@@ -88,6 +89,7 @@ class DirectorCastExplorer(App):
     def _build_script_panel(self):
         tab1 = TabbedPanelItem(text='Generated Code')
         self.text_area_generated = TextInput(text='Select a script to inspect it', font_name='UbuntuMono-R.ttf')
+        self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
         tab1.add_widget(self.text_area_generated)
 
         tab2 = TabbedPanelItem(text='Reconstructed Ops')
@@ -168,3 +170,28 @@ class DirectorCastExplorer(App):
         update_text_area(self.text_area_named, result.named_operators, line_numbers=False)
         update_text_area(self.text_area_reconstructed, result.reconstructed_operators)
         update_text_area(self.text_area_generated, generated_code_lines)
+
+    def _on_text_area_touch_down(self, text_area, touch):
+        if text_area.collide_point(*touch.pos) and not touch.is_double_tap:
+            Clock.schedule_once(lambda _: self._highlight_word_in_text_area(text_area), 0)
+
+    def _highlight_word_in_text_area(self, text_area):
+        # noinspection PyProtectedMember
+        current_line = text_area._lines[text_area.cursor_row]
+        text_before_cursor = current_line[:text_area.cursor_col]
+        text_after_cursor = current_line[text_area.cursor_col:]
+
+        pattern = re.compile(r'[^A-Za-z0-9_]')
+
+        start = [m.end(0) for m in re.finditer(pattern, text_before_cursor)]
+        start = len(text_before_cursor) - (start[-1] if len(start) > 0 else 0)
+
+        end = re.search(pattern, text_after_cursor)
+        end = end.start() if end is not None else len(text_after_cursor)
+
+        index_start = text_area.cursor_index() - start
+        index_stop = text_area.cursor_index() + end
+
+        result = text_area.text[index_start:index_stop]
+        if len(result) > 0:
+            Clock.schedule_once(lambda _: text_area.select_text(index_start, index_stop), 0)
