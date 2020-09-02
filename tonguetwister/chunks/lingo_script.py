@@ -298,7 +298,8 @@ class LingoFunctionLiteral(Sized):
             stream.seek(records_offset + literal_offset)
 
             self._length = stream.uint32()
-            self._value = stream.string(self._length)
+            self._value = stream.string(self._length - 1)  # No need to read null terminating byte
+            stream.uint8()  # Clear the null terminating byte
             stream.read_pad(self._length % 2)
 
         elif self.TYPES[literal_type] == 'int':
