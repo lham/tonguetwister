@@ -198,7 +198,7 @@ class CallFunctionOperator(Operator):
 class LargeCallFunctionOperator(CallFunctionOperator):
     def parse_names(self, stack, var_dict, data):
         self.name_id = (self.arg1 * 0x100) + self.arg2
-        super(LargeCallFunctionOperator, self).parse_names(stack, var_dict, data)
+        super().parse_names(stack, var_dict, data)
 
 
 class AssignmentOperator(Operator):

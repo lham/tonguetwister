@@ -4,7 +4,7 @@ from tonguetwister.lingo_decompiler import Decompiler
 
 
 def main(filepath, script_number, function_number):
-    # Unpack a cst file.
+    # Unpack a cst file
     parser = RifxParser()
     parser.load_file(filepath)
     parser.unpack()
@@ -15,7 +15,10 @@ def main(filepath, script_number, function_number):
     function = script.functions[function_number]
 
     # Decompile the lingo script
-    Decompiler().to_pseudo_code(function, namelist, script)
+    lines = Decompiler().to_pseudo_code(function, namelist, script)
+
+    for line in lines:
+        print(line)
 
 
 def parse_args():

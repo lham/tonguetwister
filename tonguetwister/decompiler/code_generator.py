@@ -3,6 +3,8 @@ from tonguetwister.decompiler.data.operators import Operator
 
 
 def generate_code(operators, function, namelist):
+    lines = []
+
     indent_str = '    '
     indent = 1
     switch_case_active = False
@@ -10,7 +12,7 @@ def generate_code(operators, function, namelist):
     # Function name
     function_name = namelist[function.header['function_id']]
     function_args = ', '.join(map(lambda x: namelist[x], function.args))
-    print(f'function {function_name}({function_args})')
+    lines.append(f'function {function_name}({function_args})')
 
     # function body
     for i, code in enumerate(operators):
@@ -22,12 +24,12 @@ def generate_code(operators, function, namelist):
             switch_case_active = False
             indent -= 1
         if should_print_blank_line_prior_to_line(code, prev_code, switch_case_active):
-            print()
+            lines.append('')
 
-        print(f'{indent_str * indent}{code.code_gen_string()}')
+        lines.append(f'{indent_str * indent}{code.code_gen_string()}')
 
         if should_print_blank_line_after_line(code, prev_code, switch_case_active):
-            print()
+            lines.append('')
         if should_deactivate_switch_case_after_line(code, prev_code, switch_case_active):
             switch_case_active = False
             indent -= 1
@@ -39,13 +41,15 @@ def generate_code(operators, function, namelist):
             indent += 1
 
     # function end
-    print('endfunction')
+    lines.append('endfunction')
 
     # Print warning
     if any(map(lambda x: isinstance(x, Operator), operators)):
         print('-----------------------------------------')
         print('WARNING: Got unknown operator in function')
         print('-----------------------------------------')
+
+    return lines
 
 
 def should_decrease_indent_prior_to_line(line, prev_line, switch_case_active):

@@ -164,6 +164,10 @@ class OPCode:
 
     def __init__(self, addr, byte):
         token = self.TOKENS[byte]
+
+        if token is None:
+            raise RuntimeError(f'The OPCode {byte:#2x} is not reverse engineered yet')
+
         self.value = byte
         self.name = token[1]
         self.class_name = token[2]

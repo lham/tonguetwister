@@ -26,15 +26,15 @@ def reconstruct_statements(operator_list):
 def ensure(var, cls, msg=''):
     if isinstance(cls, list):
         if not any(map(lambda k: isinstance(var, k), cls)):
-            msg = (f"Expected: {', '.join(map(lambda k: k.__name__, cls))}\n"
-                   f'Actual:   {var.__class__.__name__}\n'
-                   f'{msg}\n')
+            msg = (f"  Expected: {', '.join(map(lambda k: k.__name__, cls))}\n"
+                   f'  Actual:   {var.__class__.__name__}\n'
+                   f'  {msg}\n')
             raise UnexpectedOperatorException(var, msg)
     else:
         if not isinstance(var, cls):
-            msg = (f'Expected: {cls.__name__}\n'
-                   f'Actual:   {var.__class__.__name__}\n'
-                   f'{msg}\n')
+            msg = (f'  Expected: {cls.__name__}\n'
+                   f'  Actual:   {var.__class__.__name__}\n'
+                   f'  {msg}\n')
             raise UnexpectedOperatorException(var, msg)
 
 

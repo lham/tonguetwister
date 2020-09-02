@@ -1,5 +1,8 @@
+from tonguetwister.lib.byte_block_io import ByteBlockIO
+
+
 def grouper(ws, size, newline=False, indent=1):
-    hex_str = ''.join(f'{ord(b):02x}' for b in ws)
+    hex_str = ''.join(f'{ord(b):02x}' for b in ws.decode(ByteBlockIO.ENCODING))
     newline_str = '\n' if newline else ''
     indent_str = ' ' * indent
 

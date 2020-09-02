@@ -52,7 +52,7 @@ class Object(Literal):
 
 class List(Literal):
     def __init__(self, *literals):
-        super(List, self).__init__(literals)
+        super().__init__(literals)
 
     def __str__(self):
         return f"[{', '.join(map(str, self.value))}]"

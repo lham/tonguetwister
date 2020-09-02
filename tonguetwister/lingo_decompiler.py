@@ -13,7 +13,8 @@ class Decompiler:
         print('-------------------------------')
         reconstruct_statements(operator_list)
         print('-------------------------------')
-        generate_code(operator_list, function, namelist)
+
+        return generate_code(operator_list, function, namelist)
 
     @staticmethod
     def to_c_code(function, namelist, script):
