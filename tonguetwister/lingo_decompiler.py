@@ -8,6 +8,7 @@ class Decompiler:
     def __init__(self, catch_exceptions=False):
         self._catch_exceptions = catch_exceptions
 
+        self.function_name = ''
         self.detokenized_operators = []
         self.named_operators = []
         self.reconstructed_operators = []
@@ -26,10 +27,12 @@ class Decompiler:
                 raise ex
 
     def _unsafe_to_pseudo_code(self, function, namelist, script):
-        operator_list = self._get_operator_list(function, namelist, script)
+        operator_list = self._prepare(function, namelist, script)
         self.generated_code = generate_code(operator_list, function, namelist)
 
-    def _get_operator_list(self, function, namelist, script):
+    def _prepare(self, function, namelist, script):
+        self.function_name = namelist[function.header['function_id']]
+
         operator_list = detokenize(function.bytecode)
         self.detokenized_operators = [op.raw_detokenization_string() for op in operator_list]
 
