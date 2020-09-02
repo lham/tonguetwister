@@ -8,7 +8,16 @@ The project is initially targeting Macromedia Director version 6.5.
 The development is somewhat inactive at the moment. The current focus is to improve the Lingo parser, as well as writing
 a gui for development.
 
+# Setup
+The project is written in python 3.6. It is recommended to use a virtual environment when running the project locally.
 
+Begin by updating the following pip-packages: 
+
+    pip -U install pip setuptools pip-tools
+
+Then run
+
+    pip-sync requirements.lock
 
 # Usage
 To see the decompilation of a single script, run:
@@ -16,9 +25,6 @@ To see the decompilation of a single script, run:
     python example.py <link/to/folder/data.cst> <script_number> <function_number>
 
 Initially try with `script_number = 0` and `function_number = 0` and experiment from there.
-
-# Technologies
-Written in python 3.
 
 # License
 [MIT License](./LICENSE)
