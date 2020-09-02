@@ -113,80 +113,80 @@ class RifxParser:
                 raise RuntimeError('Padding is non-zero')
 
     def _undefined_function(self, stream):
-        print(self._chunk_info('FOUR_CC PARSER FUNCTION NOT IMPLEMENTED'))
+        self._print_chunk_info('FOUR_CC PARSER FUNCTION NOT IMPLEMENTED')
         stream.read_bytes()
 
-    def _chunk_info(self, message=''):
+    def _print_chunk_info(self, message=''):
         if self.silent:
-            return ''
+            return
 
-        return (
+        print((
             f'{self._indent_string()}'
             f'[{self.current_address:2d} / {self.current_address:#6x}] :: '
             f"{self.current_four_cc}{f' --> {message}' if message else ''}"
-        )
+        ))
 
     def _indent_string(self, offset=0):
         return '    ' * (self.stack_depth + offset)
 
     def _parse_stxt(self, stream):
         self.styled_texts[self.current_address] = StyledText(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.styled_texts[self.current_address])
 
     def _parse_cast(self, stream):
         self.cast_members[self.current_address] = CastMember(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.cast_members[self.current_address])
 
     def _parse_fmap(self, stream):
         self.font_map = FontMap(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.font_map)
 
     def _parse_lnam(self, stream):
         self.namelist = LingoNamelist(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.namelist)
 
     def _parse_cinf(self, stream):
         self.cast_library_info = CastLibraryInfo(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.cast_library_info)
 
     def _parse_lscr(self, stream):
         self.lingo_scripts[self.current_address] = LingoScript(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.lingo_scripts[self.current_address])
 
     def _parse_imap(self, stream):
         self._imap = IdealizedMap(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_drcf(self, stream):
         self._imap = DRCF(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_cas_star(self, stream):
         self.cast_assoc_map = CastAssociationMap(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.cast_assoc_map)
 
     def _parse_key_star(self, stream):
         self.cast_key_map = CastKeyMap(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.cast_key_map)
 
     def _parse_mmap(self, stream):
         self.memory_map = MemoryMap(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.memory_map)
 
     def _parse_lctx(self, stream):
         self.lingo_context = LingoContext(stream)
-        print(self._chunk_info())
+        self._print_chunk_info()
         # print repr(self.lingo_context)
 
     def _create_cast_lib(self):

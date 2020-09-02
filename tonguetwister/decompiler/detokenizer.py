@@ -18,7 +18,6 @@ def detokenize(bytecode):
 
         # Instantiate operator
         operators.append(cls(opcode, *args))
-        print(operators[-1].raw_detokenization_string())
 
     return operators
 

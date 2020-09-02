@@ -15,9 +15,10 @@ def main(filepath, script_number, function_number):
     function = script.functions[function_number]
 
     # Decompile the lingo script
-    lines = Decompiler().to_pseudo_code(function, namelist, script)
+    decompiler = Decompiler()
+    decompiler.to_pseudo_code(function, namelist, script)
 
-    for line in lines:
+    for line in decompiler.generated_code:
         print(line)
 
 

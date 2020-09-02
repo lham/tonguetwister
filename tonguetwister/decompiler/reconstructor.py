@@ -19,8 +19,7 @@ def reconstruct_statements(operator_list):
     # TODO: else-if
     # TODO: if-not operator
 
-    print('... Finished reconstruction ...')
-    opseq.print_all()
+    return operator_list
 
 
 def ensure(var, cls, msg=''):

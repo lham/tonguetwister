@@ -5,7 +5,8 @@ def replace_names(operators, function, namelist, script):
 
     for op in operators:
         op.parse_names(stack, var_dict, data)
-        print(op)
+
+    return operators
 
 
 class NameData:

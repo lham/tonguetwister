@@ -1,3 +1,6 @@
+import os
+import traceback
+
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
@@ -13,3 +16,12 @@ def grouper(ws, size, newline=False, indent=1):
 
 def splat_ordered_dict(ordered_dict):
     return ', '.join(f'{k}: {v}' for k, v in ordered_dict.items())
+
+
+def exception_as_lines(ex):
+    lines = [
+        s.strip(os.linesep).split(os.linesep)
+        for s in traceback.format_exception(type(ex), ex, ex.__traceback__)
+    ]
+
+    return [item for sublist in lines for item in sublist]  # Flatten the list
