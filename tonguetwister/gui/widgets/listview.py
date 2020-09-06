@@ -14,15 +14,12 @@ class IndexedItem:
 class ListView(StackLayout):
     selected_element = ObjectProperty(IndexedItem())
 
-    def __init__(self, items, render_item=None, initial=None, item_height=25, **kwargs):
+    def __init__(self, items, render_item=None, item_height=25, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'tb-rl'
         self._list_items = []
         self._render_item = render_item
         self._item_height = item_height
-
-        if initial:
-            self.selected_element = IndexedItem(initial, items[initial])
 
         for i, item in enumerate(items):
             list_item = self._create_list_item(i, item)
@@ -43,8 +40,18 @@ class ListView(StackLayout):
             Clock.schedule_once(lambda _: self._rebuild_list_items(instance.index, prev_index), 0)
 
     def _rebuild_list_items(self, index, prev_index):
-        self._list_items[prev_index].rebuild()
-        self._list_items[index].rebuild()
+        if prev_index is not None:
+            self._list_items[prev_index].rebuild()
+
+        if index is not None:
+            self._list_items[index].rebuild()
+
+    def select_item(self, index):
+        previously_selected = self.selected_element
+        if previously_selected is not None:
+            previously_selected.selected = False
+
+        self._list_items[index].selected = True
 
 
 class ListViewItem(BoxLayout):
