@@ -1,19 +1,14 @@
 from collections import OrderedDict
 
-from tonguetwister.lib.helper import splat_ordered_dict
+from tonguetwister.chunks.chunk import Chunk
+from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class DRCF:
+class DRCF(Chunk):
+    @classmethod
+    def _parse_header(cls, stream: ByteBlockIO):
+        header = OrderedDict()
+        header['chunk_length'] = stream.uint16()
+        header['u1'] = stream.read_bytes()
 
-    def __init__(self, stream):
-        stream.set_big_endian()
-        self._drcf = OrderedDict()
-        self._drcf['chunk_length'] = stream.uint16()
-        self._drcf['u1'] = stream.read_bytes()
-
-    @property
-    def values(self):
-        return self._drcf
-
-    def __repr__(self):
-        return splat_ordered_dict(self.values)
+        return header

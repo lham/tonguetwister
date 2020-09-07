@@ -1,28 +1,23 @@
-from collections import OrderedDict, Sequence
+from collections import OrderedDict
 
-from tonguetwister.lib.helper import splat_ordered_dict
+from tonguetwister.chunks.chunk import RecordsChunk, InternalChunkRecord
+from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class CastAssociationMap(Sequence):
-    def __init__(self, stream):
-        stream.set_big_endian()
-        self._parse_records(stream)
-
-    def _parse_records(self, stream):
-        self._records = []
+class CastAssociationMap(RecordsChunk):
+    @classmethod
+    def _parse_records(cls, stream: ByteBlockIO, header):
+        records = []
         while stream.tell() < stream.size():
-            self._records.append(OrderedDict())
-            self._records[-1]['mmap_idx'] = stream.uint32()
+            records.append(MapEntry.parse(stream))
 
-    def __getitem__(self, i):
-        return self._records[i]
+        return records
 
-    def __len__(self):
-        return len(self._records)
 
-    def __repr__(self):
-        msg = 'Associations\n'
-        for i, record in enumerate(self._records):
-            msg += f'    {i:4d}: {splat_ordered_dict(record)}\n'
+class MapEntry(InternalChunkRecord):
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = OrderedDict()
+        data['mmap_idx'] = stream.uint32()
 
-        return msg
+        return data

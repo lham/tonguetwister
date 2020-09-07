@@ -1,6 +1,9 @@
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.chunks.cast_member import CastMember, ScriptMember, FieldMember, ShapeMember
+from tonguetwister.chunks.cast_member import CastMember
+from tonguetwister.chunks.castmembers.field import FieldCastMember
+from tonguetwister.chunks.castmembers.script import ScriptCastMember
+from tonguetwister.chunks.castmembers.shape import ShapeCastMember
 from tonguetwister.lib.helper import splat_ordered_dict
 
 
@@ -17,11 +20,11 @@ class CastMemberView(TextInput):
         )
 
     def _set_member_text(self, member):
-        if isinstance(member, ScriptMember):
+        if isinstance(member, ScriptCastMember):
             return self._set_script_member_text(member)
-        elif isinstance(member, FieldMember):
+        elif isinstance(member, FieldCastMember):
             return self._set_field_member_text(member)
-        elif isinstance(member, ShapeMember):
+        elif isinstance(member, ShapeCastMember):
             return self._set_shape_member_text(member)
         else:
             return ''
@@ -29,9 +32,9 @@ class CastMemberView(TextInput):
     def _set_script_member_text(self, member):
         return (
             f'Data:\n\n    '
-            + (splat_ordered_dict(member._data, '\n    ', 14) if len(member._data) > 0 else 'None')
+            + (splat_ordered_dict(member.body, '\n    ', 14) if len(member.body) > 0 else 'None')
             + f'\n\nFooter:\n\n    '
-            + (splat_ordered_dict(member._footer, '\n    ', 14) if len(member._footer) > 0 else 'None')
+            + (splat_ordered_dict(member.footer, '\n    ', 14) if len(member.footer) > 0 else 'None')
         )
 
     def _set_field_member_text(self, member):

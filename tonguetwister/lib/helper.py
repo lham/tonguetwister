@@ -1,5 +1,6 @@
 import os
 import traceback
+from collections import OrderedDict
 
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
@@ -15,7 +16,20 @@ def grouper(ws, size, newline=False, indent=1):
 
 
 def splat_ordered_dict(ordered_dict, sep=', ', key_width=1):
-    return sep.join(f'{k:.<{key_width}s}: {v}' for k, v in ordered_dict.items())
+    return sep.join(f'{k:.<{key_width}s}: {_handle_value(v, sep, key_width)}' for k, v in ordered_dict.items())
+
+
+def splat_list(lst, sep=', ', key_width=1):
+    return sep.join(f'{_handle_value(item, sep, key_width)}' for item in lst)
+
+
+def _handle_value(value, sep, key_width):
+    if isinstance(value, OrderedDict):
+        return sep + (' ' * key_width) + splat_ordered_dict(value, sep=(sep + ' ' * key_width))
+    elif isinstance(value, (list, tuple)):
+        return splat_list(value, sep, key_width)
+    else:
+        return value
 
 
 def exception_as_lines(ex):
@@ -25,3 +39,8 @@ def exception_as_lines(ex):
     ]
 
     return [item for sublist in lines for item in sublist]  # Flatten the list
+
+
+def maybe_encode_bytes(string, skip_encoding):
+    return string if skip_encoding else str.encode(string)
+

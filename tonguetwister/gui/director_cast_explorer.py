@@ -2,7 +2,10 @@ import os
 import pprint
 
 # TODO: Change to using kivy.config?
-os.environ['KIVY_NO_CONSOLELOG'] = '0'
+#os.environ['KIVY_NO_CONSOLELOG'] = '0'
+from tonguetwister.chunks.chunk import RecordsChunk, Chunk
+from tonguetwister.gui.components.chunk import DefaultRecordsChunkView, DefaultChunkView
+
 os.environ["KIVY_NO_ARGS"] = '1'
 
 from kivy.app import App
@@ -14,7 +17,6 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.chunks.cast_member import CastMember
 from tonguetwister.chunks.lingo_script import LingoScript
 from tonguetwister.gui.components.castmember import CastMemberView
 from tonguetwister.gui.components.script import ScriptPanel
@@ -46,9 +48,11 @@ class DirectorCastExplorer(App):
         self._chunks.append((0, f'[{pr.namelist.current_address:#6x}] Namelist #0', pr.namelist))
         self._chunks.append((0, f'[{pr.cast_library_info.current_address:#6x}] Cast Library Info #0', pr.cast_library_info))
         self._chunks.append((0, f'[{pr.cast_key_map.current_address:#6x}] Cast key map #0', pr.cast_key_map))
+        self._chunks.append((0, f'[{pr.cast_assoc_map.current_address:#6x}] Cast assoc map #0', pr.cast_assoc_map))
         self._chunks.append((0, f'[{pr.lingo_context.current_address:#6x}] Lingo Context #0', pr.lingo_context))
         self._chunks.append((0, f'[{pr.memory_map.current_address:#6x}] Memory Map #0', pr.memory_map))
-        self._chunks.append((0, f'[{pr._imap.current_address:#6x}] _i Map #0', pr._imap))
+        self._chunks.append((0, f'[{pr._imap.current_address:#6x}] Initial Map #0', pr._imap))
+        self._chunks.append((0, f'[{pr._drcf.current_address:#6x}] DRCF #0', pr._drcf))
 
         for i, (key, value) in enumerate(pr.styled_texts.items()):
             self._chunks.append((i, f'[{key:#6x}] Styled Text #{i}', value))
@@ -59,11 +63,15 @@ class DirectorCastExplorer(App):
         for i, (key, value) in enumerate(pr.lingo_scripts.items()):
             self._chunks.append((i, f'[{key:#6x}] Lingo Script #{i} ({len(value.functions)} functions)', value))
 
+        #self._chunks.sort(key=lambda k: k[1])
+
         # GUI Components
         self.menu = None
         self.view = None
         self.script_view = None
         self.cast_member_view = None
+        self.records_chunk_view = None
+        self.chunk_view = None
         self.plain_view = None
 
         # Commands
@@ -88,6 +96,8 @@ class DirectorCastExplorer(App):
 
         self.script_view = ScriptPanel(self.parser_results)
         self.cast_member_view = CastMemberView(self.parser_results, font_name=self.FONT_NAME)
+        self.records_chunk_view = DefaultRecordsChunkView(self.parser_results, font_name=self.FONT_NAME)
+        self.chunk_view = DefaultChunkView(self.parser_results, font_name=self.FONT_NAME)
         self.plain_view = TextInput(font_name=self.FONT_NAME)
 
         self.view.add_widget(self.plain_view)
@@ -135,9 +145,16 @@ class DirectorCastExplorer(App):
         if isinstance(chunk, LingoScript):
             self.view.add_widget(self.script_view)
             self.script_view.load(self.current_chunk.item[0], self.current_chunk.item[2])
-        elif isinstance(chunk, CastMember):
-            self.view.add_widget(self.cast_member_view)
-            self.cast_member_view.load(chunk)
+        #elif isinstance(chunk, CastMember):
+        #    self.view.add_widget(self.cast_member_view)
+        #    self.cast_member_view.load(chunk)
+        #    scroll_to_top(self.cast_member_view)
+        elif isinstance(chunk, RecordsChunk):
+            self.view.add_widget(self.records_chunk_view)
+            self.records_chunk_view.load(chunk)
+        elif isinstance(chunk, Chunk):
+            self.view.add_widget(self.chunk_view)
+            self.chunk_view.load(chunk)
         else:
             self.view.add_widget(self.plain_view)
             self.plain_view.text = repr(chunk)

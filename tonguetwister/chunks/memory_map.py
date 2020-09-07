@@ -1,45 +1,42 @@
-from collections import OrderedDict, Sequence
+from collections import OrderedDict
+
+from tonguetwister.chunks.chunk import RecordsChunk, InternalChunkRecord
+from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.helper import maybe_encode_bytes
 
 
-class MemoryMap(Sequence):
-    def __init__(self, stream):
-        self._parse_chunk_header(stream)
-        self._parse_records(stream)
+class MemoryMap(RecordsChunk):
+    @classmethod
+    def _set_endianess(cls, stream: ByteBlockIO):
+        stream.set_little_endian()
 
-    @property
-    def header(self):
-        return self._header
+    @classmethod
+    def _parse_header(cls, stream: ByteBlockIO):
+        header = OrderedDict()
+        header['header_length'] = stream.uint16()
+        header['record_length'] = stream.uint16()
+        header['n_four_cc_available'] = stream.uint32()
+        header['n_four_cc_used'] = stream.uint32()
+        header['u1'] = stream.uint32()
+        header['u2'] = stream.uint32()
+        header['first_empty_idx'] = stream.uint32()  # Free pointer
 
-    def _parse_chunk_header(self, stream):
-        self._header = OrderedDict()
-        self._header['header_length'] = stream.uint16()
-        self._header['record_length'] = stream.uint16()
-        self._header['n_four_cc_available'] = stream.uint32()
-        self._header['n_four_cc_used'] = stream.uint32()
-        self._header['u1'] = stream.uint32()
-        self._header['u2'] = stream.uint32()
-        self._header['first_empty_idx'] = stream.uint32()  # Free pointer
+        return header
 
-    def _parse_records(self, stream):
-        self._records = []
-        for i in range(self.header['n_four_cc_available']):
-            self._records.append(OrderedDict())
-            self._records[i]['active'] = i < self.header['n_four_cc_used']
-            self._records[i]['four_cc'] = stream.string(4)
-            self._records[i]['block_length'] = stream.uint32()
-            self._records[i]['block_address'] = stream.uint32()
-            self._records[i]['protected_flag'] = stream.uint32()
-            self._records[i]['u1'] = stream.uint32()
+    @classmethod
+    def _parse_records(cls, stream: ByteBlockIO, header):
+        return [MapEntry.parse(stream, header, i) for i in range(header['n_four_cc_available'])]
 
-    def __getitem__(self, i):
-        return self._records[i]
 
-    def __len__(self):
-        return len(self._records)
+class MapEntry(InternalChunkRecord):
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = OrderedDict()
+        data['active'] = index < parent_header['n_four_cc_used']
+        data['four_cc'] = maybe_encode_bytes(stream.string(4), data['active'])
+        data['block_length'] = stream.uint32()
+        data['block_address'] = stream.uint32()
+        data['protected_flag'] = stream.uint32()
+        data['u1'] = stream.uint32()
 
-    def __repr__(self):
-        msg = f"    Header: {', '.join(f'{k}: {v}' for k, v in self.header.items())}\n"
-        for i, record in enumerate(self._records):
-            msg += f"    {i:4d}: {f', '.join(f'{k}: {v}' for k, v in record.items())}\n"
-
-        return msg
+        return data

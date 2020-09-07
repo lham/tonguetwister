@@ -1,337 +1,271 @@
-from collections import Sized, Sequence, OrderedDict
+from collections import OrderedDict
+
+from tonguetwister.chunks.chunk import InternalChunkRecord, RecordsChunk
+from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-# noinspection DuplicatedCode
-from tonguetwister.lib.helper import grouper
+class LingoScript(RecordsChunk):
+    @classmethod
+    def _parse_header(cls, stream: ByteBlockIO):
+        header = OrderedDict()
+        header['u1'] = stream.uint32()
+        header['u2'] = stream.uint32()
+        header['chunk_length'] = stream.uint32()
+        header['chunk_length_2'] = stream.uint32()
+        header['chunk_header_length'] = stream.uint16()
+        header['script_id'] = stream.uint16()
+        header['u3'] = stream.uint16()
+        header['u4'] = stream.uint32()
+        header['u5'] = stream.uint32()
+        header['u6'] = stream.uint32()
+        header['u7'] = stream.uint32()
+        header['u8'] = stream.uint32()
+        header['u10'] = stream.uint32()
+        header['cast_member_assoc_id'] = stream.uint16()
+        header['u11'] = stream.uint16()
+        header['n_u9'] = stream.uint16()
+        header['u9_offset'] = stream.uint32()
+        header['u12'] = stream.uint32()
+        header['n_properties'] = stream.uint16()
+        header['properties_offset'] = stream.uint32()
+        header['n_globals'] = stream.uint16()
+        header['globals_offset'] = stream.uint32()
+        header['n_functions'] = stream.uint16()
+        header['function_headers_offset'] = stream.uint32()
+        header['n_literals'] = stream.uint16()
+        header['literal_headers_offset'] = stream.uint32()
+        header['literals_body_length'] = stream.uint32()
+        header['literals_body_offset'] = stream.uint32()
 
+        return header
 
-class LingoScript:
-    def __init__(self, stream):
-        stream.set_big_endian()
-        self._parse_chunk_header(stream)
-        self._parse_properties(stream)
-        self._parse_globals(stream)
-        self._parse_functions(stream)
-        self._parse_literals(stream)
-        self._parse_u9(stream)
+    @classmethod
+    def _parse_records(cls, stream: ByteBlockIO, header):
+        records = []
 
-    @property
-    def header(self):
-        return self._chunk_header
+        stream.seek(header['properties_offset'], 0)
+        records.extend([LingoProperty.parse(stream, header, i) for i in range(header['n_properties'])])
+        stream.seek(header['globals_offset'], 0)
+        records.extend([LingoGlobal.parse(stream, header, i) for i in range(header['n_globals'])])
+        records.extend([LingoFunction.parse(stream, header, i) for i in range(header['n_functions'])])
+        records.extend([LingoLiteral.parse(stream, header, i) for i in range(header['n_literals'])])
+        stream.seek(header['u9_offset'], 0)
+        records.extend([LingoU9.parse(stream, header, i) for i in range(header['n_u9'])])
+
+        return records
 
     @property
     def properties(self):
-        return self._properties
+        return [record for record in self.records if isinstance(record, LingoProperty)]
 
     @property
     def globals(self):
-        return self._globals
+        return [record for record in self.records if isinstance(record, LingoGlobal)]
 
     @property
     def functions(self):
-        return self._functions
+        return [record for record in self.records if isinstance(record, LingoFunction)]
 
     @property
     def literals(self):
-        return self._literals
+        return [record for record in self.records if isinstance(record, LingoLiteral)]
 
     @property
     def u9(self):
-        return self._u9
-
-    def _parse_chunk_header(self, stream):
-        self._chunk_header = OrderedDict()
-        self._chunk_header['u1'] = stream.uint32()
-        self._chunk_header['u2'] = stream.uint32()
-        self._chunk_header['chunk_length'] = stream.uint32()
-        self._chunk_header['chunk_length_2'] = stream.uint32()
-        self._chunk_header['chunk_header_length'] = stream.uint16()
-        self._chunk_header['script_id'] = stream.uint16()
-        self._chunk_header['u3'] = stream.uint16()
-
-        self._chunk_header['u4'] = stream.uint32()
-        self._chunk_header['u5'] = stream.uint32()
-        self._chunk_header['u6'] = stream.uint32()
-        self._chunk_header['u7'] = stream.uint32()
-        self._chunk_header['u8'] = stream.uint32()
-        self._chunk_header['u10'] = stream.uint32()
-        self._chunk_header['cast_member_assoc_id'] = stream.uint16()
-        self._chunk_header['u11'] = stream.uint16()
-
-        self._chunk_header['n_u9'] = stream.uint16()
-        self._chunk_header['u9_offset'] = stream.uint32()
-
-        self._chunk_header['u12'] = stream.uint32()
-
-        self._chunk_header['n_properties'] = stream.uint16()
-        self._chunk_header['properties_offset'] = stream.uint32()
-        self._chunk_header['n_globals'] = stream.uint16()
-        self._chunk_header['globals_offset'] = stream.uint32()
-        self._chunk_header['n_functions'] = stream.uint16()
-        self._chunk_header['function_headers_offset'] = stream.uint32()
-        self._chunk_header['n_literals'] = stream.uint16()
-        self._chunk_header['literal_headers_offset'] = stream.uint32()
-
-        self._chunk_header['literals_body_length'] = stream.uint32()
-        self._chunk_header['literals_body_offset'] = stream.uint32()
-
-    def _parse_properties(self, stream):
-        stream.seek(self.header['properties_offset'], 0)
-
-        self._properties = [None] * self.header['n_properties']
-        for i, _ in enumerate(self._properties):
-            self._properties[i] = stream.uint16()
-
-    def _parse_globals(self, stream):
-        stream.seek(self.header['globals_offset'], 0)
-
-        self._globals = [None] * self.header['n_globals']
-        for i, _ in enumerate(self._globals):
-            self._globals[i] = stream.uint16()
-
-    def _parse_functions(self, stream):
-        self._functions = LingoFunctions(
-            stream,
-            self.header['function_headers_offset'],
-            self.header['n_functions'])
-
-    def _parse_literals(self, stream):
-        self._literals = LingoFunctionLiterals(
-            stream,
-            self.header['literal_headers_offset'],
-            self.header['literals_body_offset'],
-            self.header['n_literals'])
-
-    def _parse_u9(self, stream):
-        stream.seek(self.header['u9_offset'], 0)
-
-        self._u9 = [None] * self.header['n_u9']
-        for i, _ in enumerate(self._u9):
-            self._u9[i] = stream.uint16()
-
-    def __repr__(self):
-        unknown_h = (
-            self.header['u1'], self.header['u2'], self.header['u3'], self.header['u4'],
-            self.header['u5'], self.header['u6'], self.header['u7'], self.header['u8'],
-            self.header['u10'], self.header['u11'], self.header['u12'])
-
-        # msg += '    Unk_Headers: [' + ', '.join('%d' % (v) for v in unknown_h) + ']\n'
-        return (
-            f"    Headers: [{', '.join(f'{k}: {v}' for k, v in self.header.items())}]\n"
-            f"     Headers:    [{', '.join(f'{v}' for k, v in self.header.items())}]\n"
-            f'     Properties: {repr(self.properties)}\n'
-            f'     Globals:    {repr(self.globals)}\n'
-            f'     u9:         {repr(self.u9)}\n'
-            f'{repr(self.functions)}\n'
-            f'{repr(self.literals)}'
-        )
+        return [record for record in self.records if isinstance(record, LingoU9)]
 
 
-class LingoFunctions(Sequence):
-    def __init__(self, stream, headers_offset, n_records):
-        header_length = 42
+class LingoProperty(InternalChunkRecord):
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = OrderedDict()
+        data['value'] = stream.uint16()
 
-        self._records = []
-        for i in range(n_records):
-            offset = headers_offset + i * header_length
-            self._records.append(LingoFunction(stream, offset))
-
-    def __getitem__(self, i):
-        return self._records[i]
-
-    def __len__(self):
-        return len(self._records)
-
-    def __repr__(self):
-        msg = '     Functions:\n'
-        for i, func in enumerate(self):
-            msg += f'       func{i}:\n{func}'
-        return msg
+        return data
 
 
-class LingoFunction:
-    def __init__(self, stream, header_offset):
-        self._parse_header(stream, header_offset)
-        self._parse_bytecode(stream)
-        self._parse_args(stream)
-        self._parse_locals(stream)
-        self._parse_u3(stream)
-        self._parse_u7(stream)
+class LingoGlobal(InternalChunkRecord):
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = OrderedDict()
+        data['value'] = stream.uint16()
+
+        return data
+
+
+class LingoFunction(InternalChunkRecord):
+    header_length = 42
+
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        offset = parent_header['function_headers_offset'] + index * cls.header_length
+
+        data = OrderedDict()
+        data['header'] = header = cls._parse_header(stream, offset)
+        data['bytecode'] = cls._parse_bytecode(stream, header['record_offset'], header['record_length'])
+        data['args'] = cls._parse_args(stream, header['args_offset'], header['n_args'])
+        data['locals'] = cls._parse_locals(stream, header['locals_offset'], header['n_locals'])
+        data['u3'] = cls._parse_u3(stream, header['u3_offset'], header['n_u3'])
+        data['u7'] = cls._parse_u7(stream, header['u7_offset'], header['n_u7'])
+
+        return data
+
+    @classmethod
+    def _parse_header(cls, stream, offset):
+        stream.seek(offset, 0)
+        header = OrderedDict()
+        header['function_id'] = stream.uint16()
+        header['u2'] = stream.uint16()
+        header['record_length'] = stream.uint32()
+        header['record_offset'] = stream.uint32()
+        header['n_args'] = stream.uint16()
+        header['args_offset'] = stream.uint32()
+        header['n_locals'] = stream.uint16()
+        header['locals_offset'] = stream.uint32()
+        header['n_u3'] = stream.uint16()
+        header['u3_offset'] = stream.uint32()
+        header['u4'] = stream.uint16()
+        header['u5'] = stream.uint16()
+        header['u6'] = stream.uint16()
+        header['n_u7'] = stream.uint16()
+        header['u7_offset'] = stream.uint32()
+
+        return header
+
+    @classmethod
+    def _parse_bytecode(cls, stream, offset, length):
+        stream.seek(offset, 0)
+        bytecode = stream.read_bytes(length)
+        stream.read_pad(length % 2)
+        return bytecode
+
+    @classmethod
+    def _parse_args(cls, stream, offset, n_args):
+        stream.seek(offset, 0)
+        return [stream.uint16() for _ in range(n_args)]
+
+    @classmethod
+    def _parse_locals(cls, stream, offset, n_locals):
+        stream.seek(offset, 0)
+        return [stream.uint16() for _ in range(n_locals)]
+
+    @classmethod
+    def _parse_u3(cls, stream, offset, n_u3):
+        stream.seek(offset, 0)
+        return [stream.uint16() for _ in range(n_u3)]
+
+    @classmethod
+    def _parse_u7(cls, stream, offset, n_u7):
+        stream.seek(offset, 0)
+        data = [stream.uint8() for _ in range(n_u7)]
+        stream.read_pad(n_u7 % 2)
+        return data
 
     @property
     def header(self):
-        return self._header
+        return self.data['header']
 
     @property
     def bytecode(self):
-        return self._bytecode
+        return self.data['bytecode']
 
     @property
     def args(self):
-        return self._args
+        return self.data['args']
 
     @property
     def locals(self):
-        return self._locals
+        return self.data['locals']
 
     @property
     def u3(self):
-        return self._u3
+        return self.data['u3']
 
     @property
     def u7(self):
-        return self._u7
+        return self.data['u7']
 
     @property
     def name_id(self):
         return self.header['function_id']
 
-    def _parse_header(self, stream, header_offset):
-        stream.seek(header_offset, 0)
-        self._header = OrderedDict()
-        self._header['function_id'] = stream.uint16()
-        self._header['u2'] = stream.uint16()
 
-        self._header['record_length'] = stream.uint32()
-        self._header['record_offset'] = stream.uint32()
-
-        self._header['n_args'] = stream.uint16()
-        self._header['args_offset'] = stream.uint32()
-        self._header['n_locals'] = stream.uint16()
-        self._header['locals_offset'] = stream.uint32()
-        self._header['n_u3'] = stream.uint16()
-        self._header['u3_offset'] = stream.uint32()
-
-        self._header['u4'] = stream.uint16()
-        self._header['u5'] = stream.uint16()
-        self._header['u6'] = stream.uint16()
-
-        self._header['n_u7'] = stream.uint16()
-        self._header['u7_offset'] = stream.uint32()
-
-    def _parse_bytecode(self, stream):
-        stream.seek(self.header['record_offset'], 0)
-        self._bytecode = stream.read_bytes(self.header['record_length'])
-        stream.read_pad(self.header['record_length'] % 2)
-
-    def _parse_args(self, stream):
-        stream.seek(self.header['args_offset'], 0)
-
-        self._args = [None] * self.header['n_args']
-        for i, _ in enumerate(self._args):
-            self._args[i] = stream.uint16()
-
-    def _parse_locals(self, stream):
-        stream.seek(self.header['locals_offset'], 0)
-
-        self._locals = [None] * self.header['n_locals']
-        for i, _ in enumerate(self._locals):
-            self._locals[i] = stream.uint16()
-
-    def _parse_u3(self, stream):
-        stream.seek(self.header['u3_offset'], 0)
-
-        self._u3 = [None] * self.header['n_u3']
-        for i, _ in enumerate(self._u3):
-            self._u3[i] = stream.uint16()
-
-    def _parse_u7(self, stream):
-        stream.seek(self.header['u7_offset'], 0)
-
-        self._u7 = [None] * self.header['n_u7']
-        for i, _ in enumerate(self._u7):
-            self._u7[i] = stream.uint8()
-
-        stream.read_pad(self.header['n_u7'] % 2)
-
-    def __repr__(self):
-        return (
-            f"          header: [{', '.join(f'{k}: {v}' for k, v in self.header.items())}]\n"
-            f'        bytecode: {grouper(self.bytecode, 128, True, 22)}\n'
-            f'            args: {self.args}\n'
-            f'          locals: {self.locals}\n'
-            f'              u3: {self.u3}\n'
-            f'              u7: {self.u7}\n'
-        )
-
-
-class LingoFunctionLiterals(Sequence):
-    def __init__(self, stream, headers_offset, records_offset, n_records):
-        header_length = 8
-        self._records = []
-
-        for i in range(n_records):
-            stream.seek(headers_offset + i * header_length)
-
-            literal_type = stream.uint32()
-            literal_offset = stream.uint32()
-
-            self._records.append(LingoFunctionLiteral(stream, records_offset, literal_type, literal_offset))
-
-    def __getitem__(self, i):
-        return self._records[i]
-
-    def __len__(self):
-        return len(self._records)
-
-    def __str__(self):
-        return '[' + ', '.join(self) + ']'
-
-    def __repr__(self):
-        msg = '     Literals:\n'
-        for i, item in enumerate(self):
-            msg += f'        {i:4d}: {item}\n'
-        return msg
-
-
-class LingoFunctionLiteral(Sized):
+class LingoLiteral(InternalChunkRecord):
     TYPE_STRING = 1
     TYPE_INT = 4
     TYPE_DOUBLE = 9
-
     TYPES = ('', 'string', '', '', 'int', '', '', '', '', 'double')
 
-    def __init__(self, stream, records_offset, literal_type, literal_offset):
-        self._type = literal_type
+    header_length = 8
 
-        if self.TYPES[literal_type] == 'string':
-            stream.seek(records_offset + literal_offset)
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        offset = parent_header['literal_headers_offset'] + index * cls.header_length
 
-            self._length = stream.uint32()
-            self._value = stream.string(self._length - 1)  # No need to read null terminating byte
-            stream.uint8()  # Clear the null terminating byte
-            stream.read_pad(self._length % 2)
+        data = OrderedDict()
+        data['header'] = header = cls._parse_header(stream, offset)
+        data['value'], data['length'] = cls._parse_body(stream, parent_header['literals_body_offset'], header)
 
-        elif self.TYPES[literal_type] == 'int':
-            self._length = 4
-            self._value = literal_offset
+        return data
 
-        elif self.TYPES[literal_type] == 'double':
-            stream.seek(records_offset + literal_offset)
+    @classmethod
+    def _parse_header(cls, stream, offset):
+        stream.seek(offset, 0)
+        header = OrderedDict()
+        header['type'] = stream.uint32()
+        header['offset'] = stream.uint32()
 
-            self._length = stream.uint32()
-            if self._length == 8:
-                self._value = stream.double()
-            else:
-                self._value = stream.float()
+        return header
 
+    @classmethod
+    def _parse_body(cls, stream, offset, header):
+        _type = header['type']
+
+        if cls.TYPES[_type] == 'string':
+            return cls._parse_string(stream, offset, header)
+        elif cls.TYPES[_type] == 'int':
+            return cls._parse_int(stream, offset, header)
+        elif cls.TYPES[_type] == 'double':
+            return cls._parse_double(stream, offset, header)
         else:
-            raise RuntimeError(f'Literal type {literal_type} not implemented')
+            raise RuntimeError(f'Literal type {_type} not implemented')
+
+    @classmethod
+    def _parse_string(cls, stream, offset, header):
+        stream.seek(offset + header['offset'])
+
+        length = stream.uint32()
+        value = stream.string(length - 1)  # No need to read null terminating byte in python
+        stream.read_bytes(1)  # Clear the null terminating byte
+        stream.read_pad(length % 2)
+
+        return value, length
+
+    @classmethod
+    def _parse_int(cls, _, __, header):
+        return header['offset'], 4
+
+    @classmethod
+    def _parse_double(cls, stream, offset, header):
+        stream.seek(offset + header['offset'])
+        length = stream.uint32()
+        value = stream.double() if (length == 8) else stream.float()
+
+        return value, length
 
     @property
     def type(self):
-        return self._type
+        return self.data['header']['type']
 
     @property
     def value(self):
-        return self._value
+        return self.data['value']
 
-    def __len__(self):
-        return self._length
 
-    def __str__(self):
-        val = str(self._value).replace('\r', '\\r')
-        return f"({self.TYPES[self.type]:6s}, '{val}')"
+class LingoU9(InternalChunkRecord):
+    @classmethod
+    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = OrderedDict()
+        data['value'] = stream.uint16()
 
-    def __repr__(self):
-        return self.__repr__()
+        return data

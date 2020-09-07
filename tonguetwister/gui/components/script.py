@@ -7,6 +7,7 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from kivy.uix.textinput import TextInput
 
+from tonguetwister.gui.components.chunk import DefaultRecordsChunkView
 from tonguetwister.gui.utils import load_script_function, update_text_area, highlight_word_in_text_area
 from tonguetwister.lib.helper import exception_as_lines
 
@@ -53,11 +54,12 @@ class ScriptPanel(BoxLayout):
         self.text_area_reconstructed = TextInput(font_name='UbuntuMono-R.ttf')
         self.text_area_named = TextInput(font_name='UbuntuMono-R.ttf')
         self.text_area_raw = TextInput(font_name='UbuntuMono-R.ttf')
+        self.text_area_chunk = DefaultRecordsChunkView(self.parser_results, font_name='UbuntuMono-R.ttf')
 
-        #self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
-        #self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)
-        #self.text_area_named.bind(on_touch_down=self._on_text_area_touch_down)
-        #self.text_area_raw.bind(on_touch_down=self._on_text_area_touch_down)
+        self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
+        self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)
+        self.text_area_named.bind(on_touch_down=self._on_text_area_touch_down)
+        self.text_area_raw.bind(on_touch_down=self._on_text_area_touch_down)
 
         tab1 = TabbedPanelItem(text='Generated Code')
         tab1.add_widget(self.text_area_generated)
@@ -67,12 +69,15 @@ class ScriptPanel(BoxLayout):
         tab3.add_widget(self.text_area_named)
         tab4 = TabbedPanelItem(text='Raw ops')
         tab4.add_widget(self.text_area_raw)
+        tab5 = TabbedPanelItem(text='Chunk info')
+        tab5.add_widget(self.text_area_chunk)
 
         tabbed_panel = TabbedPanel(do_default_tab=False, tab_width=150, tab_height=30)
         tabbed_panel.add_widget(tab1)
         tabbed_panel.add_widget(tab2)
         tabbed_panel.add_widget(tab3)
         tabbed_panel.add_widget(tab4)
+        tabbed_panel.add_widget(tab5)
 
         return tabbed_panel
 
@@ -81,9 +86,10 @@ class ScriptPanel(BoxLayout):
         self.current_script_index = index
         self.current_script = script
         self._render_script()
+        self.text_area_chunk.load(script)
 
     def _update_function_index(self, amount):
-        n_functions = len(self.current_script[1].functions)
+        n_functions = len(self.current_script.functions)
 
         self.current_function_index = (self.current_function_index + amount) % n_functions
         self._render_script()

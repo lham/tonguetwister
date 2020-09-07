@@ -1,40 +1,28 @@
 from collections import OrderedDict
 
-from tonguetwister.lib.helper import splat_ordered_dict
+from tonguetwister.chunks.chunk import Chunk
+from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class CastLibraryInfo:
-    def __init__(self, stream):
-        stream.set_big_endian()
-        self._parse_chunk_header(stream)
-        self._parse_body(stream)
+class CastLibraryInfo(Chunk):
+    @classmethod
+    def _parse_header(cls, stream: ByteBlockIO):
+        header = OrderedDict()
+        header['u1'] = stream.uint32()
+        header['skip_length'] = stream.uint16()
+        header['ux'] = stream.read_bytes(2 * header['skip_length'])
+        header['u2'] = stream.uint32()
+        header['u3'] = stream.uint32()
+        header['body_length'] = stream.uint32()
 
-    @property
-    def header(self):
-        return self._header
+        return header
 
-    @property
-    def body(self):
-        return self._body
-
-    def _parse_chunk_header(self, stream):
-        self._header = OrderedDict()
-        self._header['u1'] = stream.uint32()
-        self._header['skip_length'] = stream.uint16()
-        self._header['ux'] = stream.read_bytes(2 * self._header['skip_length'])
-        self._header['u2'] = stream.uint32()
-        self._header['u3'] = stream.uint32()
-        self._header['body_length'] = stream.uint32()
-
-    def _parse_body(self, stream):
-        self._body = OrderedDict()
-        self._body['u1'] = stream.read_bytes(20)
-        self._body['text_length'] = stream.uint8()
-        self._body['text'] = stream.string(self._body['text_length'])
+    @classmethod
+    def _parse_body(cls, stream: ByteBlockIO, header):
+        body = OrderedDict()
+        body['u1'] = stream.read_bytes(20)
+        body['text_length'] = stream.uint8()
+        body['text'] = stream.string(body['text_length'])
         stream.read_pad(1)
 
-    def __repr__(self):
-        return (
-            f'    Header: {splat_ordered_dict(self.header)}\n'
-            f'      Body: {splat_ordered_dict(self.body)}\n'
-        )
+        return body

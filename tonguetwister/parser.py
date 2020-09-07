@@ -6,7 +6,7 @@ from tonguetwister.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.chunks.cast_member import CastMember
 from tonguetwister.chunks.drcf import DRCF
 from tonguetwister.chunks.font_map import FontMap
-from tonguetwister.chunks.idealized_map import IdealizedMap
+from tonguetwister.chunks.initial_map import InitialMap
 from tonguetwister.chunks.lingo_context import LingoContext
 from tonguetwister.chunks.lingo_namelist import LingoNamelist
 from tonguetwister.chunks.lingo_script import LingoScript
@@ -64,6 +64,7 @@ class RifxParser:
         self.memory_map = None
         self.lingo_context = None
         self.cast_lib = []
+        self._drcf = None
 
         # Maybe load file
         if filename is not None:
@@ -130,70 +131,70 @@ class RifxParser:
         return '    ' * (self.stack_depth + offset)
 
     def _parse_stxt(self, stream):
-        self.styled_texts[self.current_address] = StyledText(stream)
+        self.styled_texts[self.current_address] = StyledText.parse(stream)
         self._print_chunk_info()
         # print repr(self.styled_texts[self.current_address])
 
     def _parse_cast(self, stream):
-        self.cast_members[self.current_address] = CastMember(stream)
+        self.cast_members[self.current_address] = CastMember.parse(stream)
         self._print_chunk_info()
         # print repr(self.cast_members[self.current_address])
 
     def _parse_fmap(self, stream):
-        self.font_map = FontMap(stream)
+        self.font_map = FontMap.parse(stream)
         self.font_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.font_map)
 
     def _parse_lnam(self, stream):
-        self.namelist = LingoNamelist(stream)
+        self.namelist = LingoNamelist.parse(stream)
         self.namelist.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.namelist)
 
     def _parse_cinf(self, stream):
-        self.cast_library_info = CastLibraryInfo(stream)
+        self.cast_library_info = CastLibraryInfo.parse(stream)
         self.cast_library_info.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_library_info)
 
     def _parse_lscr(self, stream):
-        self.lingo_scripts[self.current_address] = LingoScript(stream)
+        self.lingo_scripts[self.current_address] = LingoScript.parse(stream)
         self._print_chunk_info()
         # print repr(self.lingo_scripts[self.current_address])
 
     def _parse_imap(self, stream):
-        self._imap = IdealizedMap(stream)
+        self._imap = InitialMap.parse(stream)
         self._imap.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_drcf(self, stream):
-        self._imap = DRCF(stream)
-        self._imap.current_address = self.current_address
+        self._drcf = DRCF.parse(stream)
+        self._drcf.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_cas_star(self, stream):
-        self.cast_assoc_map = CastAssociationMap(stream)
+        self.cast_assoc_map = CastAssociationMap.parse(stream)
         self.cast_assoc_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_assoc_map)
 
     def _parse_key_star(self, stream):
-        self.cast_key_map = CastKeyMap(stream)
+        self.cast_key_map = CastKeyMap.parse(stream)
         self.cast_key_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_key_map)
 
     def _parse_mmap(self, stream):
-        self.memory_map = MemoryMap(stream)
+        self.memory_map = MemoryMap.parse(stream)
         self.memory_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.memory_map)
 
     def _parse_lctx(self, stream):
-        self.lingo_context = LingoContext(stream)
+        self.lingo_context = LingoContext.parse(stream)
         self.lingo_context.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.lingo_context)
