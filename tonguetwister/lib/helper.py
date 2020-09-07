@@ -14,8 +14,8 @@ def grouper(ws, size, newline=False, indent=1):
     return f'{newline_str}{indent_str}'.join(groups)
 
 
-def splat_ordered_dict(ordered_dict):
-    return ', '.join(f'{k}: {v}' for k, v in ordered_dict.items())
+def splat_ordered_dict(ordered_dict, sep=', ', key_width=1):
+    return sep.join(f'{k:.<{key_width}s}: {v}' for k, v in ordered_dict.items())
 
 
 def exception_as_lines(ex):

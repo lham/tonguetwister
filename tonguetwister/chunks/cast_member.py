@@ -47,10 +47,10 @@ class CastMember:
             stream.read_bytes()
 
     def __repr__(self):
-        if self.media_type == 11:
-            return f'    {self.MEDIA_TYPES[self.media_type]}:\n{repr(self.member)}'
-        else:
-            return ''
+        return (
+            f'Media type: {self.MEDIA_TYPES[self.media_type]}\n'
+            f'{repr(self.member)}'
+        )
 
 
 # noinspection DuplicatedCode

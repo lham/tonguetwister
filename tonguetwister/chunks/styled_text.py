@@ -40,7 +40,7 @@ class StyledText(Sized):
         return f'("{self.text}", {self.styles})'
 
     def __repr__(self):
-        return f'Text size: {len(self)}\n{repr(self.styles)}'
+        return f'Text size: {len(self.text)}\nText: "{self.text}"\n{repr(self.styles)}'
 
 
 class TextStyles(Sequence):

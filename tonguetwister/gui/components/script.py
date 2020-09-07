@@ -49,15 +49,15 @@ class ScriptPanel(BoxLayout):
         return action_bar
 
     def _build_panel(self):
-        self.text_area_generated = TextInput(text='Select a script to inspect it', font_name='UbuntuMono-R.ttf')
-        self.text_area_reconstructed = TextInput(text='Select a script to inspect it', font_name='UbuntuMono-R.ttf')
-        self.text_area_named = TextInput(text='Select a script to inspect it', font_name='UbuntuMono-R.ttf')
-        self.text_area_raw = TextInput(text='Select a script to inspect it', font_name='UbuntuMono-R.ttf')
+        self.text_area_generated = TextInput(font_name='UbuntuMono-R.ttf')
+        self.text_area_reconstructed = TextInput(font_name='UbuntuMono-R.ttf')
+        self.text_area_named = TextInput(font_name='UbuntuMono-R.ttf')
+        self.text_area_raw = TextInput(font_name='UbuntuMono-R.ttf')
 
-        self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
-        self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)
-        self.text_area_named.bind(on_touch_down=self._on_text_area_touch_down)
-        self.text_area_raw.bind(on_touch_down=self._on_text_area_touch_down)
+        #self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
+        #self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)
+        #self.text_area_named.bind(on_touch_down=self._on_text_area_touch_down)
+        #self.text_area_raw.bind(on_touch_down=self._on_text_area_touch_down)
 
         tab1 = TabbedPanelItem(text='Generated Code')
         tab1.add_widget(self.text_area_generated)
@@ -76,10 +76,10 @@ class ScriptPanel(BoxLayout):
 
         return tabbed_panel
 
-    def load(self, indexed_item):
+    def load(self, index, script):
         self.current_function_index = 0
-        self.current_script = indexed_item.item
-        self.current_script_index = indexed_item.index
+        self.current_script_index = index
+        self.current_script = script
         self._render_script()
 
     def _update_function_index(self, amount):
@@ -93,7 +93,7 @@ class ScriptPanel(BoxLayout):
             self.current_script_index,
             self.current_function_index,
             self.namelist,
-            self.current_script[1]
+            self.current_script
         )
 
         Clock.schedule_once(lambda _: self._update_script_display(decompiler), 0)

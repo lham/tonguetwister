@@ -141,16 +141,19 @@ class RifxParser:
 
     def _parse_fmap(self, stream):
         self.font_map = FontMap(stream)
+        self.font_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.font_map)
 
     def _parse_lnam(self, stream):
         self.namelist = LingoNamelist(stream)
+        self.namelist.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.namelist)
 
     def _parse_cinf(self, stream):
         self.cast_library_info = CastLibraryInfo(stream)
+        self.cast_library_info.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_library_info)
 
@@ -161,31 +164,37 @@ class RifxParser:
 
     def _parse_imap(self, stream):
         self._imap = IdealizedMap(stream)
+        self._imap.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_drcf(self, stream):
         self._imap = DRCF(stream)
+        self._imap.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self._imap)
 
     def _parse_cas_star(self, stream):
         self.cast_assoc_map = CastAssociationMap(stream)
+        self.cast_assoc_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_assoc_map)
 
     def _parse_key_star(self, stream):
         self.cast_key_map = CastKeyMap(stream)
+        self.cast_key_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.cast_key_map)
 
     def _parse_mmap(self, stream):
         self.memory_map = MemoryMap(stream)
+        self.memory_map.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.memory_map)
 
     def _parse_lctx(self, stream):
         self.lingo_context = LingoContext(stream)
+        self.lingo_context.current_address = self.current_address
         self._print_chunk_info()
         # print repr(self.lingo_context)
 

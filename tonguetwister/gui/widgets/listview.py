@@ -2,7 +2,6 @@ from kivy.clock import Clock
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from kivy.uix.stacklayout import StackLayout
 
 
 class IndexedItem:
@@ -11,12 +10,12 @@ class IndexedItem:
         self.item = item
 
 
-class ListView(StackLayout):
+class ListView(BoxLayout):
     selected_element = ObjectProperty(IndexedItem())
 
     def __init__(self, items, render_item=None, item_height=25, **kwargs):
         super().__init__(**kwargs)
-        self.orientation = 'tb-rl'
+        self.orientation = 'vertical'
         self._list_items = []
         self._render_item = render_item
         self._item_height = item_height
@@ -47,8 +46,8 @@ class ListView(StackLayout):
             self._list_items[index].rebuild()
 
     def select_item(self, index):
-        previously_selected = self.selected_element
-        if previously_selected is not None:
+        if self.selected_element.index is not None:
+            previously_selected = self._list_items[self.selected_element.index]
             previously_selected.selected = False
 
         self._list_items[index].selected = True
