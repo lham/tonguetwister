@@ -4,14 +4,15 @@ from tonguetwister.chunks.cast_member import CastMember
 from tonguetwister.chunks.castmembers.field import FieldCastMember
 from tonguetwister.chunks.castmembers.script import ScriptCastMember
 from tonguetwister.chunks.castmembers.shape import ShapeCastMember
+from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.lib.helper import splat_ordered_dict
 
 
 # noinspection PyMethodMayBeStatic,PyProtectedMember
 class CastMemberView(TextInput):
-    def __init__(self, parser_results, **kwargs):
+    def __init__(self, file_disassembler: FileDisassembler, **kwargs):
         super().__init__(**kwargs)
-        self.parser_results = parser_results
+        self.file_disassembler = file_disassembler
 
     def load(self, cast_member):
         self.text = (

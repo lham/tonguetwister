@@ -1,17 +1,17 @@
 import argparse
 
 from tonguetwister.gui.director_cast_explorer import DirectorCastExplorer
-from tonguetwister.parser import RifxParser
+from tonguetwister.file_disassembler import FileDisassembler
 
 
 def main(filepath):
     # Unpack a cst file
-    parser = RifxParser(silent=True)
-    parser.load_file(filepath)
-    parser.unpack()
+    file_disassembler = FileDisassembler(silent=True)
+    file_disassembler.load_file(filepath)
+    file_disassembler.unpack()
 
     # Run the GUI
-    gui = DirectorCastExplorer(parser)
+    gui = DirectorCastExplorer(file_disassembler)
     gui.run()
 
 

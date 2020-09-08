@@ -1,11 +1,11 @@
 import argparse
-from tonguetwister.parser import RifxParser
+from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.lingo_decompiler import Decompiler
 
 
 def main(filepath, script_number, function_number):
     # Unpack a cst file
-    parser = RifxParser()
+    parser = FileDisassembler()
     parser.load_file(filepath)
     parser.unpack()
 

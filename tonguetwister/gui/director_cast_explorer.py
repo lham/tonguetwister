@@ -1,11 +1,7 @@
 import os
-import pprint
 
 # TODO: Change to using kivy.config?
 #os.environ['KIVY_NO_CONSOLELOG'] = '0'
-from tonguetwister.chunks.chunk import RecordsChunk, Chunk
-from tonguetwister.gui.components.chunk import DefaultRecordsChunkView, DefaultChunkView
-
 os.environ["KIVY_NO_ARGS"] = '1'
 
 from kivy.app import App
@@ -17,8 +13,11 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
+from tonguetwister.chunks.chunk import RecordsChunk, Chunk
 from tonguetwister.chunks.lingo_script import LingoScript
+from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.castmember import CastMemberView
+from tonguetwister.gui.components.chunk import DefaultRecordsChunkView, DefaultChunkView
 from tonguetwister.gui.components.script import ScriptPanel
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.listview import ListView, IndexedItem
@@ -36,34 +35,12 @@ class DirectorCastExplorer(App):
     current_chunk = ObjectProperty(IndexedItem())
     previous_chunk = None
 
-    def __init__(self, pr):
+    def __init__(self, file_disassembler: FileDisassembler):
         super().__init__()
-        self.parser_results = pr
-        self.scripts = list(self.parser_results.lingo_scripts.items())
 
-        # Add all items
+        self.file_disassembler = file_disassembler
         self._chunks = []
-
-        self._chunks.append((0, f'[{pr.font_map.current_address:#6x}] Font Map #0', pr.font_map))
-        self._chunks.append((0, f'[{pr.namelist.current_address:#6x}] Namelist #0', pr.namelist))
-        self._chunks.append((0, f'[{pr.cast_library_info.current_address:#6x}] Cast Library Info #0', pr.cast_library_info))
-        self._chunks.append((0, f'[{pr.cast_key_map.current_address:#6x}] Cast key map #0', pr.cast_key_map))
-        self._chunks.append((0, f'[{pr.cast_assoc_map.current_address:#6x}] Cast assoc map #0', pr.cast_assoc_map))
-        self._chunks.append((0, f'[{pr.lingo_context.current_address:#6x}] Lingo Context #0', pr.lingo_context))
-        self._chunks.append((0, f'[{pr.memory_map.current_address:#6x}] Memory Map #0', pr.memory_map))
-        self._chunks.append((0, f'[{pr._imap.current_address:#6x}] Initial Map #0', pr._imap))
-        self._chunks.append((0, f'[{pr._drcf.current_address:#6x}] DRCF #0', pr._drcf))
-
-        for i, (key, value) in enumerate(pr.styled_texts.items()):
-            self._chunks.append((i, f'[{key:#6x}] Styled Text #{i}', value))
-
-        for i, (key, value) in enumerate(pr.cast_members.items()):
-            self._chunks.append((i, f'[{key:#6x}] Cast Member #{i}', value))
-
-        for i, (key, value) in enumerate(pr.lingo_scripts.items()):
-            self._chunks.append((i, f'[{key:#6x}] Lingo Script #{i} ({len(value.functions)} functions)', value))
-
-        #self._chunks.sort(key=lambda k: k[1])
+        self._set_chunks()
 
         # GUI Components
         self.menu = None
@@ -75,6 +52,19 @@ class DirectorCastExplorer(App):
         self.plain_view = None
 
         # Commands
+        self._keyboard = None
+        self._set_keyboard()
+
+    def _set_chunks(self):
+        type_counts = {}
+        for (address, chunk) in self.file_disassembler.chunks:
+            chunk_name = chunk.__class__.__name__
+            chunk_count = type_counts.get(chunk_name, 0)
+            type_counts[chunk_name] = chunk_count + 1
+
+            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{address:X})', chunk))
+
+    def _set_keyboard(self):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, None)
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
@@ -94,10 +84,10 @@ class DirectorCastExplorer(App):
         self.view = BoxLayout()
         root.add_widget(self.view)
 
-        self.script_view = ScriptPanel(self.parser_results)
-        self.cast_member_view = CastMemberView(self.parser_results, font_name=self.FONT_NAME)
-        self.records_chunk_view = DefaultRecordsChunkView(self.parser_results, font_name=self.FONT_NAME)
-        self.chunk_view = DefaultChunkView(self.parser_results, font_name=self.FONT_NAME)
+        self.script_view = ScriptPanel(self.file_disassembler)
+        self.cast_member_view = CastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
+        self.records_chunk_view = DefaultRecordsChunkView(self.file_disassembler, font_name=self.FONT_NAME)
+        self.chunk_view = DefaultChunkView(self.file_disassembler, font_name=self.FONT_NAME)
         self.plain_view = TextInput(font_name=self.FONT_NAME)
 
         self.view.add_widget(self.plain_view)
@@ -123,7 +113,7 @@ class DirectorCastExplorer(App):
 
         return Label(text=text, halign='left', text_size=(parent.width, None), markup=True)
 
-    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+    def _on_keyboard_down(self, _, keycode, __, ___):
         current = self.menu.selected_element.index
 
         if keycode[1] == 'up':
@@ -145,10 +135,6 @@ class DirectorCastExplorer(App):
         if isinstance(chunk, LingoScript):
             self.view.add_widget(self.script_view)
             self.script_view.load(self.current_chunk.item[0], self.current_chunk.item[2])
-        #elif isinstance(chunk, CastMember):
-        #    self.view.add_widget(self.cast_member_view)
-        #    self.cast_member_view.load(chunk)
-        #    scroll_to_top(self.cast_member_view)
         elif isinstance(chunk, RecordsChunk):
             self.view.add_widget(self.records_chunk_view)
             self.records_chunk_view.load(chunk)

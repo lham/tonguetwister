@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from kivy.uix.textinput import TextInput
 
+from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.lib.helper import splat_ordered_dict, splat_list
 
@@ -12,13 +13,13 @@ class DefaultChunkView(TextInput):
     indent = '    '
     separator = f'{os.linesep}{indent}'
 
-    def __init__(self, parser_results, **kwargs):
+    def __init__(self, file_disassembler: FileDisassembler, **kwargs):
         super().__init__(**kwargs)
-        self.parser_results = parser_results
+        self.file_disassembler = file_disassembler
 
     def load(self, chunk):
         self.text = (
-            f'Chunk type: {chunk.__class__.__name__}'
+            f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
             + self._section_string('Header')
             + self._splat_dict(chunk.header)
             + self._section_string('Body')
@@ -50,7 +51,7 @@ class DefaultChunkView(TextInput):
 class DefaultRecordsChunkView(DefaultChunkView):
     def load(self, chunk):
         self.text = (
-            f'Chunk type: {chunk.__class__.__name__}'
+            f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
             + self._section_string('Header')
             + self._splat_dict(chunk.header)
             + self._section_string('Body')
