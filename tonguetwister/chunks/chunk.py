@@ -85,7 +85,7 @@ class InternalChunkRecord:
 class UndefinedChunk(Chunk):
     @classmethod
     def parse(cls, stream: ByteBlockIO, four_cc):
-        print('Warning: Chunk parser not implemented')
+        print(f'Warning: Chunk parser for {four_cc} is not implemented')
         stream.read_bytes()
 
         return cls(four_cc, None, None, None)

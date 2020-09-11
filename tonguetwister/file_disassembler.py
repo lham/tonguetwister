@@ -35,7 +35,11 @@ CHUNK_MAP = {
     'RTE2': UndefinedChunk,
     'FXmp': UndefinedChunk,
     'MCsL': UndefinedChunk,
-    'Sord': UndefinedChunk
+    'Sord': UndefinedChunk,
+    'VWFI': UndefinedChunk,
+    'VWSC': UndefinedChunk,
+    'BITD': UndefinedChunk,
+    'THUM': UndefinedChunk
 }
 
 
@@ -75,7 +79,11 @@ class FileDisassembler:
             self.current_address = address
 
             self._print_chunk_info()
-            self.chunks.append((self.current_address, CHUNK_MAP[four_cc].parse(chunk_stream, four_cc)))
+            if four_cc in CHUNK_MAP:
+                self.chunks.append((self.current_address, CHUNK_MAP[four_cc].parse(chunk_stream, four_cc)))
+            else:
+                print('WARNING: The four_cc', four_cc, 'is not in the CHUNK_MAP')
+                chunk_stream.read_bytes()
 
             if not chunk_stream.is_depleted():
                 print(chunk_stream.get_processed_bytes_string())
@@ -130,7 +138,8 @@ class FileDisassembler:
     @property
     def namelist(self):
         namelists = [chunk for _, chunk in self.chunks if isinstance(chunk, LingoNamelist)]
+        if len(namelists) == 0:
+            return None
         if len(namelists) > 1:
             print('Warning: More than one namelist')
-
         return namelists[0]
