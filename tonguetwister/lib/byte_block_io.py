@@ -33,24 +33,52 @@ class ByteBlockIO:
             else:
                 print(f'WARNING: Byte at address {addr + i} already read')
 
-    def uint32(self):
-        return unpack(self.endianess + 'I', self._read(4))[0]
+    def uint32(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'I', self._read(4))[0]
 
-    def uint16(self):
-        return unpack(self.endianess + 'H', self._read(2))[0]
+    def int32(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'i', self._read(4))[0]
 
-    def uint8(self):
-        return unpack(self.endianess + 'B', self._read(1))[0]
+    def uint16(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'H', self._read(2))[0]
 
-    def float(self):
-        return unpack(self.endianess + 'f', self._read(4))[0]
+    def int16(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'h', self._read(2))[0]
 
-    def double(self):
-        return unpack(self.endianess + 'd', self._read(8))[0]
+    def uint8(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'B', self._read(1))[0]
 
-    def string(self, size):
+    def int8(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'b', self._read(1))[0]
+
+    def float(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'f', self._read(4))[0]
+
+    def double(self, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + 'd', self._read(8))[0]
+
+    def string_raw(self, length, endianess=None):
+        return self._string(length, endianess)
+
+    def string_auto(self, endianess=None):
+        length = self.uint8(endianess)
+        string = self._string(length, 8)
+        _ = self.read_bytes(1)  # The null termination byte
+
+        return string
+
+    def _string(self, size, endianess=None):
+        endianess = self.endianess if endianess is None else endianess
         word = self._read(size).decode(self.ENCODING)
-        if self.endianess == self.LITTLE_ENDIAN:
+        if endianess == self.LITTLE_ENDIAN:
             return word[::-1]
         else:
             return word

@@ -32,6 +32,6 @@ class MapEntry(InternalChunkRecord):
         data['active'] = index < parent_header['n_used_record_slots']
         data['mmap_idx'] = stream.uint32()
         data['cast_mmap_idx'] = stream.uint32()
-        data['four_cc'] = maybe_encode_bytes(stream.string(4), data['active'])
+        data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])
 
         return data

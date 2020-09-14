@@ -56,7 +56,7 @@ class FontEntry(InternalChunkRecord):
         if data['header']['offset'] >> 31 != 1:
             stream.seek(60 + data['header']['offset'])
             data['name_length'] = stream.uint32()
-            data['name'] = stream.string(data['name_length'])
+            data['name'] = stream.string_raw(data['name_length'])
             stream.read_pad(4 - ((4 + data['name_length']) % 4))  # 4-byte aligned padding
         else:
             data['name_length'] = 0

@@ -39,6 +39,8 @@ CHUNK_MAP = {
     'VWFI': UndefinedChunk,
     'VWSC': UndefinedChunk,
     'BITD': UndefinedChunk,
+    'XTRl': UndefinedChunk,
+    'ediM': UndefinedChunk,
     'THUM': UndefinedChunk
 }
 
@@ -93,7 +95,7 @@ class FileDisassembler:
     @staticmethod
     def _parse_command(stream):
         address = stream.tell()
-        four_cc = stream.string(4)
+        four_cc = stream.string_raw(4)
 
         chunk_length = stream.uint32()
         chunk = ByteBlockIO(stream.read_bytes(chunk_length))

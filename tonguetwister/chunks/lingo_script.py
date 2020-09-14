@@ -235,7 +235,7 @@ class LingoLiteral(InternalChunkRecord):
         stream.seek(offset + header['offset'])
 
         length = stream.uint32()
-        value = stream.string(length - 1)  # No need to read null terminating byte in python
+        value = stream.string_raw(length - 1)  # No need to read null terminating byte in python
         stream.read_bytes(1)  # Clear the null terminating byte
         stream.read_pad(length % 2)
 

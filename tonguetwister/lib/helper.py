@@ -1,6 +1,7 @@
 import os
 import traceback
 from collections import OrderedDict
+from inspect import getframeinfo, stack
 
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
@@ -44,3 +45,18 @@ def exception_as_lines(ex):
 def maybe_encode_bytes(string, skip_encoding):
     return string if skip_encoding else str.encode(string)
 
+
+class UnexpectedDataValue(RuntimeError):
+    pass
+
+
+def assert_data_value(data_value, values):
+    if not isinstance(values, (list, tuple)):
+        values = [values]
+
+    if data_value not in values:
+        caller = getframeinfo(stack()[1][0])
+
+        raise UnexpectedDataValue(
+            f'data_value {data_value} was not found in {values} for {caller.filename, caller.lineno}'
+        )

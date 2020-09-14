@@ -41,9 +41,7 @@ class ScriptCastMember(SpecificCastMember):
 
         data['u27'] = stream.uint32()
         if data['u15'] > 0:
-            data['text_length'] = stream.uint8()
-            data['text'] = stream.string(data['text_length'])
-            data['null_term'] = stream.uint8()
+            data['text'] = stream.string_auto()
 
         data['u28'] = stream.uint8()
         data['u29'] = stream.uint8()

@@ -30,6 +30,6 @@ class NameEntry(InternalChunkRecord):
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
         data['text_length'] = stream.uint8()
-        data['text'] = stream.string(data['text_length'])
+        data['text'] = stream.string_raw(data['text_length'])
 
         return data

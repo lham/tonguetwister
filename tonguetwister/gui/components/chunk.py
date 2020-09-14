@@ -9,7 +9,7 @@ from tonguetwister.lib.helper import splat_ordered_dict, splat_list
 
 
 class DefaultChunkView(TextInput):
-    key_width = 25
+    key_width = 40
     indent = '    '
     separator = f'{os.linesep}{indent}'
 

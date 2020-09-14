@@ -4,6 +4,9 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
 # noinspection PyNoneFunctionAssignment
+from tonguetwister.lib.helper import grouper
+
+
 class Chunk:
     def __init__(self, four_cc, header, body, footer):
         self.four_cc = four_cc
@@ -86,6 +89,9 @@ class UndefinedChunk(Chunk):
     @classmethod
     def parse(cls, stream: ByteBlockIO, four_cc):
         print(f'Warning: Chunk parser for {four_cc} is not implemented')
-        stream.read_bytes()
 
-        return cls(four_cc, None, None, None)
+        data = OrderedDict()
+        data['all_str'] = stream.read_bytes()
+        data['all_hex'] = grouper(data['all_str'], 4)
+
+        return cls(four_cc, data, None, None)

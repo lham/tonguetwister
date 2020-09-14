@@ -33,7 +33,7 @@ class MapEntry(InternalChunkRecord):
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
         data['active'] = index < parent_header['n_four_cc_used']
-        data['four_cc'] = maybe_encode_bytes(stream.string(4), data['active'])
+        data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])
         data['block_length'] = stream.uint32()
         data['block_address'] = stream.uint32()
         data['protected_flag'] = stream.uint32()

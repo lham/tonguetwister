@@ -18,7 +18,7 @@ class StyledText(RecordsChunk):
     @classmethod
     def _parse_body(cls, stream: ByteBlockIO, header):
         body = OrderedDict()
-        body['text'] = stream.string(header['text_length'])
+        body['text'] = stream.string_raw(header['text_length'])
 
         return body
 

@@ -32,7 +32,7 @@ class FieldCastMember(SpecificCastMember):
         data['u18'] = stream.uint32()
 
         data['text_length'] = stream.uint8()
-        data['text'] = stream.string(data['text_length'])
+        data['text'] = stream.string_raw(data['text_length'])
 
         return data
 

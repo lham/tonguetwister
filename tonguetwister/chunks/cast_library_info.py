@@ -20,9 +20,10 @@ class CastLibraryInfo(Chunk):
     @classmethod
     def _parse_body(cls, stream: ByteBlockIO, header):
         body = OrderedDict()
-        body['u1'] = stream.read_bytes(20)
-        body['text_length'] = stream.uint8()
-        body['text'] = stream.string(body['text_length'])
-        stream.read_pad(1)
+        # body['u1'] = stream.read_bytes(20)
+        # body['text_length'] = stream.uint8()
+        # body['text'] = stream.string(body['text_length'])
+        # stream.read_pad(1)
+        stream.read_bytes()
 
         return body

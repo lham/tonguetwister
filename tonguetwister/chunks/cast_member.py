@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.chunks.castmembers.field import FieldCastMember
 from tonguetwister.chunks.castmembers.script import ScriptCastMember
 from tonguetwister.chunks.castmembers.shape import ShapeCastMember
@@ -10,7 +11,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 class CastMember(Chunk):
     CAST_MEMBER_TYPES = [
         None,
-        None,
+        BitmapCastMember,
         None,
         FieldCastMember,
         None,

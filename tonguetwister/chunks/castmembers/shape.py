@@ -27,9 +27,7 @@ class ShapeCastMember(SpecificCastMember):
         data['u13'] = stream.uint16()
         data['u14'] = stream.uint16()
         data['record_length'] = stream.uint16()
-        data['text_length'] = stream.uint8()
-        data['text'] = stream.string(data['text_length'])
-        data['null_term'] = stream.uint8()
+        data['text'] = stream.string_auto()
 
         return data
 
