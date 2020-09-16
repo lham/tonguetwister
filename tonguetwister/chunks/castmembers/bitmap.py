@@ -113,8 +113,8 @@ class BitmapCastMember(SpecificCastMember):
         for i in range(int(self.height / 2)):
             lower_start = self.width * i
             lower_stop = self.width * (i + 1)
-            upper_start = self.width * (self.height - i)
-            upper_stop = self.width * (self.height - i + 1)
+            upper_start = self.width * (self.height - i - 1)
+            upper_stop = self.width * (self.height - i)
 
             row_lower = image_data[lower_start:lower_stop]
             row_upper = image_data[upper_start:upper_stop]
