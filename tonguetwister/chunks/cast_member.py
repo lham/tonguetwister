@@ -32,17 +32,17 @@ class CastMember(Chunk):
     ]
 
     @classmethod
-    def parse(cls, stream: ByteBlockIO, four_cc):
+    def parse(cls, stream: ByteBlockIO, address, four_cc):
         cls._set_endianess(stream)
         header = cls._parse_header(stream)
 
         if cls.CAST_MEMBER_TYPES[header['media_type']] is not None:
-            return cls.CAST_MEMBER_TYPES[header['media_type']].parse_member(stream, four_cc, header)
+            return cls.CAST_MEMBER_TYPES[header['media_type']].parse_member(stream, address, four_cc, header)
 
         print(f'WARNING: Unknown media type ({header["media_type"]}).')
         stream.read_bytes()
 
-        return cls(four_cc, header, None, None)
+        return cls(address, four_cc, header, None, None)
 
     @classmethod
     def _parse_header(cls, stream: ByteBlockIO):

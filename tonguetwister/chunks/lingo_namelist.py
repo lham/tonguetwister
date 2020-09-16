@@ -22,7 +22,7 @@ class LingoNamelist(RecordsChunk):
         return [NameEntry.parse(stream) for _ in range(header['n_records'])]
 
     def __getitem__(self, i):
-        return self.records[i].data['text']
+        return self.records[i]._data['text']
 
 
 class NameEntry(InternalChunkRecord):

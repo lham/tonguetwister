@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from tonguetwister.chunks.bitmap_data import BitmapData
 from tonguetwister.chunks.castmembers.core import SpecificCastMember
 from tonguetwister.chunks.castmembers.palette import PaletteCastMember
 from tonguetwister.lib.byte_block_io import ByteBlockIO
@@ -67,6 +68,59 @@ class BitmapCastMember(SpecificCastMember):
         data['?use_cast_palette'] = stream.int16();  assert_data_value(data['?use_cast_palette'], [-1, 0])
         # Above: -1 if first cast? otherwise 0?
         data['palette'] = stream.int16()  # Refers to default palette if bit depth < 0, otherwise a cast member
-        data['+palette_name'] = PaletteCastMember.get_palette_name(data['bit_depth'], data['palette'])
 
         return data
+
+    @property
+    def name(self):
+        return self.body['prop_1_data_member_name']
+
+    @property
+    def width(self):
+        return self.footer['right'] - self.footer['left']
+
+    @property
+    def height(self):
+        return self.footer['bottom'] - self.footer['top']
+
+    @property
+    def bit_depth(self):
+        return self.footer['bit_depth']
+
+    @property
+    def palette(self):
+        return PaletteCastMember.get_predefined_palette(self.bit_depth, self.footer['palette'])
+
+    @property
+    def palette_name(self):
+        if self.footer['?use_cast_palette'] < 0:
+            return PaletteCastMember.get_predefined_palette_name(self.bit_depth, self.footer['palette'])
+        else:
+            return 'Unable to parse palette cast member name'
+
+    def image_data(self, bitmap_data: BitmapData):
+        if self.bit_depth == 8:
+            return self._build_8bit_image(bitmap_data)
+        else:
+            size = self.height * self.width * 3
+            return bytes([int(x * 255 / size) for x in range(size)])
+
+    def _build_8bit_image(self, bitmap_data: BitmapData):
+        # Bitmaps are read from bottom-row to top-row. We thus need to swap the positions of all rows
+        # https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393
+        image_data = bitmap_data.decode_rle_data(self.palette)
+
+        for i in range(int(self.height / 2)):
+            lower_start = self.width * i
+            lower_stop = self.width * (i + 1)
+            upper_start = self.width * (self.height - i)
+            upper_stop = self.width * (self.height - i + 1)
+
+            row_lower = image_data[lower_start:lower_stop]
+            row_upper = image_data[upper_start:upper_stop]
+
+            image_data[lower_start:lower_stop] = row_upper
+            image_data[upper_start:upper_stop] = row_lower
+
+        # Flatten the array of color tuples to construct a byte array
+        return bytes([color_byte for rgb_tuple in image_data for color_byte in rgb_tuple])

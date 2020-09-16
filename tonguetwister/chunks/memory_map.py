@@ -27,6 +27,13 @@ class MemoryMap(RecordsChunk):
     def _parse_records(cls, stream: ByteBlockIO, header):
         return [MapEntry.parse(stream, header, i) for i in range(header['n_four_cc_available'])]
 
+    def find_record_id_by_address(self, address):
+        for i, record in enumerate(self.records):
+            if record.address == address:
+                return i
+
+        return -1
+
 
 class MapEntry(InternalChunkRecord):
     @classmethod
@@ -40,3 +47,7 @@ class MapEntry(InternalChunkRecord):
         data['u1'] = stream.uint32()
 
         return data
+
+    @property
+    def address(self):
+        return self.data['block_address']

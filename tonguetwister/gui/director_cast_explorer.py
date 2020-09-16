@@ -15,7 +15,9 @@ from kivy.uix.textinput import TextInput
 
 from tonguetwister.chunks.chunk import RecordsChunk, Chunk
 from tonguetwister.chunks.lingo_script import LingoScript
+from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.file_disassembler import FileDisassembler
+from tonguetwister.gui.components.bitmap_cast_member import BitmapCastMemberView
 from tonguetwister.gui.components.castmember import CastMemberView
 from tonguetwister.gui.components.chunk import DefaultRecordsChunkView, DefaultChunkView
 from tonguetwister.gui.components.script import ScriptPanel
@@ -47,6 +49,7 @@ class DirectorCastExplorer(App):
         self.view = None
         self.script_view = None
         self.cast_member_view = None
+        self.bitmap_cast_member_view = None
         self.records_chunk_view = None
         self.chunk_view = None
         self.plain_view = None
@@ -62,7 +65,7 @@ class DirectorCastExplorer(App):
             chunk_count = type_counts.get(chunk_name, 0)
             type_counts[chunk_name] = chunk_count + 1
 
-            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{address:X})', chunk))
+            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.address:X})', chunk))
 
     def _set_keyboard(self):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, None)
@@ -86,6 +89,9 @@ class DirectorCastExplorer(App):
 
         self.script_view = ScriptPanel(self.file_disassembler)
         self.cast_member_view = CastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
+        self.bitmap_cast_member_view = BitmapCastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
+
+        # Default viewers
         self.records_chunk_view = DefaultRecordsChunkView(self.file_disassembler, font_name=self.FONT_NAME)
         self.chunk_view = DefaultChunkView(self.file_disassembler, font_name=self.FONT_NAME)
         self.plain_view = TextInput(font_name=self.FONT_NAME)
@@ -135,6 +141,9 @@ class DirectorCastExplorer(App):
         if isinstance(chunk, LingoScript):
             self.view.add_widget(self.script_view)
             self.script_view.load(self.current_chunk.item[0], self.current_chunk.item[2])
+        elif isinstance(chunk, BitmapCastMember):
+            self.view.add_widget(self.bitmap_cast_member_view)
+            self.bitmap_cast_member_view.load(chunk)
         elif isinstance(chunk, RecordsChunk):
             self.view.add_widget(self.records_chunk_view)
             self.records_chunk_view.load(chunk)

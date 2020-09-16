@@ -1,8 +1,11 @@
+from typing import Union
+
+from tonguetwister.chunks.bitmap_data import BitmapData
 from tonguetwister.chunks.cast_association_map import CastAssociationMap
 from tonguetwister.chunks.cast_key_map import CastKeyMap
 from tonguetwister.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.chunks.cast_member import CastMember
-from tonguetwister.chunks.chunk import UndefinedChunk
+from tonguetwister.chunks.chunk import UndefinedChunk, Chunk
 from tonguetwister.chunks.drcf import DRCF
 from tonguetwister.chunks.font_map import FontMap
 from tonguetwister.chunks.initial_map import InitialMap
@@ -38,7 +41,7 @@ CHUNK_MAP = {
     'Sord': UndefinedChunk,
     'VWFI': UndefinedChunk,
     'VWSC': UndefinedChunk,
-    'BITD': UndefinedChunk,
+    'BITD': BitmapData,
     'XTRl': UndefinedChunk,
     'ediM': UndefinedChunk,
     'THUM': UndefinedChunk
@@ -82,7 +85,7 @@ class FileDisassembler:
 
             self._print_chunk_info()
             if four_cc in CHUNK_MAP:
-                self.chunks.append((self.current_address, CHUNK_MAP[four_cc].parse(chunk_stream, four_cc)))
+                self.chunks.append((self.current_address, CHUNK_MAP[four_cc].parse(chunk_stream, address, four_cc)))
             else:
                 print('WARNING: The four_cc', four_cc, 'is not in the CHUNK_MAP')
                 chunk_stream.read_bytes()
@@ -134,14 +137,40 @@ class FileDisassembler:
         """
 
     @property
-    def lingo_scripts(self):
+    def lingo_scripts(self) -> list:
         return [chunk for _, chunk in self.chunks if isinstance(chunk, LingoScript)]
 
     @property
-    def namelist(self):
+    def namelist(self) -> Union[LingoNamelist, None]:
         namelists = [chunk for _, chunk in self.chunks if isinstance(chunk, LingoNamelist)]
         if len(namelists) == 0:
             return None
         if len(namelists) > 1:
             print('Warning: More than one namelist')
         return namelists[0]
+
+    @property
+    def cast_key_map(self) -> Union[CastKeyMap, None]:
+        cast_key_maps = [chunk for _, chunk in self.chunks if isinstance(chunk, CastKeyMap)]
+        if len(cast_key_maps) == 0:
+            return None
+        if len(cast_key_maps) > 1:
+            print('Warning: More than one namelist')
+        return cast_key_maps[0]
+
+    @property
+    def mmap(self) -> Union[MemoryMap, None]:
+        memory_maps = [chunk for _, chunk in self.chunks if isinstance(chunk, MemoryMap)]
+        if len(memory_maps) == 0:
+            return None
+        if len(memory_maps) > 1:
+            print('Warning: More than one namelist')
+        return memory_maps[0]
+
+    def find_chunk_by_mmap_id(self, mmap_id) -> Union[Chunk, None]:
+        address = self.mmap[mmap_id].address
+        for (chunk_address, chunk) in self.chunks:
+            if chunk_address == address:
+                return chunk
+
+        return None
