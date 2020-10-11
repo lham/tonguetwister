@@ -23,7 +23,7 @@ class PaletteCastMember(SpecificCastMember):
             return PaletteCastMember.PREDEFINED_PALETTES[(bit_depth, palette_id)][1]
         else:
             print(f'WARNING: No predefined palette for (bit depth: {bit_depth}, palette id: {palette_id})')
-            raise PALETTE_WINDOWS_POST_4
+            return PALETTE_WINDOWS_POST_4
 
     @staticmethod
     def get_predefined_palette_name(bit_depth, palette_id):

@@ -60,3 +60,14 @@ def assert_data_value(data_value, values):
         raise UnexpectedDataValue(
             f'data_value {data_value} was not found in {values} for {caller.filename, caller.lineno}'
         )
+
+
+def twos_complement(value, size=8):
+    if size == 8:
+        return 0xff - value + 1
+    elif size == 16:
+        return 0xffff - value + 1
+    elif size == 32:
+        return 0xffffff - value + 1
+    else:
+        raise AttributeError('size must be 8, 16 or 32')

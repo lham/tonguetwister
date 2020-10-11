@@ -47,7 +47,7 @@ class BitmapCastMemberView(BoxLayout):
         return layout
 
     def _build_image_area(self):
-        self.image = BitmapImage()
+        self.image = BitmapImage(resizeable=True)
 
         layout = BoxLayout()
         layout.add_widget(self.image)
@@ -84,10 +84,12 @@ class BitmapCastMemberView(BoxLayout):
         cast_id = mmap.find_record_id_by_address(bitmap_cast_member.address)
         resource_id = key_map.find_resource_chunk_mmap_id_by_cast_member_mmap_id(cast_id)
         resource = self.file_disassembler.find_chunk_by_mmap_id(resource_id)
+
         self.image.display(
             bitmap_cast_member.width,
             bitmap_cast_member.height,
-            bitmap_cast_member.image_data(resource)
+            bitmap_cast_member.image_data(resource),
+            color_format=('argb' if bitmap_cast_member.has_alpha_channel() else 'rgb')
         )
 
         self.temp_palette.clear_widgets()

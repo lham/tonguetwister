@@ -51,7 +51,7 @@ class BitmapCastMember(SpecificCastMember):
 
         data = OrderedDict()
 
-        data['?width'] = stream.uint16() & 0x7fff  # What are we doing here? Also, this seems to be wrong..
+        data['bytes_per_image_row'] = stream.uint16() & 0x7fff  # Why are we using this mask?
         data['top'] = stream.int16()
         data['left'] = stream.int16()
         data['bottom'] = stream.int16()
@@ -98,18 +98,28 @@ class BitmapCastMember(SpecificCastMember):
         else:
             return 'Unable to parse palette cast member name'
 
-    def image_data(self, bitmap_data: BitmapData):
-        if self.bit_depth == 8:
-            return self._build_8bit_image(bitmap_data)
-        else:
-            size = self.height * self.width * 3
-            return bytes([int(x * 255 / size) for x in range(size)])
+    def has_alpha_channel(self):
+        return self.bit_depth == 32  # TODO: This is probably true for 16-bit as well?
 
-    def _build_8bit_image(self, bitmap_data: BitmapData):
+    def image_data(self, bitmap_data: BitmapData):
+        if self.bit_depth == 32:
+            image_data = bitmap_data.decode_32bit_rle_data(self.width, self.height)
+        elif self.bit_depth == 16:
+            raise RuntimeError('16-bit bitmaps not implemented yet')
+        elif self.bit_depth == 8:
+            image_data = bitmap_data.decode_8bit_rle_data(self.palette)
+        elif self.bit_depth == 4:
+            raise RuntimeError('4-bit bitmaps not implemented yet')
+        elif self.bit_depth == 2:
+            raise RuntimeError('2-bit bitmaps not implemented yet')
+        else:
+            raise RuntimeError(f'{self.bit_depth} is an invalid bit depth')
+
+        return self._reorder_image_data(image_data)
+
+    def _reorder_image_data(self, image_data):
         # Bitmaps are read from bottom-row to top-row. We thus need to swap the positions of all rows
         # https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393
-        image_data = bitmap_data.decode_rle_data(self.palette)
-
         for i in range(int(self.height / 2)):
             lower_start = self.width * i
             lower_stop = self.width * (i + 1)
