@@ -14,7 +14,7 @@ class Chunk:
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_endianess(stream)
+        cls._set_big_endianess(stream)
 
         header = cls._parse_header(stream)
         body = cls._parse_body(stream, header)
@@ -23,7 +23,7 @@ class Chunk:
         return cls(address, four_cc, header, body, footer)
 
     @classmethod
-    def _set_endianess(cls, stream: ByteBlockIO):
+    def _set_big_endianess(cls, stream: ByteBlockIO):
         stream.set_big_endian()
 
     @classmethod
@@ -47,7 +47,7 @@ class RecordsChunk(Chunk, Sequence):
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_endianess(stream)
+        cls._set_big_endianess(stream)
 
         header = cls._parse_header(stream)
         body = cls._parse_body(stream, header)

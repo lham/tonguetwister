@@ -33,7 +33,7 @@ class CastMember(Chunk):
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_endianess(stream)
+        cls._set_big_endianess(stream)
         header = cls._parse_header(stream)
 
         if cls.CAST_MEMBER_TYPES[header['media_type']] is not None:

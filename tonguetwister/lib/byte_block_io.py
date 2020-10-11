@@ -70,7 +70,7 @@ class ByteBlockIO:
 
     def string_auto(self, endianess=None):
         length = self.uint8(endianess)
-        string = self._string(length, 8)
+        string = self._string(length, endianess)
         _ = self.read_bytes(1)  # The null termination byte
 
         return string

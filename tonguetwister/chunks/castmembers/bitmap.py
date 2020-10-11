@@ -15,7 +15,7 @@ class BitmapCastMember(SpecificCastMember):
 
         data = OrderedDict()
 
-        # These are assumed to be skips
+        # These are assumed to be skips / reserved
         data['skip_length'] = stream.uint32()
         n_skip_reads = int(data['skip_length'] / 4) - 1  # Subtract 1 for self
         for i in range(n_skip_reads):
@@ -24,14 +24,17 @@ class BitmapCastMember(SpecificCastMember):
         # Real data
         data['n_props'] = stream.uint16()
 
-        prop_lengths = [stream.uint32() for _ in range(data['n_props'] + 1)]  # We compute x[i+1] - x[i], thus +1 values
-        for i, prop_length in enumerate(prop_lengths[:-1]):
-            data[f'prop_{i}_length'] = prop_lengths[i+1] - prop_length
+        prop_lengths = [stream.uint32() for _ in range(data['n_props'] + 1)]  # We will x[i+1] - x[i], thus 1 extra val
 
-        for i, prop_length in enumerate(prop_lengths[:-1]):  # New loop
+        # Iterate to save the lengths
+        for i, prop_length in enumerate(prop_lengths[:-1]):
+            data[f'prop_{i}_length'] = prop_lengths[i + 1] - prop_length
+
+        # Iterate again to save the data
+        for i, prop_length in enumerate(prop_lengths[:-1]):
             real_prop_length = prop_lengths[i + 1] - prop_length
 
-            if i == 1:  # Cast Member name
+            if i == 1:
                 data[f'prop_{i}_data_member_name'] = stream.string_auto()
             elif i == 2:
                 data[f'prop_{i}_data_ext_path'] = stream.string_auto()
@@ -67,7 +70,7 @@ class BitmapCastMember(SpecificCastMember):
         data['bit_depth'] = stream.uint8()
         data['?use_cast_palette'] = stream.int16();  assert_data_value(data['?use_cast_palette'], [-1, 0])
         # Above: -1 if first cast? otherwise 0?
-        data['palette'] = stream.int16()  # Refers to default palette if bit depth < 0, otherwise a cast member
+        data['palette'] = stream.int16()  # Refers to predefined palette < 0, otherwise a cast member
 
         return data
 
