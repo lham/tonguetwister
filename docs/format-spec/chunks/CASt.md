@@ -10,56 +10,56 @@ The cast member chunk is saved in **big-endian**.
 
 The structure is described by:
 
-Ref.   | Length       | Description
----    | ---:         | ---
-&nbsp; | 12 bytes     | [Chunk header](#chunk-header)
-&nbsp; | `CDL` bytes  | [Common data](#common-data)
-&nbsp; | `TSDL` bytes | [Type specific data](#type-specific-data)
+Ref.   | Bytes  | Description
+---    | ---:   | ---
+&nbsp; | 12     | [Chunk header](#chunk-header)
+&nbsp; | `CDL`  | [Common data](#common-data)
+&nbsp; | `TSDL` | [Type specific data](#type-specific-data)
 
 
 ## Chunk header
 The structure of the cast member chunk header is:
 
-Ref.   | Length  | Type   | Name                        | Description
----    | ---:    | ---    | ---                         | ---
-`T`    | 4 bytes | uint32 | `cast-member-type`          | [Cast member type](#cast-member-types).
-`CDL`  | 4 bytes | uint32 | `common-data-length`        | Length of the [common data](#common-data).
-`TSDL` | 4 bytes | uint32 | `type-specific-data-length` | Length of the [type specific data](#type-specific-data).
+Ref.   | Bytes | Type   | Name                                        | Description
+---    | ---:  | ---    | ---                                         | ---
+`T`    | 4     | uint32 | cast&#8209;member&#8209;type                | The [type](#cast-member-types) of this cast member.
+`CDL`  | 4     | uint32 | common&#8209;data&#8209;length              | Length of the [common data](#common-data).
+`TSDL` | 4     | uint32 | type&#8209;specific&#8209;data&#8209;length | Length of the [type specific data](#type-specific-data).
 
 
 ## Common data
 The common data consists of `CDL` bytes. The structure is defined as follows:
 
-Ref.   | Length                | Type(s)  | Name                                | Description
----    | ---:                  | ---      | ---                                 | ---
-`RL`   | `4` bytes             | uint32   | `reserved-length`                   | The length of the **reserved block** (including self).
-&nbsp; | `(RL - 1) * 4` bytes  | uint32   | &nbsp;                              | **Reserved block**. Unknown purpose.
-`NPD`  | `2` bytes             | uint16   | `number-of-data-properties-defined` | The number of **data properties** defined for this chunk.
-`PL`   | `(NDP + 1) * 4` bytes | uint32   | `data-property-lengths`             | Array of data property lengths.
-&nbsp; | `sum(PL)` bytes       | *varies* | `data-properties`                   | Array of data properties.
+Ref.   | Bytes                                     | Type(s)  | Name                                                      | Description
+---    | ---:                                      | ---      | ---                                                       | ---
+`RL`   | 4                                         | uint32   | reserved&#8209;length                                     | The length of the **reserved block** (including self).
+&nbsp; | (`RL`&nbsp;-&nbsp;1)&nbsp;&times;&nbsp;4  | uint32   | &nbsp;                                                    | **Reserved block**. Unknown purpose.
+`NPD`  | 2                                         | uint16   | number&#8209;of&#8209;data&#8209;properties&#8209;defined | The number of **data properties** defined for this chunk.
+`PL`   | (`NDP`&nbsp;+&nbsp;1)&nbsp;&times;&nbsp;4 | uint32   | data&#8209;property&#8209;lengths                         | Array of **data property** lengths (the raw uint32 values are offsets, see explanation below).
+&nbsp; | &Sigma;(`PL`)                             | *varies* | data&#8209;properties                                     | Array of **data properties**.
 
-This is a bit tricky to parse. First you need to know that each common data property has a fixed index. The properties
+This is a bit tricky to parse. First you need to know that each common **data property** has a fixed index. The properties
 with their indices and types are given by the following table:
 
-Index | Type               | Name                      | Description
----:  | ---                | ---                       | ---
-0     | Unknown            | &nbsp;                    | &nbsp;
-1     | string<sup>1</sup> | `cast-member-name`        | Name of the cast member.
-2     | string<sup>1</sup> | `external-path`           | The relative path/directory of an imported cast member.
-3     | string<sup>1</sup> | `external-filename`       | The filename (excluding extension) of an imported cast member.
-4     | Unknown            | &nbsp;                    | &nbsp;
-5     | Unknown            | &nbsp;                    | &nbsp;
-6     | Unknown            | &nbsp;                    | &nbsp;
-7     | Unknown            | &nbsp;                    | &nbsp;
-8     | Unknown            | &nbsp;                    | &nbsp;
-9     | Unknown            | &nbsp;                    | &nbsp;
-10    | Unknown            | &nbsp;                    | &nbsp;
-11    | Unknown            | &nbsp;                    | &nbsp;
-12    | Unknown            | &nbsp;                    | &nbsp;
-13    | Unknown            | &nbsp;                    | &nbsp;
-14    | Unknown            | &nbsp;                    | &nbsp;
-15    | Unknown            | &nbsp;                    | &nbsp;
-16    | string<sup>1</sup> | `external-file-extension` | The file extension of an imported cast member.
+Index | Type               | Name                                | Description
+---:  | ---                | ---                                 | ---
+0     | Unknown            | &nbsp;                              | &nbsp;
+1     | string<sup>1</sup> | cast&#8209;member&#8209;name        | Name of the cast member.
+2     | string<sup>1</sup> | external&#8209;path                 | The relative path/directory of an [imported](#TODO) cast member.
+3     | string<sup>1</sup> | external&#8209;filename             | The filename (excluding extension) of an [imported](#TODO) cast member.
+4     | Unknown            | &nbsp;                              | &nbsp;
+5     | Unknown            | &nbsp;                              | &nbsp;
+6     | Unknown            | &nbsp;                              | &nbsp;
+7     | Unknown            | &nbsp;                              | &nbsp;
+8     | Unknown            | &nbsp;                              | &nbsp;
+9     | Unknown            | &nbsp;                              | &nbsp;
+10    | Unknown            | &nbsp;                              | &nbsp;
+11    | Unknown            | &nbsp;                              | &nbsp;
+12    | Unknown            | &nbsp;                              | &nbsp;
+13    | Unknown            | &nbsp;                              | &nbsp;
+14    | Unknown            | &nbsp;                              | &nbsp;
+15    | Unknown            | &nbsp;                              | &nbsp;
+16    | string<sup>1</sup> | external&#8209;file&#8209;extension | The file extension of an [imported](#TODO) cast member.
 
 <sup>1</sup> A string here consists of an uint8 length `L`, followed by `L` characters and a terminating `NULL` byte.
 
@@ -73,7 +73,7 @@ property lengths `PL` are then defined as `PL[i] = a[i + 1] - a[i]`.
 
 Finally each data property can be read using the lengths `PL`. They are just stacked one after another.
 
-The parsing can probably be done differently / more efficiently as this seems like a convoluted way of saving the data.
+The parsing can probably be done differently/more efficiently as this seems like a convoluted way of saving the data.
 
 
 ## Type specific data
