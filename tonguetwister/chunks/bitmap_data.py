@@ -99,7 +99,7 @@ class BitmapData(Chunk):
             bit depth 4: [[0, 1, 2, 3], [4, 5, 6, 7]]
             bit depth 8: [[0, 1, 2, 3, 4, 5, 6, 7]]
 
-        We can do this by first right-shifting to the index we want and then apply a mask to get the number of bits we
+        We can do this by first left-shifting to the index we want and then apply a mask to get the number of bits we
         want to extract. This becomes
 
             bit depth 1: [x << 7 & 0b00000001, x << 6 & 0b00000001, x << 5 & 0b00000001, x << 4 & 0b00000001,
