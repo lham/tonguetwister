@@ -71,3 +71,11 @@ def twos_complement(value, size=8):
         return 0xffffff - value + 1
     else:
         raise AttributeError('size must be 8, 16 or 32')
+
+
+def flatten(lst):
+    return [item for items in lst for item in items]
+
+
+def chunk(lst, size):
+    return [lst[index:index+size] for index in range(0, len(lst), size)]

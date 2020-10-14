@@ -34,7 +34,9 @@ class BitmapCastMember(SpecificCastMember):
         for i, prop_length in enumerate(prop_lengths[:-1]):
             real_prop_length = prop_lengths[i + 1] - prop_length
 
-            if i == 1:
+            if real_prop_length == 0:
+                data[f'prop_{i}_data'] = b''
+            elif i == 1:
                 data[f'prop_{i}_data_member_name'] = stream.string_auto()
             elif i == 2:
                 data[f'prop_{i}_data_ext_path'] = stream.string_auto()
@@ -66,17 +68,37 @@ class BitmapCastMember(SpecificCastMember):
         data['paint_window_offset_x'] = stream.int16(ByteBlockIO.LITTLE_ENDIAN)
         data['registration_point_y'] = stream.int16()
         data['registration_point_x'] = stream.int16()
-        data['?import_options'] = stream.uint8(); assert_data_value(data['?import_options'], [0, 8])  # 8 = dither
-        data['bit_depth'] = stream.uint8()
-        data['?use_cast_palette'] = stream.int16();  assert_data_value(data['?use_cast_palette'], [-1, 0])
-        # Above: -1 if first cast? otherwise 0?
-        data['palette'] = stream.int16()  # Refers to predefined palette < 0, otherwise a cast member
+
+        if stream.is_depleted():
+            # This happens if it's a 1-bit bitmap, set the values manually
+            data['?import_options'] = 0
+            data['bit_depth'] = 1
+            data['?use_cast_palette'] = -1
+            data['palette'] = None
+        else:
+            data['?import_options'] = stream.uint8(); assert_data_value(data['?import_options'], [0, 8])  # 8 = dither
+            data['bit_depth'] = stream.uint8()
+            data['?use_cast_palette'] = stream.int16();  assert_data_value(data['?use_cast_palette'], [-1, 0])
+            # Above: -1 if first cast? otherwise 0?
+            data['palette'] = stream.int16()  # Refers to predefined palette < 0, otherwise a cast member
 
         return data
 
     @property
     def name(self):
         return self.body['prop_1_data_member_name']
+
+    @property
+    def is_linked(self):
+        return 'prop_2_data_ext_path' in self.body and len(self.body['prop_2_data_ext_path']) > 0
+
+    @property
+    def external_file(self):
+        if not self.is_linked:
+            return ''
+
+        # TODO: The path separator must depend on os version somehow
+        return f"{self.body['prop_2_data_ext_path']}\\{self.body['prop_3_data_ext_filename']}"
 
     @property
     def width(self):
@@ -92,6 +114,9 @@ class BitmapCastMember(SpecificCastMember):
 
     @property
     def palette(self):
+        if self.footer['?use_cast_palette'] >= 0:
+            print('Warning: Cast palette not implemented, using a predefined palette')
+
         return PaletteCastMember.get_predefined_palette(self.bit_depth, self.footer['palette'])
 
     @property
@@ -101,39 +126,15 @@ class BitmapCastMember(SpecificCastMember):
         else:
             return 'Unable to parse palette cast member name'
 
-    def has_alpha_channel(self):
-        return self.bit_depth == 32  # TODO: This is probably true for 16-bit as well?
-
     def image_data(self, bitmap_data: BitmapData):
-        if self.bit_depth == 32:
-            image_data = bitmap_data.decode_32bit_rle_data(self.width, self.height)
-        elif self.bit_depth == 16:
-            raise RuntimeError('16-bit bitmaps not implemented yet')
-        elif self.bit_depth == 8:
-            image_data = bitmap_data.decode_8bit_rle_data(self.palette)
-        elif self.bit_depth == 4:
-            raise RuntimeError('4-bit bitmaps not implemented yet')
-        elif self.bit_depth == 2:
-            raise RuntimeError('2-bit bitmaps not implemented yet')
-        else:
-            raise RuntimeError(f'{self.bit_depth} is an invalid bit depth')
+        if not isinstance(bitmap_data, BitmapData):
+            print('Warning: Trying to load image data of a chunk that is not BitmapData')
+            return []
 
-        return self._reorder_image_data(image_data)
-
-    def _reorder_image_data(self, image_data):
-        # Bitmaps are read from bottom-row to top-row. We thus need to swap the positions of all rows
-        # https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393
-        for i in range(int(self.height / 2)):
-            lower_start = self.width * i
-            lower_stop = self.width * (i + 1)
-            upper_start = self.width * (self.height - i - 1)
-            upper_stop = self.width * (self.height - i)
-
-            row_lower = image_data[lower_start:lower_stop]
-            row_upper = image_data[upper_start:upper_stop]
-
-            image_data[lower_start:lower_stop] = row_upper
-            image_data[upper_start:upper_stop] = row_lower
-
-        # Flatten the array of color tuples to construct a byte array
-        return bytes([color_byte for rgb_tuple in image_data for color_byte in rgb_tuple])
+        return bitmap_data.unpack_bitmap_data(
+            self.width,
+            self.height,
+            self.bit_depth,
+            self.footer['bytes_per_image_row'],
+            self.palette
+        )

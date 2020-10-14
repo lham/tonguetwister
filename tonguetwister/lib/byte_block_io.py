@@ -114,3 +114,11 @@ class ByteBlockIO:
 
     def get_unprocessed_bytes_array(self):
         return [i for (i, x) in enumerate(self.byte_is_unprocessed) if x]
+
+    @staticmethod
+    def bytes_to_16bit_word(byte_list, endianess):
+        return unpack(endianess + 'H', bytes(byte_list))[0]
+
+    @staticmethod
+    def bytes_to_32bit_word(byte_list, endianess):
+        return unpack(endianess + 'I', bytes(byte_list))[0]

@@ -1,5 +1,4 @@
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 
 from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
@@ -7,6 +6,7 @@ from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
 from tonguetwister.gui.widgets.label_area import LabelArea
 from tonguetwister.gui.widgets.palette import PaletteDisplay
+from tonguetwister.lib.helper import flatten
 
 
 class BitmapCastMemberView(BoxLayout):
@@ -17,6 +17,7 @@ class BitmapCastMemberView(BoxLayout):
 
         self.label_area = None
         self.image = None
+        self.image_wrapper = None
         self.temp_palette = None
 
         self.add_widget(self._build_tabbed_panel())
@@ -49,17 +50,18 @@ class BitmapCastMemberView(BoxLayout):
     def _build_image_area(self):
         self.image = BitmapImage(resizeable=True)
 
-        layout = BoxLayout()
-        layout.add_widget(self.image)
+        self.image_wrapper = BoxLayout()
+        self.image_wrapper.add_widget(self.image)
 
-        return layout
+        return self.image_wrapper
 
     def _build_label_area(self):
         self.label_area = LabelArea({
             'name': 'Cast member name',
             'size': 'Image size',
             'bit_depth': 'Bit depth',
-            'palette': 'Palette'
+            'palette': 'Palette',
+            'linked': 'Linked'
         })
 
         return self.label_area
@@ -74,7 +76,8 @@ class BitmapCastMemberView(BoxLayout):
             'name': bitmap.name,
             'size': f'{bitmap.width}x{bitmap.height} px',
             'bit_depth': f'{bitmap.bit_depth}-bit',
-            'palette': bitmap.palette_name
+            'palette': bitmap.palette_name,
+            'linked': bitmap.external_file if bitmap.is_linked else 'False'
         })
 
     def _load_image(self, bitmap_cast_member):
@@ -85,12 +88,24 @@ class BitmapCastMemberView(BoxLayout):
         resource_id = key_map.find_resource_chunk_mmap_id_by_cast_member_mmap_id(cast_id)
         resource = self.file_disassembler.find_chunk_by_mmap_id(resource_id)
 
-        self.image.display(
-            bitmap_cast_member.width,
-            bitmap_cast_member.height,
-            bitmap_cast_member.image_data(resource),
-            color_format=('argb' if bitmap_cast_member.has_alpha_channel() else 'rgb')
-        )
+        self._detach_image()
+        if not bitmap_cast_member.is_linked:
+            image_data = bytes(flatten(bitmap_cast_member.image_data(resource)))
 
-        self.temp_palette.clear_widgets()
-        self.temp_palette.add_widget(PaletteDisplay(bitmap_cast_member.palette))
+            if len(image_data) > 0:
+                self._attach_image()
+                self.image.display(
+                    bitmap_cast_member.width,
+                    bitmap_cast_member.height,
+                    image_data,
+                    color_format='argb'
+                )
+
+            self.temp_palette.clear_widgets()
+            self.temp_palette.add_widget(PaletteDisplay(bitmap_cast_member.palette))
+
+    def _attach_image(self):
+        self.image_wrapper.add_widget(self.image)
+
+    def _detach_image(self):
+        self.image_wrapper.clear_widgets()

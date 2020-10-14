@@ -2,6 +2,19 @@ from tonguetwister.chunks.castmembers.core import SpecificCastMember
 from tonguetwister.data.palettes import *
 
 
+def generate_predefined_palette(bit_depth, name, base_palette):
+    if bit_depth == 8:
+        return name, base_palette
+    elif bit_depth == 4:
+        return name, base_palette[:8] + base_palette[248:]
+    elif bit_depth == 2:
+        return name, [base_palette[0], base_palette[8], base_palette[129], base_palette[255]]
+    elif bit_depth == 1:
+        return name, [base_palette[0], base_palette[-1]]
+    else:
+        raise RuntimeError(f'Can not generate palette for bit depth {bit_depth}')
+
+
 class PaletteCastMember(SpecificCastMember):
     PREDEFINED_PALETTES = {
         (8, 0): ('Macintosh system', PALETTE_MAC),
@@ -13,8 +26,11 @@ class PaletteCastMember(SpecificCastMember):
         (8, -6): ('Metallic', PALETTE_METALLIC),
         (4, -7): ('VGA', None),  # Only for 4-bit color depth
         (8, -100): ('Windows system (<= Director 4)', PALETTE_WINDOWS_PRE_5),
-        (8, -101): ('Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
         (8, -8): ('Web 216 (Director 7)', None),
+        (1, None): generate_predefined_palette(1, 'Binary palette', PALETTE_WINDOWS_POST_4),
+        (2, -101): generate_predefined_palette(2, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
+        (4, -101): generate_predefined_palette(4, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
+        (8, -101): generate_predefined_palette(8, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
     }
 
     @staticmethod

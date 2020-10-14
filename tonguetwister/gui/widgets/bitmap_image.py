@@ -75,7 +75,7 @@ class BitmapImage(Widget):
                 self.scale = max(self.scale * 0.5, self.MIN_ZOOM)
 
     def _compute_scaled_data(self):
-        if not self._resizeable:
+        if not self._resizeable or self._image_width == 0 or self._image_height == 0:
             return self._data
 
         # Convert byte string into a color tuple list
