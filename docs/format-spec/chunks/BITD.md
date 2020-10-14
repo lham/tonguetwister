@@ -10,7 +10,7 @@ The bitmap data chunk contains raw image data. Depending on its bit depth and si
 using run length encoding.
 
 
-## Decoding the data into 32-bit aRGB bitmaps
+## Decoding the data into a 32-bit aRGB bitmap
 Generally speaking the decoding process follow the same steps for each bit depth, but that partially depends on your
 implementation. So this explanation follows the steps this library uses for decoding.
 
