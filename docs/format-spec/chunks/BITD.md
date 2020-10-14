@@ -27,14 +27,14 @@ The steps to unpack the bitmaps data are roughly the following:
 1. Convert the bitmap data into a stream.
 1. For each row in the image:
     1. Read the number of bytes specified by the bytes-per-image-row `BDP` from the data stream.
-        - If size of the stream is equal to the height &times; `BDP`, then the data is not encoded. Just read the bytes
-          into a long stream.
+        - If size of the stream is equal to `H` &times; `BDP`, then the data is not encoded. Just read the bytes into a
+          long stream.
         - Otherwise the data is encoded using the [PackBits algorithm](https://en.wikipedia.org/wiki/PackBits). Decode
           using the steps of the algorithm. Before returning the bytes they need to be reordered if the depth depth is
           16-bit or 32-bit; the bytes for each 16-bit word and 32-bit word, respectively, are encoded so that every
           first byte for each word in the row comes first, then every second byte for each word in the row, etc.
     1. Convert the byte list into 32, 16, 8, 4, 2, or 1-bit words depending on the bit depth. For bit depths 8 and below
-       there might be left-over bits in the byte list, so the word list needs to be trimmed to `W` elements.
+       there might be left-over bits in the byte list, so the list of words need to be trimmed to `W` elements.
 1. Convert each word into a color.
     - For a 32-bit word, there are 4 color channels: alpha, red, green, blue. They are packed into the word in that
       order with 8 bits per channel. The alpha channel does not seem to be used in Director 6, hence it can be replaced
@@ -47,3 +47,5 @@ The steps to unpack the bitmaps data are roughly the following:
    and so on. This is done because bitmaps are read upside down, see this
    [link](https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393) for more
    information.
+   
+For more information on exact steps see the [implementation](../../../tonguetwister/chunks/bitmap_data.py).
