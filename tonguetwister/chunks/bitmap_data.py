@@ -102,10 +102,10 @@ class BitmapData(Chunk):
         We can do this by first right-shifting to the index we want and then apply a mask to get the number of bits we
         want to extract. This becomes
 
-            bit depth 1: [x << 7 & 0b1, x << 6 & 0b1, x << 5 & 0b1, x << 4 & 0b1,
-                          x << 3 & 0b1, x << 2 & 0b1, x << 1 & 0b1, x << 0 & 0b1]
-            bit depth 2: [x << 6 & 0b11, x << 4 & 0b11, x << 2 & 0b11, x << 0 & 0b11]
-            bit depth 4: [x << 4 & 0b1111, x << 0 & 0b1111]
+            bit depth 1: [x << 7 & 0b00000001, x << 6 & 0b00000001, x << 5 & 0b00000001, x << 4 & 0b00000001,
+                          x << 3 & 0b00000001, x << 2 & 0b00000001, x << 1 & 0b00000001, x << 0 & 0b00000001]
+            bit depth 2: [x << 6 & 0b00000011, x << 4 & 0b00000011, x << 2 & 0b00000011, x << 0 & 0b00000011]
+            bit depth 4: [x << 4 & 0b00001111, x << 0 & 0b00001111]
             bit depth 8: [x << 0 & 0b11111111]
         """
         n_bits = 2 ** bit_depth - 1
