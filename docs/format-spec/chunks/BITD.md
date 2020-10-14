@@ -17,7 +17,7 @@ implementation. So this explanation follows the steps this library uses for deco
 To unpack the bitmap data we need access to the following variables from the
 [bitmap cast member](./castmembers/bitmap.md):
 
-- bytes-per-image-row `BDP`
+- bytes-per-image-row `BPR`
 - width `W`
 - height `H`
 - palette `P`
@@ -26,8 +26,8 @@ The steps to unpack the bitmaps data are roughly the following:
 
 1. Convert the bitmap data into a stream.
 1. For each row in the image:
-    1. Read the number of bytes specified by the bytes-per-image-row `BDP` from the data stream.
-        - If size of the stream is equal to `H` &times; `BDP`, then the data is not encoded. Just read the bytes into a
+    1. Read the number of bytes specified by the bytes-per-image-row `BPR` from the data stream.
+        - If size of the stream is equal to `H` &times; `BPR`, then the data is not encoded. Just read the bytes into a
           long stream.
         - Otherwise the data is encoded using the [PackBits algorithm](https://en.wikipedia.org/wiki/PackBits). Decode
           using the steps of the algorithm. Before returning the bytes they need to be reordered if the depth depth is
