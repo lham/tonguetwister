@@ -16,7 +16,7 @@ image data is either externally located in an image file, or located in on of th
 ## Type specific data
 Ref.   | Bytes | Type   | Name                                          | Description
 ---    | ---:  | ---    | ---                                           | ---
-&nbsp; | 2     | uint16 | bytes&#8209;per&#8209;image&#8209;row         | The number of bytes per row of the image. For a 32-bit image this would be the image width * 4 (alpha, red, green, blue). This value needs to be masked with `0x7fff` for some reason?
+`BPR`  | 2     | uint16 | bytes&#8209;per&#8209;image&#8209;row         | The number of bytes per row of the image. For a 32-bit image this would be the image width * 4 (alpha, red, green, blue). This value needs to be masked with `0x7fff` for some reason?
 &nbsp; | 2     | int16  | top                                           | y-value of the top of the [**image bounding box rectangle**](#TODO).
 &nbsp; | 2     | int16  | left                                          | x-value of the left side of the [**image bounding box rectangle**](#TODO).
 &nbsp; | 2     | int16  | bottom                                        | y-value of the bottom side of the [**image bounding box rectangle**](#TODO).
@@ -31,4 +31,6 @@ Ref.   | Bytes | Type   | Name                                          | Descri
 &nbsp; | 1     | uint8  | ?import&#8209;options                         | Bit-flag field for [**import options**](#TODO)? If so, `0x08`: dither image. Not affecting the rendering of the image.
 &nbsp; | 1     | uint8  | bit&#8209;depth                               | **Bit depth** (color depth) of the image.
 &nbsp; | 2     | int16  | ?use&#8209;cast&#8209;palette                 | Probably whether or not to use a [predefined palette](./palette.md#TODO) or a [palette cast member](./palette.md). `-1` if predefined, `0` otherwise.
-&nbsp; | 2     | int16  | palette                                       | A [predefined palette](./palette.md#TODO) if less than zero, otherwise it refers to a [palette cast member](./palette.md).
+`P`    | 2     | int16  | palette                                       | A [predefined palette](./palette.md#TODO) if less than zero, otherwise it refers to a [palette cast member](./palette.md).
+
+We can construct the width `W` as `right - left` and the height `H` as `bottom - top`.
