@@ -42,11 +42,11 @@ Cast members:
 39: 4x4_chess_2bit,           Source: copy of 35, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Dither]
 40: 4x4_chess_1bit,           Source: copy of 35, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Dither]
 41: empty_24bit,              Source: Internally created by Insert > Media Element > Bitmap, [CD: 24 bits]
-42: empty_16bit,              Source: copy of 35, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
-43: empty_8bit,               Source: copy of 35, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Remap Colors]
-44: empty_4bit,               Source: copy of 35, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Remap Colors]
-45: empty_2bit,               Source: copy of 35, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Remap Colors]
-46: empty_1bit,               Source: copy of 35, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Remap Colors]
+42: empty_16bit,              Source: copy of 41, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
+43: empty_8bit,               Source: copy of 41, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Remap Colors]
+44: empty_4bit,               Source: copy of 41, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Remap Colors]
+45: empty_2bit,               Source: copy of 41, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Remap Colors]
+46: empty_1bit,               Source: copy of 41, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Remap Colors]
 47: 65x85_smile_16bit_colors  Source: copy of 5,  Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
 
 -------------------------------------------
