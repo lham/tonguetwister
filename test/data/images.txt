@@ -1,0 +1,61 @@
+-------------------------------------------
+Cast members:
+-------------------------------------------
+ 1: 65x85_smile_2colors,      Source: Import [Standard import], Import Options [CD:  1 bits]
+ 2: Palette imported for cast member number 3, automatically created
+ 3: 65x85_smile_16colors,     Source: Import [Standard import], Import Options [CD:  4 bits, Palette: Import]
+ 4: 65x85_smile_256colors,    Source: Import [Standard import], Import Options [CD:  8 bits, Palette: Remap to "System - Win"]
+ 5: 65x85_smile_24bit_colors, Source: Import [Standard import], Import Options [CD: 32 bits]
+ 6: 65x85_smile_16colors,     Source: Import [Standard import], Import Options [CD:  4 bits, Palette: Remap to "System - Win"]
+ 7: 65x85_smile_24bit_colors, Source: Import [Standard import], Import Options [CD: 24 bits]
+ 8: 65x85_smile_24bit_colors, Source: Import [Standard import], Import Options [CD: 32 bits, Dither]
+ 9: 65x85_smile_2colors,      Source: Import [Link to external file], Import Options [CD:  1 bits]
+10: 65x85_smile_16colors,     Source: Import [Link to external file], Import Options [CD:  4 bits, Palette: Remap to "System - Win"]
+11: 65x85_smile_256colors,    Source: Import [Link to external file], Import Options [CD:  8 bits, Palette: Remap ti "System - Win"]
+12: 65x85_smile_24bit_colors, Source: Import [Link to external file], Import Options [CD: 32 bits]
+13: 65x85_smile_2colors,      Source: Import [Include original data for editing], Import Options [CD:  1 bits]
+14: 65x85_smile_16colors,     Source: Import [Include original data for editing], Import Options [CD:  4 bits, Palette: Remap to "System - Win"]
+15: 65x85_smile_256colors,    Source: Import [Include original data for editing], Import Options [CD:  8 bits, Palette: Remap to "System - Win"]
+16: 65x85_smile_24bit_colors, Source: Import [Include original data for editing], Import Options [CD: 32 bits]
+17: internal_x_24,            Source: Internally created by Insert > Media Element > Bitmap, [CD: 24 bits]
+18: internal_x_16,            Source: copy of 17, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
+19: internal_x_8,             Source: copy of 17, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Remap Colors]
+20: internal_x_4,             Source: copy of 17, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Remap Colors]
+21: internal_x_2,             Source: copy of 17, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Remap Colors]
+22: internal_x_1,             Source: copy of 17, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Remap Colors]
+23: internal_x2_24,           Source: copy of 17
+24: internal_x_16,            Source: copy of 17, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Dither]
+25: internal_x_8,             Source: copy of 17, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Dither]
+26: internal_x_4,             Source: copy of 17, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Dither]
+27: internal_x_2,             Source: copy of 17, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Dither]
+28: internal_x_1,             Source: copy of 17, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Dither]
+29: 5x2_pink_small,           Source: Import [Standard import], Import Options [CD: 32 bits]
+30: 500x300_pink_large,       Source: Import [Standard import], Import Options [CD: 32 bits]
+31: Flag_b24,                 Source: Import [Standard import], Import Options [CD: 32 bits]
+32: Flag_b24,                 Source: Import [Link to external file], Import Options [CD: 32 bits]
+33: Flag_b24,                 Source: Import [Include original data for editing], Import Options [CD: 32 bits]
+34: Flag_b24,                 Source: Import [Import PICT file as PICT], Import Options [CD: 32 bits]
+35: 4x4_chess_24bit,          Source: Internally created by Insert > Media Element > Bitmap, [CD: 24 bits]
+36: 4x4_chess_16bit,          Source: copy of 35, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Dither]
+37: 4x4_chess_8bit,           Source: copy of 35, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Dither]
+38: 4x4_chess_4bit,           Source: copy of 35, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Dither]
+39: 4x4_chess_2bit,           Source: copy of 35, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Dither]
+40: 4x4_chess_1bit,           Source: copy of 35, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Dither]
+41: empty_24bit,              Source: Internally created by Insert > Media Element > Bitmap, [CD: 24 bits]
+42: empty_16bit,              Source: copy of 35, Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
+43: empty_8bit,               Source: copy of 35, Transform Bitmap [CD:  8 bits, Palette: "System - Win", Remap Colors]
+44: empty_4bit,               Source: copy of 35, Transform Bitmap [CD:  4 bits, Palette: "System - Win", Remap Colors]
+45: empty_2bit,               Source: copy of 35, Transform Bitmap [CD:  2 bits, Palette: "System - Win", Remap Colors]
+46: empty_1bit,               Source: copy of 35, Transform Bitmap [CD:  1 bits, Palette: "System - Win", Remap Colors]
+47: 65x85_smile_16bit_colors  Source: copy of 5,  Transform Bitmap [CD: 16 bits, Palette: "System - Win", Remap Colors]
+
+-------------------------------------------
+Image sources:
+-------------------------------------------
+Flag_b24.PICT     		File format: PICT 24-bit,           Size: 124x124 px, External source: http://www.fileformat.info/format/macpict/sample/index.htm
+65x85_smile_2colors.bmp         File format: Windows bitmap 1-bit,  Size: 65x85 px
+65x85_smile_16colors.bmp        File format: Windows bitmap 4-bit,  Size: 65x85 px
+65x85_smile_256colors.bmp       File format: Windows bitmap 8-bit,  Size: 65x85 px
+65x85_smile_24bit_colors.bmp    File format: Windows bitmap 24-bit, Size: 65x85 px
+5x2_pink_smal.bmp               File format: Windows bitmap 24-bit, Size: 5x2 px
+500x300_pink_large.bmp          File format: Windows bitmap 24-bit, Size: 500x300 px
