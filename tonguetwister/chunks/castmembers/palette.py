@@ -2,35 +2,29 @@ from tonguetwister.chunks.castmembers.core import SpecificCastMember
 from tonguetwister.data.palettes import *
 
 
-def generate_predefined_palette(bit_depth, name, base_palette):
-    if bit_depth == 8:
-        return name, base_palette
-    elif bit_depth == 4:
-        return name, base_palette[:8] + base_palette[248:]
-    elif bit_depth == 2:
-        return name, [base_palette[0], base_palette[8], base_palette[129], base_palette[255]]
-    elif bit_depth == 1:
-        return name, [base_palette[0], base_palette[-1]]
-    else:
-        raise RuntimeError(f'Can not generate palette for bit depth {bit_depth}')
-
-
 class PaletteCastMember(SpecificCastMember):
     PREDEFINED_PALETTES = {
-        (8, 0): ('Macintosh system', PALETTE_MAC),
-        (8, -1): ('Rainbow', PALETTE_RAINBOW),
-        (8, -2): ('Grayscale', PALETTE_GRAYSCALE),
-        (8, -3): ('Pastels', PALETTE_PASTEL),
-        (8, -4): ('Vivid', PALETTE_VIVID),
-        (8, -5): ('NTSC', PALETTE_NTSC),
-        (8, -6): ('Metallic', PALETTE_METALLIC),
-        (4, -7): ('VGA', None),  # Only for 4-bit color depth
-        (8, -100): ('Windows system (<= Director 4)', PALETTE_WINDOWS_PRE_5),
-        (8, -8): ('Web 216 (Director 7)', None),
-        (1, None): generate_predefined_palette(1, 'Binary palette', PALETTE_WINDOWS_POST_4),
-        (2, -101): generate_predefined_palette(2, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
-        (4, -101): generate_predefined_palette(4, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
-        (8, -101): generate_predefined_palette(8, 'Windows system (>= Director 5)', PALETTE_WINDOWS_POST_4),
+        (1, None): ('Binary', PALETTE_1_BIT_BINARY),
+        (2, 0): ('System - Mac', PALETTE_2_BIT_MAC),
+        (4, 0): ('System - Mac', PALETTE_4_BIT_MAC),
+        (8, 0): ('System - Mac', PALETTE_8_BIT_MAC),
+        (4, -1): ('Rainbow', PALETTE_4_BIT_RAINBOW),
+        (8, -1): ('Rainbow', PALETTE_8_BIT_RAINBOW),
+        (4, -2): ('Grayscale', PALETTE_4_BIT_GRAYSCALE),
+        (8, -2): ('Grayscale', PALETTE_8_BIT_GRAYSCALE),
+        (4, -3): ('Pastels', PALETTE_4_BIT_PASTELS),
+        (8, -3): ('Pastels', PALETTE_8_BIT_PASTELS),
+        (4, -4): ('Vivid', PALETTE_4_BIT_VIVID),
+        (8, -4): ('Vivid', PALETTE_8_BIT_VIVID),
+        (4, -5): ('NTSC', PALETTE_4_BIT_NTSC),
+        (8, -5): ('NTSC', PALETTE_8_BIT_NTSC),
+        (8, -6): ('Metallic', PALETTE_8_BIT_METALLIC),  # Only for 8-bit color depth
+        (4, -7): ('VGA', PALETTE_4_BIT_VGA),  # Only for 4-bit color depth
+        (4, -100): ('System - Win (Dir 4)', PALETTE_4_BIT_WIN_DIR4),
+        (8, -100): ('System - Win (Dir 4)', PALETTE_8_BIT_WIN_DIR4),
+        (2, -101): ('System - Win', PALETTE_2_BIT_WIN),
+        (4, -101): ('System - Win', PALETTE_4_BIT_WIN),
+        (8, -101): ('System - Win', PALETTE_8_BIT_WIN)
     }
 
     @staticmethod
@@ -39,11 +33,12 @@ class PaletteCastMember(SpecificCastMember):
             return PaletteCastMember.PREDEFINED_PALETTES[(bit_depth, palette_id)][1]
         else:
             print(f'WARNING: No predefined palette for (bit depth: {bit_depth}, palette id: {palette_id})')
-            return PALETTE_WINDOWS_POST_4
+            return PALETTE_8_BIT_WIN
 
     @staticmethod
     def get_predefined_palette_name(bit_depth, palette_id):
         if (bit_depth, palette_id) in PaletteCastMember.PREDEFINED_PALETTES:
             return PaletteCastMember.PREDEFINED_PALETTES[(bit_depth, palette_id)][0]
-
-        return f'Unknown palette (bit depth: {bit_depth}, palette id: {palette_id})'
+        else:
+            print(f'WARNING: No predefined palette for (bit depth: {bit_depth}, palette id: {palette_id})')
+            return f'Invalid palette (bit depth: {bit_depth}, palette id: {palette_id})'

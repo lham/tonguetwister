@@ -114,6 +114,9 @@ class BitmapCastMember(SpecificCastMember):
 
     @property
     def palette(self):
+        if self.bit_depth > 8:
+            return None
+
         if self.footer['?use_cast_palette'] >= 0:
             print('Warning: Cast palette not implemented, using a predefined palette')
 
@@ -121,7 +124,9 @@ class BitmapCastMember(SpecificCastMember):
 
     @property
     def palette_name(self):
-        if self.footer['?use_cast_palette'] < 0:
+        if self.bit_depth > 8:
+            return 'None'
+        elif self.footer['?use_cast_palette'] < 0:
             return PaletteCastMember.get_predefined_palette_name(self.bit_depth, self.footer['palette'])
         else:
             return 'Unable to parse palette cast member name'

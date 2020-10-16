@@ -102,7 +102,8 @@ class BitmapCastMemberView(BoxLayout):
                 )
 
             self.temp_palette.clear_widgets()
-            self.temp_palette.add_widget(PaletteDisplay(bitmap_cast_member.palette))
+            if bitmap_cast_member.bit_depth <= 8:
+                self.temp_palette.add_widget(PaletteDisplay(bitmap_cast_member.palette))
 
     def _attach_image(self):
         self.image_wrapper.add_widget(self.image)
