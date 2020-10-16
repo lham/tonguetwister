@@ -7,6 +7,7 @@ from tonguetwister.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.chunks.cast_member import CastMember
 from tonguetwister.chunks.chunk import UndefinedChunk, Chunk
 from tonguetwister.chunks.drcf import DRCF
+from tonguetwister.chunks.editable_media import EditableMedia
 from tonguetwister.chunks.font_map import FontMap
 from tonguetwister.chunks.initial_map import InitialMap
 from tonguetwister.chunks.lingo_context import LingoContext
@@ -43,7 +44,7 @@ CHUNK_MAP = {
     'VWSC': UndefinedChunk,
     'BITD': BitmapData,
     'XTRl': UndefinedChunk,
-    'ediM': UndefinedChunk,
+    'ediM': EditableMedia,
     'THUM': UndefinedChunk
 }
 
