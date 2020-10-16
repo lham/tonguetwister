@@ -1,0 +1,46 @@
+-------------------------------------------
+Cast members:
+-------------------------------------------
+ 1: sys_win_8,                    256 pixels: 0-255,              16x16,  8-bit, Palette: System - Win
+ 2: sys_mac_8,                    256 pixels: 0-255,              16x16,  8-bit, Palette: System - Mac
+ 3: rainbow_8,                    256 pixels: 0-255,              16x16,  8-bit, Palette: Rainbow
+ 4: grayscale_8,                  256 pixels: 0-255,              16x16,  8-bit, Palette: Grayscale
+ 5: pastels_8,                    256 pixels: 0-255,              16x16,  8-bit, Palette: Pastels
+ 6: vivid_8,                      256 pixels: 0-255,              16x16,  8-bit, Palette: Vivid
+ 7: ntsc_8,                       256 pixels: 0-255,              16x16,  8-bit, Palette: NTSC
+ 8: metallic_8,                   256 pixels: 0-255,              16x16,  8-bit, Palette: Metallic
+ 9: system_win_director4_8,       256 pixels: 0-255,              16x16,  8-bit, Palette: System - Win (Dir 4)
+10: win_4,                        16 pixels:  0-15,                 4x4,  4-bit, Palette: System - Win
+11: mac_4,                        16 pixels:  0-15,                 4x4,  4-bit, Palette: System - Mac
+12: rainbow_4,                    16 pixels:  0-15,                 4x4,  4-bit, Palette: Rainbow
+13: grayscale_4,                  16 pixels:  0-15,                 4x4,  4-bit, Palette: Grayscale
+14: pastels_4,                    16 pixels:  0-15,                 4x4,  4-bit, Palette: Pastels
+15: vivid_4,                      16 pixels:  0-15,                 4x4,  4-bit, Palette: Vivid
+16: ntsc_4,                       16 pixels:  0-15,                 4x4,  4-bit, Palette: NTSC
+17: vga_4,                        16 pixels:  0-15,                 4x4,  4-bit, Palette: VGA
+18: system_win_director4_4,       16 pixels:  0-15,                 4x4,  4-bit, Palette: System - Win (Dir 4)
+19: win_2,                        4 pixels:   0-3,                  2x2,  2-bit, Palette: System - Win
+20: mac_2,                        4 pixels:   0-3,                  2x2,  2-bit, Palette: System - Mac
+21: sys_win_8_to_32,              256 pixels: Transformed from 1, 16x16, 32-bit
+22: sys_mac_8_to_32,              256 pixels: Transformed from 2, 16x16, 32-bit
+23: rainbow_8_to_32,              256 pixels: Transformed from 3, 16x16, 32-bit
+24: grayscale_8_to_32,            256 pixels: Transformed from 4, 16x16, 32-bit
+25: pastels_8_to_32,              256 pixels: Transformed from 5, 16x16, 32-bit
+26: vivid_8_to_32,                256 pixels: Transformed from 6, 16x16, 32-bit
+27: ntsc_8_to_32,                 256 pixels: Transformed from 7, 16x16, 32-bit
+28: metallic_8_to_32,             256 pixels: Transformed from 8, 16x16, 32-bit
+29: system_win_director4_8_to_32, 256 pixels: Transformed from 9, 16x16, 32-bit
+30: sys_win_4_to_32,              16 pixels:  Transformed from 10,  4x4, 32-bit
+31: sys_mac_4_to_32,              16 pixels:  Transformed from 11,  4x4, 32-bit
+32: rainbow_4_to_32,              16 pixels:  Transformed from 12,  4x4, 32-bit
+33: grayscale_4_to_32,            16 pixels:  Transformed from 13,  4x4, 32-bit
+34: pastels_4_to_32,              16 pixels:  Transformed from 14,  4x4, 32-bit
+35: vivid_4_to_32,                16 pixels:  Transformed from 15,  4x4, 32-bit
+36: ntsc_4_to_32,                 16 pixels:  Transformed from 16,  4x4, 32-bit
+37: vga_4_to_32,                  16 pixels:  Transformed from 17,  4x4, 32-bit
+38: system_win_director4_4_to_32, 16 pixels:  Transformed from 18,  4x4, 32-bit
+39: win_4_to_32,                  4 pixels:   Transformed from 19,  2x2, 32-bit
+40: mac_4_to_32,                  4 pixels:   Transformed from 20,  2x2, 32-bit
+41: binary,                       4 pixels:   [1, 0, 0, 1],         2x2, 32-bit
+42: binary_to_32,                 4 pixels:   Transformed from 41,  2x2, 32-bit
+
