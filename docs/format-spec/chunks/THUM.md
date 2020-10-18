@@ -33,8 +33,8 @@ We can construct the width `W` as `right - left` and the height `H` as `bottom -
 
 
 ## Unpacking the image data
-The image data in a thumbnail is basically just the same data as in a [bitmap data chunk](./BITD.md). We can parse it
-exactly the same as a [bitmap cast member](./castmembers/bitmap.md) if we set
+The image data in a thumbnail is basically just the same data as in a [bitmap data chunk](./BITD.md). We can parse it in
+the the same way if we set
 
 * `bit-depth` = 8
 * `palette` = [predefined palette "System - Mac"](./castmembers/palette.md#TODO)
