@@ -38,9 +38,10 @@ class FontMap(RecordsChunk):
     @classmethod
     def _parse_records(cls, stream: ByteBlockIO, header):
         offset = 60
-        records = [FontEntry.parse(stream, header, i) for i in range(header['n_font_records'])]
+        #records = [FontEntry.parse(stream, header, i) for i in range(header['n_font_records'])]
+        #stream.seek(offset + header['font_data']['font_data_length'])
 
-        stream.seek(offset + header['font_data']['font_data_length'])
+        records = []  # TODO: Figure this out!
         stream.read_bytes()  # Rest is unknown
 
         return records

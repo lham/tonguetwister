@@ -15,6 +15,7 @@ from tonguetwister.chunks.lingo_namelist import LingoNamelist
 from tonguetwister.chunks.lingo_script import LingoScript
 from tonguetwister.chunks.memory_map import MemoryMap
 from tonguetwister.chunks.styled_text import StyledText
+from tonguetwister.chunks.thumbnail import Thumbnail
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
@@ -45,7 +46,8 @@ CHUNK_MAP = {
     'BITD': BitmapData,
     'XTRl': UndefinedChunk,
     'ediM': EditableMedia,
-    'THUM': UndefinedChunk
+    'THUM': Thumbnail,
+    'CLUT': UndefinedChunk
 }
 
 

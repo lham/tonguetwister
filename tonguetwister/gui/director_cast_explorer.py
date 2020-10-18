@@ -2,6 +2,9 @@ import os
 
 # TODO: Change to using kivy.config?
 #os.environ['KIVY_NO_CONSOLELOG'] = '0'
+from tonguetwister.chunks.thumbnail import Thumbnail
+from tonguetwister.gui.components.thumbnail import ThumbnailView
+
 os.environ["KIVY_NO_ARGS"] = '1'
 
 from kivy.app import App
@@ -50,6 +53,7 @@ class DirectorCastExplorer(App):
         self.script_view = None
         self.cast_member_view = None
         self.bitmap_cast_member_view = None
+        self.thumbnail_view = None
         self.records_chunk_view = None
         self.chunk_view = None
         self.plain_view = None
@@ -90,6 +94,7 @@ class DirectorCastExplorer(App):
         self.script_view = ScriptPanel(self.file_disassembler)
         self.cast_member_view = CastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
         self.bitmap_cast_member_view = BitmapCastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
+        self.thumbnail_view = ThumbnailView(self.file_disassembler, font_name=self.FONT_NAME)
 
         # Default viewers
         self.records_chunk_view = DefaultRecordsChunkView(self.file_disassembler, font_name=self.FONT_NAME)
@@ -144,6 +149,9 @@ class DirectorCastExplorer(App):
         elif isinstance(chunk, BitmapCastMember):
             self.view.add_widget(self.bitmap_cast_member_view)
             self.bitmap_cast_member_view.load(chunk)
+        elif isinstance(chunk, Thumbnail):
+            self.view.add_widget(self.thumbnail_view)
+            self.thumbnail_view.load(chunk)
         elif isinstance(chunk, RecordsChunk):
             self.view.add_widget(self.records_chunk_view)
             self.records_chunk_view.load(chunk)

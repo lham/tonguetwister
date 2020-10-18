@@ -131,12 +131,12 @@ class BitmapCastMember(SpecificCastMember):
         else:
             return 'Unable to parse palette cast member name'
 
-    def image_data(self, bitmap_data: BitmapData):
-        if not isinstance(bitmap_data, BitmapData):
+    def image_data(self, bitmap_data_chunk: BitmapData):
+        if not isinstance(bitmap_data_chunk, BitmapData):
             print('Warning: Trying to load image data of a chunk that is not BitmapData')
             return []
 
-        return bitmap_data.unpack_bitmap_data(
+        return bitmap_data_chunk.unpack(
             self.width,
             self.height,
             self.bit_depth,

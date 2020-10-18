@@ -16,27 +16,33 @@ class BitmapData(Chunk):
 
         return data
 
-    def unpack_bitmap_data(self, width, height, bit_depth, bytes_per_row, palette):
+    def unpack(self, width, height, bit_depth, bytes_per_row, palette):
         """
         Unpack the color data saved in this chunk.
+        """
+        stream = ByteBlockIO(self.body['run_length_encoded_data'])
 
+        return self.unpack_bitmap_data(stream, width, height, bit_depth, bytes_per_row, palette)
+
+    @staticmethod
+    def unpack_bitmap_data(stream, width, height, bit_depth, bytes_per_row, palette):
+        """
         NB! This class/method is optimized for readability, not speed. Thus we do stuff like converting the four color
         bytes for a 32-bit image into a 32-bit word and the masking the colors back out (instead of just using the
         color bytes directly)
         """
-        stream = ByteBlockIO(self.body['run_length_encoded_data'])
         is_encoded = (stream.size() != bytes_per_row * height)
 
         words = []
         for _ in range(height):
-            byte_list = self._read_row_byte_list(stream, is_encoded, bytes_per_row, bit_depth)
-            words.extend(self._convert_byte_list_to_words(byte_list, width, bit_depth))
+            byte_list = BitmapData._read_row_byte_list(stream, is_encoded, bytes_per_row, bit_depth)
+            words.extend(BitmapData._convert_byte_list_to_words(byte_list, width, bit_depth))
 
         if not stream.is_depleted():
             raise RuntimeError('Bitmap image decoder failed to parse image - there are unprocessed bytes remaining')
 
-        return self._flip_image_rows(
-            [self._convert_word_to_32bit_argb_tuples(word, palette, bit_depth) for word in words],
+        return BitmapData._flip_image_rows(
+            [BitmapData._convert_word_to_32bit_argb_tuples(word, palette, bit_depth) for word in words],
             width,
             height
         )
