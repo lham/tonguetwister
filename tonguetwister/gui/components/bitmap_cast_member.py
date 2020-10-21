@@ -2,6 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 
 from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
+from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
 from tonguetwister.gui.widgets.label_area import LabelArea
@@ -10,9 +11,8 @@ from tonguetwister.lib.helper import flatten
 
 
 class BitmapCastMemberView(BoxLayout):
-    def __init__(self, file_disassembler, font_name, **kwargs):
+    def __init__(self, font_name, **kwargs):
         super().__init__(**kwargs)
-        self.file_disassembler = file_disassembler
         self.font_name = font_name
 
         self.label_area = None
@@ -23,7 +23,7 @@ class BitmapCastMemberView(BoxLayout):
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area = DefaultChunkView(self.file_disassembler, font_name=self.font_name)
+        self.text_area = DefaultChunkView(font_name=self.font_name)
         self.reconstructed_area = self._build_reconstructed_area()
 
         tab1 = TabbedPanelItem(text='Reconstructed Data')
@@ -66,10 +66,10 @@ class BitmapCastMemberView(BoxLayout):
 
         return self.label_area
 
-    def load(self, bitmap: BitmapCastMember):
+    def load(self, file_disassembler: FileDisassembler, bitmap: BitmapCastMember):
         self.text_area.load(bitmap)
         self._load_fields(bitmap)
-        self._load_image(bitmap)
+        self._load_image(file_disassembler, bitmap)
 
     def _load_fields(self, bitmap: BitmapCastMember):
         self.label_area.load({
@@ -80,13 +80,13 @@ class BitmapCastMemberView(BoxLayout):
             'linked': bitmap.external_file if bitmap.is_linked else 'False'
         })
 
-    def _load_image(self, bitmap_cast_member):
-        mmap = self.file_disassembler.mmap
-        key_map = self.file_disassembler.cast_key_map
+    def _load_image(self, file_disassembler, bitmap_cast_member):
+        mmap = file_disassembler.mmap
+        key_map = file_disassembler.cast_key_map
 
         cast_id = mmap.find_record_id_by_address(bitmap_cast_member.address)
         resource_id = key_map.find_resource_chunk_mmap_id_by_cast_member_mmap_id(cast_id)
-        resource = self.file_disassembler.find_chunk_by_mmap_id(resource_id)
+        resource = file_disassembler.find_chunk_by_mmap_id(resource_id)
 
         self._detach_image()
         if not bitmap_cast_member.is_linked:

@@ -29,17 +29,17 @@ def _handle_value(value, sep, key_width):
         return sep + (' ' * key_width) + splat_ordered_dict(value, sep=(sep + ' ' * key_width))
     elif isinstance(value, (list, tuple)):
         return splat_list(value, sep, key_width)
+    elif isinstance(value, int):
+        return f'{value}{" " * (12 - len(str(value)))}(0x{value:08x})'
     else:
         return value
 
 
 def exception_as_lines(ex):
-    lines = [
+    return flatten([
         s.strip(os.linesep).split(os.linesep)
         for s in traceback.format_exception(type(ex), ex, ex.__traceback__)
-    ]
-
-    return [item for sublist in lines for item in sublist]  # Flatten the list
+    ])
 
 
 def maybe_encode_bytes(string, skip_encoding):

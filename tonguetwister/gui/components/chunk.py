@@ -13,11 +13,11 @@ class DefaultChunkView(TextInput):
     indent = '    '
     separator = f'{os.linesep}{indent}'
 
-    def __init__(self, file_disassembler: FileDisassembler, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.file_disassembler = file_disassembler
+        self.readonly = True
 
-    def load(self, chunk):
+    def load(self, file_disassembler: FileDisassembler, chunk):
         self.text = (
             f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
             + self._section_string('Header')
@@ -49,7 +49,7 @@ class DefaultChunkView(TextInput):
 
 
 class DefaultRecordsChunkView(DefaultChunkView):
-    def load(self, chunk):
+    def load(self, file_disassembler: FileDisassembler, chunk):
         self.text = (
             f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
             + self._section_string('Header')
@@ -68,7 +68,10 @@ class DefaultRecordsChunkView(DefaultChunkView):
                + self.separator.join([self._display_record(r, depth + 1, i) for i, r in enumerate(records)])
 
     def _display_record(self, record, depth, index):
+        sub_indent = (depth + 3) * self.indent
+        separator = f'{os.linesep}{sub_indent}'
+
         return (
-            f'{depth * self.indent}[{index:3d}] {record.__class__.__name__}: '
-            f'{{{splat_ordered_dict(record.data)}}}'
+            f'{depth * self.indent}[{index:3d}] {record.__class__.__name__}: \n'
+            f'{sub_indent}{splat_ordered_dict(record.data, separator, self.key_width)}'
         )

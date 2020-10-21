@@ -1,13 +1,7 @@
-import os
-
-# TODO: Change to using kivy.config?
-#os.environ['KIVY_NO_CONSOLELOG'] = '0'
-from tonguetwister.chunks.thumbnail import Thumbnail
-from tonguetwister.gui.components.thumbnail import ThumbnailView
-
-os.environ["KIVY_NO_ARGS"] = '1'
+from pathlib import Path
 
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.properties import ObjectProperty
@@ -17,14 +11,10 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
 from tonguetwister.chunks.chunk import RecordsChunk, Chunk
-from tonguetwister.chunks.lingo_script import LingoScript
-from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.components.bitmap_cast_member import BitmapCastMemberView
-from tonguetwister.gui.components.castmember import CastMemberView
-from tonguetwister.gui.components.chunk import DefaultRecordsChunkView, DefaultChunkView
-from tonguetwister.gui.components.script import ScriptPanel
+from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
 from tonguetwister.gui.utils import scroll_to_top
+from tonguetwister.gui.widgets.file_dialogs import FileDialogPopup
 from tonguetwister.gui.widgets.listview import ListView, IndexedItem
 
 
@@ -40,36 +30,28 @@ class DirectorCastExplorer(App):
     current_chunk = ObjectProperty(IndexedItem())
     previous_chunk = None
 
-    def __init__(self, file_disassembler: FileDisassembler):
+    def __init__(self, base_dir=str(Path.home()), filename=None):
         super().__init__()
+        self._set_title()
 
-        self.file_disassembler = file_disassembler
+        # Director data
+        self.initial_filename = filename
+        self.file_disassembler = None
         self._chunks = []
-        self._set_chunks()
+
+        # Actions
+        self.file_dialog = FileDialogPopup(title='Select a Director 6 movie', base_dir=base_dir)
+        self.file_dialog.bind(file_opened=self._load_file)
 
         # GUI Components
         self.menu = None
-        self.view = None
-        self.script_view = None
-        self.cast_member_view = None
-        self.bitmap_cast_member_view = None
-        self.thumbnail_view = None
-        self.records_chunk_view = None
-        self.chunk_view = None
-        self.plain_view = None
+        self.view_wrapper = None
+        self.default_view = None
+        self.views = None
 
         # Commands
         self._keyboard = None
         self._set_keyboard()
-
-    def _set_chunks(self):
-        type_counts = {}
-        for (address, chunk) in self.file_disassembler.chunks:
-            chunk_name = chunk.__class__.__name__
-            chunk_count = type_counts.get(chunk_name, 0)
-            type_counts[chunk_name] = chunk_count + 1
-
-            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.address:X})', chunk))
 
     def _set_keyboard(self):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, None)
@@ -80,28 +62,13 @@ class DirectorCastExplorer(App):
         self._keyboard = None
 
     def on_start(self):
-        self.menu.select_item(0)
+        if self.initial_filename is not None:
+            self._load_file(self, self.initial_filename)
 
     def build(self):
         root = BoxLayout(orientation='horizontal')
-
-        menu = self._build_menu()
-        root.add_widget(menu)
-
-        self.view = BoxLayout()
-        root.add_widget(self.view)
-
-        self.script_view = ScriptPanel(self.file_disassembler)
-        self.cast_member_view = CastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
-        self.bitmap_cast_member_view = BitmapCastMemberView(self.file_disassembler, font_name=self.FONT_NAME)
-        self.thumbnail_view = ThumbnailView(self.file_disassembler, font_name=self.FONT_NAME)
-
-        # Default viewers
-        self.records_chunk_view = DefaultRecordsChunkView(self.file_disassembler, font_name=self.FONT_NAME)
-        self.chunk_view = DefaultChunkView(self.file_disassembler, font_name=self.FONT_NAME)
-        self.plain_view = TextInput(font_name=self.FONT_NAME)
-
-        self.view.add_widget(self.plain_view)
+        root.add_widget(self._build_menu())
+        root.add_widget(self._build_views())
 
         return root
 
@@ -110,7 +77,6 @@ class DirectorCastExplorer(App):
 
         self.menu = ListView(self._chunks, self._build_chunk_menu_item, width=width, size_hint_x=None, size_hint_y=None)
         self.menu.bind(selected_element=self._update_chunk)
-        self.menu.bind(minimum_height=self.menu.setter('height'))
 
         scroll_view = ScrollView(size_hint_x=None, width=width)
         scroll_view.add_widget(self.menu)
@@ -124,6 +90,15 @@ class DirectorCastExplorer(App):
 
         return Label(text=text, halign='left', text_size=(parent.width, None), markup=True)
 
+    def _build_views(self):
+        self.default_view = TextInput(font_name=self.FONT_NAME, readonly=True)
+        self.views = {key: view_class(font_name=self.FONT_NAME) for key, view_class in CHUNK_VIEW_MAP.items()}
+
+        self.view_wrapper = BoxLayout()
+        self.view_wrapper.add_widget(self.default_view)
+
+        return self.view_wrapper
+
     def _on_keyboard_down(self, _, keycode, __, ___):
         current = self.menu.selected_element.index
 
@@ -131,34 +106,72 @@ class DirectorCastExplorer(App):
             self.menu.select_item(max(0, current - 1))
         elif keycode[1] == 'down':
             self.menu.select_item(min(len(self._chunks) - 1, current + 1))
+        elif keycode[1] == 'o':
+            self._open_file_chooser()
 
     def _update_chunk(self, _, indexed_item):
         self.previous_chunk = self.current_chunk
         self.current_chunk = indexed_item
 
+    def _open_file_chooser(self):
+        if not self.file_dialog.is_opened:
+            self.file_dialog.open()
+
+    def _load_file(self, _, filename):
+        self._set_title(filename)
+
+        # Parse director file
+        self.file_disassembler = FileDisassembler(silent=True)
+        self.file_disassembler.load_file(filename)
+        self.file_disassembler.unpack()
+
+        # Populate GUI
+        self._set_chunks()
+        self._load_chunks_into_menu()
+
+    def _set_title(self, filename=None):
+        self.title = 'Director cast explorer'
+        if filename is not None:
+            self.title += f': {filename}'
+
+    def _set_chunks(self):
+        self._chunks = []
+        type_counts = {}
+        for (address, chunk) in self.file_disassembler.chunks:
+            chunk_name = chunk.__class__.__name__
+            chunk_count = type_counts.get(chunk_name, 0)
+            type_counts[chunk_name] = chunk_count + 1
+
+            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.address:X})', chunk))
+
+    def _load_chunks_into_menu(self):
+        self.menu.clear_list_items()
+        for chunk in self._chunks:
+            self.menu.add_list_item(chunk)
+
+        Clock.schedule_once(lambda _: self.menu.select_item(0))
+
     def on_current_chunk(self, _, chunk):
         if chunk == self.previous_chunk:
             return
 
-        chunk = self.current_chunk.item[2]
-        self.view.clear_widgets()
+        if self.current_chunk.item is not None:
+            chunk = self.current_chunk.item[2]
 
-        if isinstance(chunk, LingoScript):
-            self.view.add_widget(self.script_view)
-            self.script_view.load(self.current_chunk.item[0], self.current_chunk.item[2])
-        elif isinstance(chunk, BitmapCastMember):
-            self.view.add_widget(self.bitmap_cast_member_view)
-            self.bitmap_cast_member_view.load(chunk)
-        elif isinstance(chunk, Thumbnail):
-            self.view.add_widget(self.thumbnail_view)
-            self.thumbnail_view.load(chunk)
-        elif isinstance(chunk, RecordsChunk):
-            self.view.add_widget(self.records_chunk_view)
-            self.records_chunk_view.load(chunk)
-        elif isinstance(chunk, Chunk):
-            self.view.add_widget(self.chunk_view)
-            self.chunk_view.load(chunk)
+        if isinstance(chunk, Chunk):
+            if chunk.__class__.__name__ in self.views:
+                key = chunk.__class__.__name__
+            elif isinstance(chunk, RecordsChunk):
+                key = RecordsChunk.__name__
+            else:
+                key = Chunk.__name__
+
+            view = self.views[key]
+            view.load(self.file_disassembler, chunk)
         else:
-            self.view.add_widget(self.plain_view)
-            self.plain_view.text = repr(chunk)
-            scroll_to_top(self.plain_view)
+            view = self.default_view
+            view.text = repr(chunk)
+            scroll_to_top(view)
+
+        self.view_wrapper.clear_widgets()
+        self.view_wrapper.add_widget(view)

@@ -20,10 +20,11 @@ class ListView(BoxLayout):
         self._render_item = render_item
         self._item_height = item_height
 
-        for i, item in enumerate(items):
-            list_item = self._create_list_item(i, item)
-            self._list_items.append(list_item)
-            self.add_widget(list_item)
+        for item in items:
+            self.add_list_item(item)
+
+    def on_minimum_height(self, _, minimum_height):
+        self.height = minimum_height
 
     def _create_list_item(self, index, item):
         list_item = ListViewItem(index, item, self._render_item, self, height=self._item_height, size_hint_y=None)
@@ -45,12 +46,23 @@ class ListView(BoxLayout):
         if index is not None:
             self._list_items[index].rebuild()
 
+    def add_list_item(self, item):
+        list_item = self._create_list_item(len(self._list_items), item)
+        self._list_items.append(list_item)
+        self.add_widget(list_item)
+
+    def clear_list_items(self):
+        self._list_items = []
+        self.clear_widgets()
+        self.selected_element = IndexedItem()
+
     def select_item(self, index):
         if self.selected_element.index is not None:
             previously_selected = self._list_items[self.selected_element.index]
             previously_selected.selected = False
 
-        self._list_items[index].selected = True
+        if len(self._list_items) > 0:
+            self._list_items[index].selected = True
 
 
 class ListViewItem(BoxLayout):

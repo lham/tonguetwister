@@ -17,12 +17,10 @@ class ScriptPanel(BoxLayout):
     current_function_index = NumericProperty(0)
 
     # TODO: Remove inspection warning
-    def __init__(self, file_disassembler: FileDisassembler, **kwargs):
+    def __init__(self, font_name, **kwargs):
         super().__init__(**kwargs)
-
-        self.file_disassembler = file_disassembler
-        self.scripts = file_disassembler.lingo_scripts
-        self.namelist = file_disassembler.namelist
+        self.font_name = font_name
+        self.namelist = None
 
         self.current_script = None
         self.current_script_index = 0
@@ -55,7 +53,7 @@ class ScriptPanel(BoxLayout):
         self.text_area_reconstructed = TextInput(font_name='UbuntuMono-R.ttf')
         self.text_area_named = TextInput(font_name='UbuntuMono-R.ttf')
         self.text_area_raw = TextInput(font_name='UbuntuMono-R.ttf')
-        self.text_area_chunk = DefaultRecordsChunkView(self.file_disassembler, font_name='UbuntuMono-R.ttf')
+        self.text_area_chunk = DefaultRecordsChunkView(font_name='UbuntuMono-R.ttf')
 
         self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
         self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)
@@ -82,7 +80,9 @@ class ScriptPanel(BoxLayout):
 
         return tabbed_panel
 
-    def load(self, index, script):
+    def load(self, file_disassembler: FileDisassembler, index, script):
+        self.namelist = file_disassembler.namelist
+
         self.current_function_index = 0
         self.current_script_index = index
         self.current_script = script
