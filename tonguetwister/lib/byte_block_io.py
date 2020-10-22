@@ -1,3 +1,5 @@
+from collections import OrderedDict
+from contextlib import contextmanager
 from io import BytesIO
 from struct import unpack
 
@@ -122,3 +124,46 @@ class ByteBlockIO:
     @staticmethod
     def bytes_to_32bit_word(byte_list, endianess):
         return unpack(endianess + 'I', bytes(byte_list))[0]
+
+    @contextmanager
+    def offset_context(self, position):
+        addr = self.stream.tell()
+
+        try:
+            self.stream.seek(position)
+            yield
+        finally:
+            self.stream.seek(addr)
+
+    def auto_property_list(self, prop_reader, offset_addr, n_offsets, n_items_per_sub_list=0, item_prefix=''):
+        prop_list = OrderedDict()
+
+        # If we don't have sub lists in the property list, just use the main prop_list as the current sub list
+        if n_items_per_sub_list == 0:
+            sub_list = prop_list
+            n_sub_lists = 1
+        else:
+            sub_list = None
+            n_sub_lists = (n_offsets - 1) // n_items_per_sub_list
+
+        # Initialize read
+        data_addr = offset_addr + n_offsets * 4
+        offset = self.uint32()
+
+        for prop_id in range(n_offsets - 1):
+            # Maybe update sub list
+            if n_items_per_sub_list > 0 and prop_id % n_sub_lists == 0:
+                prop_list[f'{item_prefix}{prop_id // n_sub_lists}'] = sub_list = OrderedDict()
+
+            # Read the property
+            next_offset = self.uint32()
+            with self.offset_context(data_addr + offset):
+                if n_items_per_sub_list > 0:
+                    prop_id = prop_id % n_sub_lists
+
+                data = prop_reader.read(prop_id, self, next_offset - offset)
+                sub_list.update(data)
+
+            offset = next_offset
+
+        return prop_list
