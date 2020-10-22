@@ -61,6 +61,23 @@ class DirectorCastExplorer(App):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
 
+    def _recapture_keyboard(self, _, touch):
+        is_text_input = False
+
+        def check_if_text_input_focused(widget):
+            for child in widget.children:
+                check_if_text_input_focused(child)
+
+            if isinstance(widget, TextInput) and widget.collide_point(*touch.pos):
+                nonlocal is_text_input
+                is_text_input = True
+                widget.on_touch_down(touch)
+
+        check_if_text_input_focused(self.root)
+
+        if not is_text_input and self._keyboard is None:
+            self._set_keyboard()
+
     def on_start(self):
         if self.initial_filename is not None:
             self._load_file(self, self.initial_filename)
@@ -69,6 +86,7 @@ class DirectorCastExplorer(App):
         root = BoxLayout(orientation='horizontal')
         root.add_widget(self._build_menu())
         root.add_widget(self._build_views())
+        root.bind(on_touch_down=self._recapture_keyboard)
 
         return root
 
@@ -99,14 +117,14 @@ class DirectorCastExplorer(App):
 
         return self.view_wrapper
 
-    def _on_keyboard_down(self, _, keycode, __, ___):
+    def _on_keyboard_down(self, _, keycode, __, modifiers):
         current = self.menu.selected_element.index
 
         if keycode[1] == 'up':
             self.menu.select_item(max(0, current - 1))
         elif keycode[1] == 'down':
             self.menu.select_item(min(len(self._chunks) - 1, current + 1))
-        elif keycode[1] == 'o':
+        elif 'ctrl' in modifiers and keycode[1] == 'o':
             self._open_file_chooser()
 
     def _update_chunk(self, _, indexed_item):
