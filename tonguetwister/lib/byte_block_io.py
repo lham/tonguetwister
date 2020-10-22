@@ -135,16 +135,17 @@ class ByteBlockIO:
         finally:
             self.stream.seek(addr)
 
-    def auto_property_list(self, prop_reader, offset_addr, n_offsets, n_items_per_sub_list=0, item_prefix=''):
+    def auto_property_list(self, prop_reader, offset_addr, n_offsets, n_items_per_sub_list=0, sub_list_prefix=''):
+        use_sub_lists = n_items_per_sub_list > 0
         prop_list = OrderedDict()
 
         # If we don't have sub lists in the property list, just use the main prop_list as the current sub list
-        if n_items_per_sub_list == 0:
-            sub_list = prop_list
-            n_sub_lists = 1
-        else:
+        if use_sub_lists:
             sub_list = None
             n_sub_lists = (n_offsets - 1) // n_items_per_sub_list
+        else:
+            sub_list = prop_list
+            n_sub_lists = 1
 
         # Initialize read
         data_addr = offset_addr + n_offsets * 4
@@ -152,15 +153,16 @@ class ByteBlockIO:
 
         for prop_id in range(n_offsets - 1):
             # Maybe update sub list
-            if n_items_per_sub_list > 0 and prop_id % n_sub_lists == 0:
-                prop_list[f'{item_prefix}{prop_id // n_sub_lists}'] = sub_list = OrderedDict()
+            if use_sub_lists:
+                sub_list_id = prop_id // n_sub_lists
+                prop_id = prop_id % n_sub_lists
+
+                if prop_id == 0:
+                    prop_list[f'{sub_list_prefix}{sub_list_id}'] = sub_list = OrderedDict()
 
             # Read the property
             next_offset = self.uint32()
             with self.offset_context(data_addr + offset):
-                if n_items_per_sub_list > 0:
-                    prop_id = prop_id % n_sub_lists
-
                 data = prop_reader.read(prop_id, self, next_offset - offset)
                 sub_list.update(data)
 
