@@ -67,7 +67,7 @@ class BitmapCastMemberView(BoxLayout):
         return self.label_area
 
     def load(self, file_disassembler: FileDisassembler, bitmap: BitmapCastMember):
-        self.text_area.load(bitmap)
+        self.text_area.load(file_disassembler, bitmap)
         self._load_fields(bitmap)
         self._load_image(file_disassembler, bitmap)
 
