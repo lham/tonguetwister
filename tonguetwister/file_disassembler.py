@@ -6,20 +6,34 @@ from tonguetwister.chunks.cast_key_map import CastKeyMap
 from tonguetwister.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.chunks.cast_member import CastMember
 from tonguetwister.chunks.chunk import UndefinedChunk, Chunk
-from tonguetwister.chunks.drcf import DRCF
+from tonguetwister.chunks.director_config import DirectorConfig
 from tonguetwister.chunks.editable_media import EditableMedia
 from tonguetwister.chunks.font_map import FontMap
+from tonguetwister.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.chunks.initial_map import InitialMap
 from tonguetwister.chunks.lingo_context import LingoContext
 from tonguetwister.chunks.lingo_namelist import LingoNamelist
 from tonguetwister.chunks.lingo_script import LingoScript
 from tonguetwister.chunks.memory_map import MemoryMap
+from tonguetwister.chunks.movie_cast_libraries import MovieCastLibraries
+from tonguetwister.chunks.sort_order import SortOrder
 from tonguetwister.chunks.styled_text import StyledText
 from tonguetwister.chunks.thumbnail import Thumbnail
+from tonguetwister.chunks.video_works_file_info import VideoWorksFileInfo
+from tonguetwister.chunks.video_works_score import VideoWorksScore
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
 CHUNK_MAP = {
+    'RIFX': UndefinedChunk,
+    'imap': InitialMap,
+    'mmap': MemoryMap,
+    'DRCF': DirectorConfig,
+    'Sord': SortOrder,
+    'MCsL': MovieCastLibraries,
+    'FXmp': FontXtraMap,
+    'VWFI': VideoWorksFileInfo,
+    'VWSC': VideoWorksScore,
     'CASt': CastMember,
     'STXT': StyledText,
     'Cinf': CastLibraryInfo,
@@ -29,25 +43,17 @@ CHUNK_MAP = {
     'Lnam': LingoNamelist,
     'Lscr': LingoScript,
     'CAS*': CastAssociationMap,
-    'imap': InitialMap,
-    'DRCF': DRCF,
     'ccl ': UndefinedChunk,
-    'RIFX': UndefinedChunk,
-    'mmap': MemoryMap,
     'KEY*': CastKeyMap,
     'RTE0': UndefinedChunk,
     'RTE1': UndefinedChunk,
     'RTE2': UndefinedChunk,
-    'FXmp': UndefinedChunk,
-    'MCsL': UndefinedChunk,
-    'Sord': UndefinedChunk,
-    'VWFI': UndefinedChunk,
-    'VWSC': UndefinedChunk,
     'BITD': BitmapData,
     'XTRl': UndefinedChunk,
     'ediM': EditableMedia,
     'THUM': Thumbnail,
-    'CLUT': UndefinedChunk
+    'CLUT': UndefinedChunk,
+    'SCRF': UndefinedChunk
 }
 
 
@@ -76,7 +82,7 @@ class FileDisassembler:
 
             if four_cc == 'RIFX':
                 self.version = chunk_stream.uint32()
-                self.stream = ByteBlockIO(chunk_stream.read_bytes())
+                self.stream = chunk_stream
             else:
                 raise RuntimeError(f'Input file {filename} does not contain a RIFX file header')
 
@@ -104,11 +110,11 @@ class FileDisassembler:
         four_cc = stream.string_raw(4)
 
         chunk_length = stream.uint32()
-        chunk = ByteBlockIO(stream.read_bytes(chunk_length))
+        chunk_stream = ByteBlockIO(stream.read_bytes(chunk_length))
         FileDisassembler._strip_padding_from_uneven_chunk(stream, chunk_length)
-        bytes_read = 12  # 4 for the four_cc, 4 for the chunk_length, and then 4 unknown/padding?
+        bytes_read = 8  # 4 for the four_cc and 4 for the chunk_length
 
-        return four_cc, address + bytes_read, chunk
+        return four_cc, address + bytes_read, chunk_stream
 
     @staticmethod
     def _strip_padding_from_uneven_chunk(stream, chunk_length):
