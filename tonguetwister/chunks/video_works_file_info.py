@@ -7,15 +7,15 @@ from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
 class FileInfoHeaderPropertyReader(PropertyReader):
     @property_reader(0)
-    def created_by(self, stream):
+    def created_by(self, stream, _):
         return stream.string_auto()
 
     @property_reader(1)
-    def updated_by(self, stream):
+    def updated_by(self, stream, _):
         return stream.string_auto()
 
     @property_reader(2)
-    def path(self, stream):
+    def path(self, stream, _):
         return stream.string_auto()
 
 
@@ -41,7 +41,7 @@ class VideoWorksFileInfo(Chunk):
         header['u8'] = stream.uint32()
 
         header.update(stream.auto_property_list(
-            FileInfoHeaderPropertyReader(),
+            FileInfoHeaderPropertyReader,
             header['header_length'] + 6,
             header['n_offsets']
         ))

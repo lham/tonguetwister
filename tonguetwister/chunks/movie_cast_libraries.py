@@ -7,15 +7,15 @@ from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
 class CastLibraryPropertyReader(PropertyReader):
     @property_reader(0)
-    def name(self, stream):
+    def name(self, stream, _):
         return stream.string_auto()
 
     @property_reader(1)
-    def external_path(self, stream):
+    def external_path(self, stream, _):
         return stream.string_auto()
 
     @property_reader(3)
-    def _3(self, stream):
+    def _3(self, stream, _):
         record = OrderedDict()
         record['cast_member_id_first'] = stream.uint16()
         record['cast_member_id_last'] = stream.uint16()
@@ -36,7 +36,7 @@ class MovieCastLibraries(Chunk):
         header['u2'] = stream.uint32()
 
         header.update(stream.auto_property_list(
-            CastLibraryPropertyReader(),
+            CastLibraryPropertyReader,
             header['header_length'] + 6,
             header['n_offsets'],
             header['?n_props']
