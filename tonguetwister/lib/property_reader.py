@@ -79,7 +79,8 @@ class PropertyReader(metaclass=PropertyReaderRegistry):
         else:
             return {method_name: result}
 
-    def register(self, index, method_name):
+    def register(self, index, method_name, method):
         # noinspection PyUnresolvedReferences
         key_map = self._get_key_map()
         key_map[index] = method_name
+        setattr(self, method_name, method)
