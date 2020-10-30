@@ -9,9 +9,9 @@ class ByteBlockIO:
     BIG_ENDIAN = '>'
     LITTLE_ENDIAN = '<'
 
-    def __init__(self, byte_block):
+    def __init__(self, byte_block, endianess=LITTLE_ENDIAN):
         self.stream = BytesIO(byte_block)
-        self.endianess = self.LITTLE_ENDIAN
+        self.endianess = endianess
         self.total_bytes_processed = 0
         self.total_bytes = len(byte_block)
         self.byte_is_unprocessed = [True] * self.total_bytes
@@ -135,7 +135,21 @@ class ByteBlockIO:
         finally:
             self.stream.seek(addr)
 
-    def auto_property_list(self, prop_reader, offset_addr, n_offsets, n_items_per_sub_list=0, sub_list_prefix=''):
+    def auto_property_list(self, prop_reader_cls, offset_addr, n_offsets, n_items_per_sub_list=0, sub_list_prefix=''):
+        """
+        Read a property list from the stream.
+
+        Arguments:
+            prop_reader_cls:      The property reader, which may define parsers for the different properties
+            offset_addr:          Address where the offsets are located
+            n_offsets:            The number of offsets to read
+            n_items_per_sub_list: If there are a number of items/sub-properties per property list, set this higher than
+                                  zero to enable sub property lists
+            sub_list_prefix:      If n_items_per_sub_list is larger than zero, this prefix will be used as kes for the
+                                  sub lists.
+
+        """
+        prop_reader = prop_reader_cls()
         use_sub_lists = n_items_per_sub_list > 0
         prop_list = OrderedDict()
 
@@ -167,5 +181,8 @@ class ByteBlockIO:
                 sub_list.update(data)
 
             offset = next_offset
+
+        # Set the pointer after the data
+        self.seek(data_addr + offset)
 
         return prop_list

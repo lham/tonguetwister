@@ -1,7 +1,7 @@
 from functools import wraps
-from typing import Any
 
 from tonguetwister.lib.byte_block_io import ByteBlockIO
+
 
 registry = {}
 
@@ -27,7 +27,9 @@ class PropertyReaderRegistry(type):
 
 
 def property_reader(index):
+    print('here1')
     def wrap(func):
+        print('here2', func)
         func._register = index
 
         @wraps(func)
@@ -40,7 +42,7 @@ def property_reader(index):
 
 
 class PropertyReader(metaclass=PropertyReaderRegistry):
-    unknown_prop_prefix = 'unknown_prop_'
+    unknown_prop_prefix = 'unknown_property_'
 
     def read(self, prop_id: int, stream: ByteBlockIO, length: int) -> dict:
         addr_start = stream.tell()
@@ -51,19 +53,35 @@ class PropertyReader(metaclass=PropertyReaderRegistry):
         if prop_id in key_map:
             method_name = key_map[prop_id]
             method = getattr(self, method_name)
+        elif 'default' in key_map:
+            method_name = f'{self.unknown_prop_prefix}{prop_id}'
+            method = getattr(self, key_map['default'])
         else:
             method_name = f'{self.unknown_prop_prefix}{prop_id}'
-            method = lambda s: s.read_bytes(length)
+            method = lambda s, l: s.read_bytes(l)
 
         if length > 0:
-            result = method(stream)
+            return_value = method(stream, length)
+
+            if isinstance(return_value, tuple):
+                result = return_value[0]
+                split = return_value[1]
+            else:
+                result = return_value
+                split = True
         else:
             result = bytes()
+            split = False
 
         if stream.tell() - addr_start != length:
             raise RuntimeError(f'Property reader did not read correct number of bytes for property id {prop_id}')
 
-        if isinstance(result, dict):
+        if isinstance(result, dict) and split:
             return result
         else:
             return {method_name: result}
+
+    def register(self, index, method_name):
+        # noinspection PyUnresolvedReferences
+        key_map = self._get_key_map()
+        key_map[index] = method_name
