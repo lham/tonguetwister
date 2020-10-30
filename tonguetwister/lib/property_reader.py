@@ -27,9 +27,7 @@ class PropertyReaderRegistry(type):
 
 
 def property_reader(index):
-    print('here1')
     def wrap(func):
-        print('here2', func)
         func._register = index
 
         @wraps(func)
