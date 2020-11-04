@@ -13,10 +13,10 @@ class InitialMap(Chunk):
     def _parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['mmap_count'] = stream.uint32()
-        header['mmap_offset'] = stream.uint32()
+        header['mmap_address'] = stream.uint32()
+        header['?version'] = stream.uint32()
+        header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
         header['u3'] = stream.uint32()
-        header['u4'] = stream.uint32()
-        header['u5'] = stream.uint32()
 
         return header

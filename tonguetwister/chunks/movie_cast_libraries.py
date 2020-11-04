@@ -7,15 +7,15 @@ from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
 class CastLibraryPropertyReader(PropertyReader):
     @property_reader(0)
-    def name(self, stream, _):
+    def name(self, stream):
         return stream.string_auto()
 
     @property_reader(1)
-    def external_path(self, stream, _):
+    def external_path(self, stream):
         return stream.string_auto()
 
     @property_reader(3)
-    def _3(self, stream, _):
+    def _3(self, stream):
         record = OrderedDict()
         record['cast_member_id_first'] = stream.uint16()
         record['cast_member_id_last'] = stream.uint16()

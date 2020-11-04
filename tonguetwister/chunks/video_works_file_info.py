@@ -7,15 +7,15 @@ from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
 class FileInfoHeaderPropertyReader(PropertyReader):
     @property_reader(0)
-    def created_by(self, stream, _):
+    def created_by(self, stream):
         return stream.string_auto()
 
     @property_reader(1)
-    def updated_by(self, stream, _):
+    def updated_by(self, stream):
         return stream.string_auto()
 
     @property_reader(2)
-    def path(self, stream, _):
+    def path(self, stream):
         return stream.string_auto()
 
 

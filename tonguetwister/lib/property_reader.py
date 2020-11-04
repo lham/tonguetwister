@@ -17,14 +17,6 @@ class PropertyReaderRegistry(type):
                     registry[name] = {}
                 registry[name][prop_id] = val.__name__
 
-        setattr(cls, PropertyReaderRegistry._get_key_map.__name__, PropertyReaderRegistry._get_key_map)
-
-    def _get_key_map(self):
-        if self.__class__.__name__ in registry:
-            return registry[self.__class__.__name__]
-        else:
-            return {}
-
 
 def property_reader(index):
     def wrap(func):
@@ -42,24 +34,28 @@ def property_reader(index):
 class PropertyReader(metaclass=PropertyReaderRegistry):
     unknown_prop_prefix = 'unknown_property_'
 
+    def __init__(self):
+        self._key_map = {}
+        if self.__class__.__name__ in registry:
+            # Clone so that dynamically added keys doesn't register on the class itself
+            self._key_map = {k: v for k, v in registry[self.__class__.__name__].items()}
+
     def read(self, prop_id: int, stream: ByteBlockIO, length: int) -> dict:
-        addr_start = stream.tell()
+        _bytes = stream.read_bytes(length)
+        property_stream = ByteBlockIO(_bytes, endianess=stream.endianess)
 
-        # noinspection PyUnresolvedReferences
-        key_map = self._get_key_map()
-
-        if prop_id in key_map:
-            method_name = key_map[prop_id]
+        if prop_id in self._key_map:
+            method_name = self._key_map[prop_id]
             method = getattr(self, method_name)
-        elif 'default' in key_map:
+        elif 'default' in self._key_map:
             method_name = f'{self.unknown_prop_prefix}{prop_id}'
-            method = getattr(self, key_map['default'])
+            method = getattr(self, self._key_map['default'])
         else:
             method_name = f'{self.unknown_prop_prefix}{prop_id}'
-            method = lambda s, l: s.read_bytes(l)
+            method = lambda s: s.read_bytes()
 
         if length > 0:
-            return_value = method(stream, length)
+            return_value = method(property_stream)
 
             if isinstance(return_value, tuple):
                 result = return_value[0]
@@ -71,7 +67,9 @@ class PropertyReader(metaclass=PropertyReaderRegistry):
             result = bytes()
             split = False
 
-        if stream.tell() - addr_start != length:
+        if not property_stream.is_depleted():
+            print(property_stream.get_processed_bytes_string())
+            print(property_stream.get_unprocessed_bytes_array())
             raise RuntimeError(f'Property reader did not read correct number of bytes for property id {prop_id}')
 
         if isinstance(result, dict) and split:
@@ -80,7 +78,5 @@ class PropertyReader(metaclass=PropertyReaderRegistry):
             return {method_name: result}
 
     def register(self, index, method_name, method):
-        # noinspection PyUnresolvedReferences
-        key_map = self._get_key_map()
-        key_map[index] = method_name
+        self._key_map[index] = method_name
         setattr(self, method_name, method)

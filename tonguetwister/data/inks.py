@@ -1,0 +1,20 @@
+INKS = {
+    0x00: 'Copy',
+    0x08: 'Matte',
+    0x24: 'Background Transparent',
+    0x01: 'Transparent',
+    0x02: 'Reverse',
+    0x03: 'Ghost',
+    0x04: 'Not Copy',
+    0x05: 'Not Transparent',
+    0x06: 'Not Reverse',
+    0x07: 'Not Ghost',
+    0x09: 'Mask',
+    0x20: 'Blend',
+    0x27: 'Darkest',
+    0x25: 'Lightest',
+    0x22: 'Add',
+    0x21: 'Add Pin',
+    0x26: 'Subtract',
+    0x23: 'Subtract Pin'
+}

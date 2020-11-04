@@ -15,14 +15,14 @@ class CastKeyMap(RecordsChunk):
         header = OrderedDict()
         header['header_length'] = stream.uint16()
         header['record_length'] = stream.uint16()
-        header['n_records'] = stream.uint32()
-        header['n_used_record_slots'] = stream.uint32()
+        header['n_record_slots'] = stream.uint32()
+        header['n_record_slots_used'] = stream.uint32()
 
         return header
 
     @classmethod
     def _parse_records(cls, stream: ByteBlockIO, header):
-        return [MapEntry.parse(stream, header, i) for i in range(header['n_records'])]
+        return [MapEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
 
     def find_resource_chunk_mmap_id_by_cast_member_mmap_id(self, cast_mmap_id):
         for i, record in enumerate(self.records):
@@ -36,7 +36,7 @@ class MapEntry(InternalChunkRecord):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
-        data['active'] = index < parent_header['n_used_record_slots']
+        data['active'] = index < parent_header['n_record_slots_used']
         data['mmap_id'] = stream.uint32()
         data['cast_mmap_id'] = stream.uint32()
         data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])

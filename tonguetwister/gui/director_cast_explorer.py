@@ -13,6 +13,7 @@ from kivy.uix.textinput import TextInput
 from tonguetwister.chunks.chunk import RecordsChunk, Chunk
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
+from tonguetwister.gui.components.score import ScoreNotationCanvas
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.file_dialogs import FileDialogPopup
 from tonguetwister.gui.widgets.listview import ListView, IndexedItem
@@ -68,7 +69,7 @@ class DirectorCastExplorer(App):
             for child in widget.children:
                 check_if_text_input_focused(child)
 
-            if isinstance(widget, TextInput) and widget.collide_point(*touch.pos):
+            if (isinstance(widget, TextInput) or isinstance(widget, ScoreNotationCanvas)) and widget.collide_point(*touch.pos):
                 nonlocal is_text_input
                 is_text_input = True
                 widget.on_touch_down(touch)
