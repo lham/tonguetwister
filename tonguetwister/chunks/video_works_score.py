@@ -1,11 +1,15 @@
-import pprint
+import logging
 from collections import OrderedDict
 
 from tonguetwister.chunks.chunk import Chunk
 from tonguetwister.data.inks import INKS
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper, chunk, assert_data_value
+from tonguetwister.lib.logger import log_expected_trailing_bytes
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
+
+logger = logging.getLogger('tonguetwister.VWSC_Score')
+logger.setLevel(logging.INFO)
 
 
 class ScorePropertyReader(PropertyReader):
@@ -23,26 +27,28 @@ class ScorePropertyReader(PropertyReader):
         # This is a list of frames. Each frame contains a dict of what changes occurred since the last frame (and where)
         data['frames'] = frames = []
 
-        i = 0
         next_frame_address = data['header_length']
         while stream.tell() < data['block_length']:
             frame = {}
             frame_length = stream.uint16()
-            #print(f'{i:02d} -> 0x{frame_length:04x}')
+            logger.debug(f'Frame {len(frames):3d}: -> 0x{frame_length:04x}')
             next_frame_address += frame_length
 
             while stream.tell() != next_frame_address:
                 change_length = stream.uint16()
                 change_addr = stream.uint16()
                 frame[change_addr] = stream.read_bytes(change_length)
-                #print(f'       0x{change_length:04x} ({change_length:04d}) 0x{change_addr:04x} ({change_addr:04d}): {grouper(frame[change_addr], 4)}')
+                logger.debug(
+                    f'             '
+                    f'{change_length:4d} bytes at 0x{change_addr:04x} ({change_addr:4d}): '
+                    f'{grouper(frame[change_addr], 4)}'
+                )
 
             frames.append(frame)
-            i += 1
 
         if not stream.is_depleted():
             _bytes = stream.read_bytes()
-            print(f'Notice: ScoreNotation has trailing bytes [{grouper(_bytes, 2)}]. Probably nothing to worry about!')
+            log_expected_trailing_bytes(logger, _bytes, 'FrameData')
 
         return data, False
 
@@ -87,8 +93,8 @@ class VideoWorksScore(Chunk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.sprite_store = {}
         self.sprite_span_store = {}
+        self.sprite_store = {}
         self.notation = {}
 
         self._generate_sprite_spans()
@@ -107,7 +113,7 @@ class VideoWorksScore(Chunk):
 
         header.update(stream.auto_property_list(
             ScorePropertyReader,
-            header['header_length'] + 12,  # 4 bytes for each of: chunk_length, u2, header_length
+            header['header_length'] + 12,  # 4 bytes for each of: [chunk_length, u2, header_length]
             header['count2']
         ))
 
@@ -115,16 +121,16 @@ class VideoWorksScore(Chunk):
         header['remaining_data-bytes'] = grouper(header['remaining_data'], 4)
 
         if len(header['remaining_data']) > 0:
-            print(f'WARNING: Score had unprocessed data remaining ({len(header["remaining_data"])} bytes)')
+            logger.warning(f'Unprocessed data remaining ({len(header["remaining_data"])} bytes)')
 
         return header
 
     @staticmethod
-    def _parse_sprite_data(byte_block):
-        stream = ByteBlockIO(byte_block, ByteBlockIO.BIG_ENDIAN)
+    def _parse_sprite_data(byte_string):
+        stream = ByteBlockIO(byte_string, ByteBlockIO.BIG_ENDIAN)
 
         data = OrderedDict()
-        data['u_all'] = grouper(byte_block, 4)
+        data['u_all'] = grouper(byte_string, 4)
         data['u1'] = stream.int8(); assert_data_value(data['u1'], [0x10, 0x00])
 
         i = stream.uint8()  # The two first bits here are flags
@@ -154,14 +160,11 @@ class VideoWorksScore(Chunk):
 
         i = stream.int8()
         data['?is_sprite_span_tail'] = (i >> 7) & 1
-        data['u6a_flag'] = (i >> 6) & 1
-        data['u6b_flag'] = (i >> 5) & 1
+        data['u6a_flag'] = (i >> 6) & 1; assert_data_value(data['u6a_flag'], 0)
+        data['u6b_flag'] = (i >> 5) & 1; assert_data_value(data['u6b_flag'], 0)
         data['?has_blend'] = (i >> 4) & 1
-        data['u6c_flag'] = (i >> 3) & 1
-        data['u6d_flag'] = (i >> 2) & 1
-        data['u6e_flag'] = (i >> 1) & 1
-        data['u6f_flag'] = (i >> 0) & 1
-        data['u7'] = stream.int8()
+        data['u6c_value'] = i & 0xf; assert_data_value(data['u6c_value'], 0)
+        data['u7'] = stream.int8(); assert_data_value(data['u7'], 0)
 
         return data
 
@@ -180,12 +183,18 @@ class VideoWorksScore(Chunk):
             for channel_no, sprite_byte_list in enumerate(chunk(current_frame, n_bytes_per_sprite)):
                 sprite_byte_string = bytes(sprite_byte_list)
                 if sprite_byte_string not in self.sprite_store:
-                    self.sprite_store[sprite_byte_string] = self._read_sprite(channel_no, sprite_byte_string)
+                    self.sprite_store[sprite_byte_string] = self._read_sprite(frame_no, channel_no, sprite_byte_string)
 
                 self.notation[(frame_no, channel_no)] = self.sprite_store[sprite_byte_string]
 
-    def _read_sprite(self, channel_no, data):
-        if all(x == 0 for x in data):
+    def _read_sprite(self, frame_no, channel_no, data):
+        if data[0] == 0:
+            if not all(x == 0 for x in data):
+                logger.warning(
+                    f'Found an empty sprite with non-zero data '
+                    f'in channel {channel_no}, frame {frame_no}: {grouper(data, 4)}'
+                )
+
             return EmptySprite()
         elif channel_no == 0:
             return EmptySprite()
@@ -200,13 +209,7 @@ class VideoWorksScore(Chunk):
         elif channel_no == 5:
             return EmptySprite()
         else:
-            parsed = self._parse_sprite_data(data)
-
-            if parsed['u1'] > 0:
-                return Sprite(parsed, self.sprite_span_store)
-            else:
-                print(parsed)
-                return EmptySprite()
+            return Sprite(self._parse_sprite_data(data), self.sprite_span_store)
 
     def sprite_at(self, frame_no, channel_no):
         return self.notation[(frame_no, channel_no)]
@@ -240,7 +243,7 @@ class VideoWorksScore(Chunk):
         frame_number_width = len(str(self.number_of_frames))
         byte_number_width = len(str(offset + length if not use_min_height else self.number_of_bytes_per_frame))
 
-        # Print index numbers
+        # Add index numbers
         numbers = [[] for _ in range(byte_number_width)]
         for frame_no in range(offset, offset + length):
             number_string = format(frame_no, f'0{len(numbers)}d')
@@ -250,7 +253,7 @@ class VideoWorksScore(Chunk):
         for i in range(len(numbers)):
             output += f"{' ' * frame_number_width}   {'  '.join(numbers[i])}\n"
 
-        # Print frame changes
+        # Add frame changes
         for frame_no, frame in enumerate(self.header['frame_data']['frames'], 1):
             current_frame = [None] * self.number_of_bytes_per_frame
             # Apply the current frame changes
@@ -279,11 +282,6 @@ class VideoWorksScore(Chunk):
 class Sprite:
     def __init__(self, data, sprite_spans):
         self._data = data
-
-        if not data['sprite_span_index'] in sprite_spans:
-            print(f'Did not find {data["sprite_span_index"]}')
-            print(data)
-
         self.sprite_span = sprite_spans[data['sprite_span_index']]
 
     @property

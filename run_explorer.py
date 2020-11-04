@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from pathlib import Path
 
@@ -7,9 +8,12 @@ os.environ["KIVY_NO_ARGS"] = '1'
 #os.environ['KIVY_NO_CONSOLELOG'] = '0'
 
 from tonguetwister.gui.director_cast_explorer import DirectorCastExplorer
+from tonguetwister.lib.logger import setup_logger
 
 
 def main(base_dir, filename):
+    setup_logger(logging.DEBUG)
+
     gui = DirectorCastExplorer(base_dir, filename)
     gui.run()
 
