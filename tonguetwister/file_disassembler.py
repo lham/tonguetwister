@@ -111,17 +111,17 @@ class FileDisassembler:
 
         chunk_length = stream.uint32()
         chunk_stream = ByteBlockIO(stream.read_bytes(chunk_length))
-        FileDisassembler._strip_padding_from_uneven_chunk(stream, chunk_length)
+        FileDisassembler._strip_padding_from_uneven_chunk(stream, chunk_length, four_cc, address)
         bytes_read = 8  # 4 for the four_cc and 4 for the chunk_length
 
         return four_cc, address + bytes_read, chunk_stream
 
     @staticmethod
-    def _strip_padding_from_uneven_chunk(stream, chunk_length):
+    def _strip_padding_from_uneven_chunk(stream, chunk_length, four_cc, address):
         if chunk_length % 2 != 0:
             padding = stream.uint8()
-            if padding != 0:
-                raise RuntimeError('Padding is non-zero')
+            #if padding != 0:
+            #    raise RuntimeError(f'Padding is non-zero for {four_cc} at {address}')
 
     def _print_chunk_info(self, message=''):
         if self.silent:

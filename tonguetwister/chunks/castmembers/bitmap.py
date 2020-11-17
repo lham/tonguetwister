@@ -45,7 +45,7 @@ class BitmapCastMember(SpecificCastMember):
             elif i == 16:
                 data[f'prop_{i}_data_ext_formatname'] = stream.string_auto()
             else:
-                data[f'prop_{i}_data'] = value = stream.read_bytes(real_prop_length); assert_data_value(value, b'')
+                data[f'prop_{i}_data'] = value = stream.read_bytes(real_prop_length); #assert_data_value(value, b'')
 
         return data
 

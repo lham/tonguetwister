@@ -9,7 +9,7 @@ from tonguetwister.lib.logger import log_expected_trailing_bytes
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
 logger = logging.getLogger('tonguetwister.VWSC_Score')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class ScorePropertyReader(PropertyReader):
@@ -64,29 +64,67 @@ class ScorePropertyReader(PropertyReader):
         for sprite_index in sprite_indices:
             self.register(sprite_index, f'sprite_span_{sprite_index}', self.sprite_span)
 
+        if not stream.is_depleted():  # TODO: This is only necessary for bad mmap reads
+            data['d'] = stream.read_bytes()
+            data['d_bytes'] = grouper(data['d'], 4)
+
         return data, False
 
     @staticmethod
     def sprite_span(stream):
-        props = OrderedDict()
-        props['frame_start'] = stream.uint32()
-        props['frame_end'] = stream.uint32()
-        props['u1'] = stream.uint32()
-        props['u2'] = stream.uint32()
-        props['channel'] = stream.uint32()
-        props['u3'] = stream.int32()
-        props['u4'] = stream.int32()
-        props['u5'] = stream.uint32()
-        props['u6'] = stream.uint32()
-        props['u7'] = stream.uint32()
-        props['u8'] = stream.uint32()
+        data = OrderedDict()
+        data['frame_start'] = stream.uint32()
+        data['frame_end'] = stream.uint32()
+        data['u1'] = stream.uint32()
+        data['u2'] = stream.uint32()
+        data['channel'] = stream.uint32()
+        data['curvature'] = stream.uint32()
 
-        i = 0
+        data['u3'] = stream.uint8(); assert_data_value(data['u3'], 0)
+
+        bits = stream.int16()
+        initial_bits = (bits >> 12) & 0x0f
+        data['u4a_value'] = initial_bits; assert_data_value(data['u4a_value'], 0)
+
+        tween_bits = (bits >> 4) & 0xff
+        data['tween_on_blend'] = (tween_bits >> 5) & 1
+        data['tween_on_background_color'] = (tween_bits >> 4) & 1
+        data['tween_on_foreground_color'] = (tween_bits >> 3) & 1
+        data['tween_on_size'] = (tween_bits >> 2) & 1
+        data['tween_on_path'] = (tween_bits >> 1) & 1
+
+        last_bits = (bits >> 0) & 0x0f
+        data['u4b_flag'] = (last_bits >> 3) & 1; assert_data_value(data['u4b_flag'], 0)
+        data['tween_speed'] = (last_bits >> 2) & 1
+        data['u4c_flag'] = (last_bits >> 1) & 1; assert_data_value(data['u4c_flag'], 0)
+        data['u4d_flag'] = (last_bits >> 0) & 1; assert_data_value(data['u4d_flag'], 0)
+
+        bits = stream.uint8()
+        data['u5a_flag'] = (bits >> 7) & 1; assert_data_value(data['u5a_flag'], 0)
+        data['tween_on_blend_duplicate'] = (bits >> 6) & 1
+        data['tween_on_background_color_duplicate'] = (bits >> 5) & 1
+        data['tween_on_foreground_color_duplicate'] = (bits >> 4) & 1
+        data['tween_on_size_duplicate'] = (bits >> 3) & 1
+        data['tween_on_path_duplicate'] = (bits >> 2) & 1
+        data['tween_continuous_at_endpoints'] = (bits >> 1) & 1
+        data['u5b_flag'] = (bits >> 0) & 1; assert_data_value(data['u5b_flag'], 1)
+
+        assert_data_value(data['tween_on_blend_duplicate'], data['tween_on_blend'])
+        assert_data_value(data['tween_on_background_color_duplicate'], data['tween_on_background_color'])
+        assert_data_value(data['tween_on_foreground_color_duplicate'], data['tween_on_foreground_color'])
+        assert_data_value(data['tween_on_size_duplicate'], data['tween_on_size'])
+        assert_data_value(data['tween_on_path_duplicate'], data['tween_on_path'])
+
+        data['tween_ease_in'] = stream.uint32()
+        data['tween_ease_out'] = stream.uint32()
+        data['u7'] = stream.uint32()
+        data['u8'] = stream.uint32()
+
+        data['keyframes'] = []
         while not stream.is_depleted():
-            props[f'keyframe_{i}'] = stream.int32()
-            i += 1
+            data[f'keyframes'].append(stream.int32())
 
-        return props, False
+        return data, False
 
 
 class VideoWorksScore(Chunk):
@@ -105,16 +143,16 @@ class VideoWorksScore(Chunk):
         header = OrderedDict()
 
         header['chunk_length'] = stream.uint32()
-        header['u1'] = stream.int32()  # Always 0xfffffffd / (-3)
-        header['header_length'] = stream.uint32()  # Always 12 ?
+        header['u1'] = stream.int32(); assert_data_value(header['u1'], -3)
+        header['header_length'] = stream.uint32(); assert_data_value(header['header_length'], 12)
         header['count1'] = stream.uint32()
-        header['count2'] = stream.uint32()
+        header['count2'] = stream.uint32()#; assert_data_value(header['count2'], header['count1'] + 1) # TODO: This is because mmap
         header['u2'] = stream.uint32()
 
         header.update(stream.auto_property_list(
             ScorePropertyReader,
             header['header_length'] + 12,  # 4 bytes for each of: [chunk_length, u2, header_length]
-            header['count2']
+            header['count1'] + 1
         ))
 
         header['remaining_data'] = stream.read_bytes()
@@ -284,45 +322,19 @@ class Sprite:
         self._data = data
         self.sprite_span = sprite_spans[data['sprite_span_index']]
 
-    @property
-    def x(self):
-        return self._data['x']
+        self.x = data['x']
+        self.y = data['y']
+        self.width = data['width']
+        self.height = data['height']
 
-    @property
-    def y(self):
-        return self._data['y']
+        self.ink = INKS[self._data['ink_type']]  # TODO: Convert to actual ink class
+        self.blend = (0xff - self._data['blend']) / 0xff
 
-    @property
-    def width(self):
-        return self._data['width']
+        self.moveable = data['moveable'] == 1
+        self.editable = data['editable'] == 1
+        self.trails = data['trails'] == 1
 
-    @property
-    def height(self):
-        return self._data['height']
-
-    @property
-    def ink(self):
-        return INKS[self._data['ink_type']]  # TODO: Convert to actual ink
-
-    @property
-    def blend(self):
-        return round((0xff - self._data['blend']) / 0xff, 2)
-
-    @property
-    def moveable(self):
-        return self._data['moveable'] == 1
-
-    @property
-    def editable(self):
-        return self._data['editable'] == 1
-
-    @property
-    def trails(self):
-        return self._data['trails'] == 1
-
-    @property
-    def cast_member(self):
-        return self._data['cast_member_index']  # TODO: fetch
+        self.cast_member = data['cast_member_index']  # TODO: Convert to actual cast member class
 
 
 class EmptySprite:
@@ -333,18 +345,25 @@ class SpriteSpan:
     def __init__(self, data):
         self._data = data
 
-    @property
-    def start(self):
-        return self._data['frame_start'] - 1
+        self.start = data['frame_start'] - 1
+        self.end = data['frame_end'] - 1
+        self.channel_no = data['channel']
+        self.keyframes = data['keyframes']
+
+        self.tween_path = data['tween_on_path'] == 1
+        self.tween_size = data['tween_on_size'] == 1
+        self.tween_blend = data['tween_on_blend'] == 1
+        self.tween_foreground_color = data['tween_on_foreground_color'] == 1
+        self.tween_background_color = data['tween_on_background_color'] == 1
+
+        self.tween_curvature = (data['curvature'] >> 16) + (data['curvature'] & 0xffff) / 0xffff  # A Q16.16 value
+        self.tween_is_continuous_at_endpoints = data['tween_continuous_at_endpoints'] == 1
+        self.tween_ease_in = data['tween_ease_in']
+        self.tween_ease_out = data['tween_ease_out']
 
     @property
-    def end(self):
-        return self._data['frame_end'] - 1
-
-    @property
-    def channel_no(self):
-        return self._data['channel']
-
-    @property
-    def keyframes(self):
-        return [v for k, v in self._data.items() if k.startswith('keyframe')]
+    def tween_speed(self):
+        if self._data['tween_speed'] == 1:
+            return 'Smooth Changes'
+        else:
+            return 'Sharp Changes'

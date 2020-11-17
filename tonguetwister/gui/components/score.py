@@ -21,7 +21,6 @@ from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.label_area import LabelArea
-from tonguetwister.lib.helper import grouper
 
 
 class ScoreView(BoxLayout):
@@ -55,27 +54,48 @@ class ScoreView(BoxLayout):
 
     def _build_reconstructed_area(self):
         self.score_wrapper = BoxLayout(orientation='vertical')
-        self.raw_area = Label(font_name=self.font_name, halign='left', valign='top', height=240, size_hint_y=None)
-        self.raw_area.bind(size=self.raw_area.setter('text_size'))
-        self.info_area = LabelArea({
-            'x': ('x', 0),
-            'y': ('y', 0),
-            'width': ('Width', 0),
-            'height': ('Height', 0),
-            'start': ('Start', 1),
-            'end': ('End', 1),
-            'length': ('Length', 1),
+        self.raw_area_sprite = Label(
+            font_name=self.font_name, halign='left', valign='top', height=240, size_hint_y=None)
+        self.raw_area_sprite.bind(size=self.raw_area_sprite.setter('text_size'))
+        self.raw_area_sprite_span = Label(
+            font_name=self.font_name, halign='left', valign='top', height=240, size_hint_y=None)
+        self.raw_area_sprite_span.bind(size=self.raw_area_sprite_span.setter('text_size'))
+        self.info_area_sprite = LabelArea({
+            'x': ('x', 1),
+            'y': ('y', 1),
+            'width': ('Width', 1),
+            'height': ('Height', 1),
+            'cast_member': ('Cast Member', 0),
+            'start': ('Start', 0),
+            'end': ('End', 0),
+            'length': ('Length', 0),
             'ink': ('Ink', 2),
             'blend': ('Blend', 2),
             'editable': ('Editable', 3),
             'moveable': ('Moveable', 3),
-            'tails': ('Trails', 3),
-            'cast_member': ('Cast Member', 4)
+            'tails': ('Trails', 3)
         }, key_width=100)
+        self.info_area_sprite_span = LabelArea({
+            'tween_path': ('Tween Path', 0),
+            'tween_size': ('Tween Size', 0),
+            'tween_blend': ('Tween Blend', 0),
+            'tween_fg': ('Tween Foreground Color', 0),
+            'tween_bg': ('Tween Background Color', 0),
+            'tween_curvature': ('Curvature', 1),
+            'tween_continuous': ('Continuous at Endpoints', 1),
+            'tween_speed': ('Speed', 2),
+            'tween_ease_in': ('Ease-In', 3),
+            'tween_ease_out': ('Ease-Out', 3),
+        })
+
+        layout_raw = BoxLayout(orientation='horizontal')
+        layout_raw.add_widget(self.raw_area_sprite)
+        layout_raw.add_widget(self.raw_area_sprite_span)
 
         layout = BoxLayout(orientation='vertical', padding=(10, 10, 10, 10), spacing=10)
-        layout.add_widget(self.info_area)
-        layout.add_widget(self.raw_area)
+        layout.add_widget(self.info_area_sprite)
+        layout.add_widget(self.info_area_sprite_span)
+        layout.add_widget(layout_raw)
         layout.add_widget(self.score_wrapper)
 
         return layout
@@ -144,40 +164,72 @@ class ScoreView(BoxLayout):
 
     def _display_sprite_data(self, _, sprite):
         if isinstance(sprite, Sprite):
-            self.info_area.load({
+            sprite_span = sprite.sprite_span
+
+            self.info_area_sprite.load({
                 'x': f'{sprite.x:d}',
                 'y': f'{sprite.y:d}',
                 'width': f'{sprite.width:d}',
                 'height': f'{sprite.height:d}',
-                'start': sprite.sprite_span.start + 1,
-                'end': sprite.sprite_span.end + 1,
-                'length': sprite.sprite_span.end - sprite.sprite_span.start + 1,
+                'start': sprite_span.start + 1,
+                'end': sprite_span.end + 1,
+                'length': sprite_span.end - sprite_span.start + 1,
                 'ink': sprite.ink,
-                'blend': f'{int(sprite.blend*100)}%',
+                'blend': f'{int(round(sprite.blend*100))}%',
                 'editable': sprite.editable,
                 'moveable': sprite.moveable,
                 'tails': sprite.trails,
                 'cast_member': sprite.cast_member
             })
-            self.raw_area.text = os.linesep\
-                .join(f'{k}: {v}' for k, v in sprite._data.items() if k.startswith('u') or k.startswith('?'))
-        else:
-            self.info_area.load({
-                'x': 'N/A',
-                'y': 'N/A',
-                'width': 'N/A',
-                'height': 'N/A',
-                'start': 'N/A',
-                'end': 'N/A',
-                'length': 1,
-                'ink': 'N/A',
-                'blend': 'N/A',
-                'editable': 'N/A',
-                'moveable': 'N/A',
-                'tails': 'N/A',
-                'cast_member': 'N/A'
+
+            self.info_area_sprite_span.load({
+                'tween_path': sprite_span.tween_path,
+                'tween_size': sprite_span.tween_size,
+                'tween_blend': sprite_span.tween_blend,
+                'tween_fg': sprite_span.tween_foreground_color,
+                'tween_bg': sprite_span.tween_background_color,
+                'tween_curvature': f'{int(round(sprite_span.tween_curvature*100))}%',
+                'tween_continuous': sprite_span.tween_is_continuous_at_endpoints,
+                'tween_speed': sprite_span.tween_speed,
+                'tween_ease_in': f'{sprite_span.tween_ease_in}%',
+                'tween_ease_out': f'{sprite_span.tween_ease_out}%',
             })
-            self.raw_area.text = ''
+            # noinspection PyProtectedMember
+            self.raw_area_sprite.text = os.linesep\
+                .join(f'{k}: {v}' for k, v in sprite._data.items() if k.startswith('u') or k.startswith('?'))
+            # noinspection PyProtectedMember
+            self.raw_area_sprite_span.text = os.linesep\
+                .join(f'{k}: {v}' for k, v in sprite_span._data.items() if k.startswith('u') or k.startswith('?'))
+        else:
+            self.info_area_sprite.load({
+                'x': '',
+                'y': '',
+                'width': '',
+                'height': '',
+                'start': '',
+                'end': '',
+                'length': '',
+                'ink': '',
+                'blend': '',
+                'editable': '',
+                'moveable': '',
+                'tails': '',
+                'cast_member': ''
+            })
+            self.info_area_sprite_span.load({
+                'tween_path': '',
+                'tween_size': '',
+                'tween_blend': '',
+                'tween_fg': '',
+                'tween_bg': '',
+                'tween_curvature': '',
+                'tween_continuous': '',
+                'tween_speed': '',
+                'tween_ease_in': '',
+                'tween_ease_out': '',
+            })
+            self.raw_area_sprite.text = ''
+            self.raw_area_sprite_span.text = ''
 
 
 class ScoreNotation(BoxLayout):

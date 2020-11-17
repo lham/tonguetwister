@@ -22,6 +22,9 @@ class ScriptCastMember(SpecificCastMember):
         data['u9'] = stream.uint32()
         data['u10'] = stream.uint32()
         data['u11'] = stream.uint32()
+        stream.read_bytes()
+
+        return data
 
         data['u12'] = stream.uint16()
         data['u13'] = stream.uint32()
@@ -60,5 +63,5 @@ class ScriptCastMember(SpecificCastMember):
             return None
 
         footer = OrderedDict()
-        footer['u1'] = stream.uint8()
-        footer['u2'] = stream.uint8()
+        #footer['u1'] = stream.uint8()
+        #footer['u2'] = stream.uint8()
