@@ -38,7 +38,7 @@ class LoadFileDialog(FloatLayout):
         return button_row
 
     def _build_file_chooser(self):
-        self.file_chooser = FileChooserListView(id='file_chooser')
+        self.file_chooser = FileChooserListView()
 
         if self.base_dir is not None:
             self.file_chooser.path = self.base_dir
