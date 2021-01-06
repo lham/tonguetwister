@@ -40,10 +40,6 @@ class Chunk:
         else:
             return getattr(cls, section_function_name)(stream, **parsed_sections)
 
-    @classmethod
-    def _update_endianess(cls, stream: ByteBlockIO):
-        stream.set_endianess(cls.endianess)
-
 
 class RecordsChunk(Chunk, Sequence):
     sections = ['header', 'records']

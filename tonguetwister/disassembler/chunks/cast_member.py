@@ -17,7 +17,7 @@ class CastMember(Chunk):
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._update_endianess(stream)
+        stream.set_endianess(cls.endianess)
         header = cls.parse_header(stream)
 
         mapping = CastMemberTypeMapping.get()
