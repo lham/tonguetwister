@@ -11,9 +11,6 @@ logger.setLevel(logging.DEBUG)
 
 class CastMember(Chunk):
     sections = ['header', 'body', 'footer']
-    _header: dict
-    _body: dict
-    _footer: dict
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):

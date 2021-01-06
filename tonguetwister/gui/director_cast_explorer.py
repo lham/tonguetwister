@@ -10,7 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.disassembler.chunk import RecordsChunk, Chunk
+from tonguetwister.disassembler.chunk import EntryMapChunk, Chunk
 from tonguetwister.disassembler.file_disassembler2 import FileDisassembler
 from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
 from tonguetwister.gui.components.score import ScoreNotationCanvas
@@ -180,8 +180,8 @@ class DirectorCastExplorer(App):
         if isinstance(chunk, Chunk):
             if chunk.__class__.__name__ in self.views:
                 key = chunk.__class__.__name__
-            elif isinstance(chunk, RecordsChunk):
-                key = RecordsChunk.__name__
+            elif isinstance(chunk, EntryMapChunk):
+                key = EntryMapChunk.__name__
             else:
                 key = Chunk.__name__
 

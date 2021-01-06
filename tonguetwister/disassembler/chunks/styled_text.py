@@ -1,14 +1,13 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunk import RecordsChunk, InternalChunkRecord
+from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class StyledText(RecordsChunk):
+class StyledText(EntryMapChunk):
+    section = ['header', 'body', 'records']
 
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+        header = {}
         header['header_length'] = stream.uint32()
         header['text_length'] = stream.uint32()
         header['style_length'] = stream.uint32()
@@ -17,21 +16,21 @@ class StyledText(RecordsChunk):
 
     @classmethod
     def parse_body(cls, stream: ByteBlockIO, header):
-        body = OrderedDict()
+        body = {}
         body['text'] = stream.string_raw(header['text_length'])
 
         return body
 
     @classmethod
-    def parse_records(cls, stream: ByteBlockIO, header):
+    def parse_entries(cls, stream: ByteBlockIO, header):
         n_styles = stream.uint16()
-        return [TextStyle.parse(stream, header, i) for i in range(n_styles)]
+        return [TextStyle.parse(stream) for _ in range(n_styles)]
 
 
-class TextStyle(InternalChunkRecord):
+class TextStyle(InternalChunkEntry):
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
         data['u0'] = stream.uint16()
         data['offset'] = stream.uint32()
         data['u1'] = stream.uint16()

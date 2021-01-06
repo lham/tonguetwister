@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import InternalChunkRecord, RecordsChunk
+from tonguetwister.disassembler.chunk import InternalChunkEntry, EntryMapChunk
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class LingoScript(RecordsChunk):
+class LingoScript(EntryMapChunk):
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
@@ -40,7 +40,7 @@ class LingoScript(RecordsChunk):
         return header
 
     @classmethod
-    def parse_records(cls, stream: ByteBlockIO, header):
+    def parse_entries(cls, stream: ByteBlockIO, header):
         records = []
 
         stream.seek(header['properties_offset'], 0)
@@ -75,7 +75,7 @@ class LingoScript(RecordsChunk):
         return [record for record in self.records if isinstance(record, LingoU9)]
 
 
-class LingoProperty(InternalChunkRecord):
+class LingoProperty(InternalChunkEntry):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
@@ -84,7 +84,7 @@ class LingoProperty(InternalChunkRecord):
         return data
 
 
-class LingoGlobal(InternalChunkRecord):
+class LingoGlobal(InternalChunkEntry):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
@@ -93,7 +93,7 @@ class LingoGlobal(InternalChunkRecord):
         return data
 
 
-class LingoFunction(InternalChunkRecord):
+class LingoFunction(InternalChunkEntry):
     header_length = 42
 
     @classmethod
@@ -190,7 +190,7 @@ class LingoFunction(InternalChunkRecord):
         return self.header['function_id']
 
 
-class LingoLiteral(InternalChunkRecord):
+class LingoLiteral(InternalChunkEntry):
     TYPE_STRING = 1
     TYPE_INT = 4
     TYPE_DOUBLE = 9
@@ -262,7 +262,7 @@ class LingoLiteral(InternalChunkRecord):
         return self.data['value']
 
 
-class LingoU9(InternalChunkRecord):
+class LingoU9(InternalChunkEntry):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()

@@ -1,11 +1,9 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunk import RecordsChunk, InternalChunkRecord, UndefinedChunk
+from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry, UndefinedChunk
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import maybe_encode_bytes
 
 
-class MemoryMap(RecordsChunk):
+class MemoryMap(EntryMapChunk):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
@@ -22,28 +20,28 @@ class MemoryMap(RecordsChunk):
         return header
 
     @classmethod
-    def parse_records(cls, stream: ByteBlockIO, header):
+    def parse_entries(cls, stream: ByteBlockIO, header):
         return [MemoryMapEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
 
     def find_record_id_by_address(self, address):
-        for i, record in enumerate(self._records):
+        for i, record in enumerate(self.entires):
             if record.address == address:
                 return i
 
         return -1
 
-    @property
-    def entries(self):
-        return self._records
 
+class MemoryMapEntry(InternalChunkEntry):
+    endianess = ByteBlockIO.LITTLE_ENDIAN
 
-class MemoryMapEntry(InternalChunkRecord):
+    public_data_attrs = ['four_cc', 'index']
+
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO, header, index):
+        data = {}
         data['record_address'] = stream.tell()
         data['index'] = index
-        data['active'] = index < parent_header['n_record_slots_used']
+        data['active'] = index < header['n_record_slots_used']
         data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])
         data['chunk_length'] = stream.uint32()
         data['chunk_address'] = stream.uint32()
@@ -56,22 +54,14 @@ class MemoryMapEntry(InternalChunkRecord):
     def get_class(self):
         from tonguetwister.disassembler.mappings.four_cc import CHUNK_MAP
 
-        if self.data['four_cc'] not in CHUNK_MAP:
+        if self._data['four_cc'] not in CHUNK_MAP:
             return UndefinedChunk
 
-        return CHUNK_MAP[self.data['four_cc']]
+        return CHUNK_MAP[self._data['four_cc']]
 
     def is_active(self):
-        return self.data['active'] and self.data['four_cc'] != 'free' and self.data['four_cc'] != 'junk'
-
-    @property
-    def four_cc(self):
-        return self.data['four_cc']
+        return self._data['active'] and self._data['four_cc'] != 'free' and self._data['four_cc'] != 'junk'
 
     @property
     def address(self):
-        return self.data['chunk_address']
-
-    @property
-    def index(self):
-        return self.data['index']
+        return self._data['chunk_address']

@@ -75,7 +75,7 @@ class DefaultRecordsChunkView(DefaultChunkView):
 
         for name in chunk.sections:
             text += self._section_string(name.capitalize())
-            if name == 'records':
+            if name == 'entries':
                 text += self._display_records(getattr(chunk, f'_{name}'))
             else:
                 text += self._format_value(getattr(chunk, f'_{name}'))
@@ -93,5 +93,5 @@ class DefaultRecordsChunkView(DefaultChunkView):
 
         return (
             f'{depth * self.indent}[{index:3d}] {record.__class__.__name__}: \n'
-            f'{sub_indent}{splat_ordered_dict(record.data, separator, self.key_width)}'
+            f'{sub_indent}{splat_ordered_dict(record._data, separator, self.key_width)}'
         )

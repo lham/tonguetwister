@@ -1,5 +1,5 @@
 from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
-from tonguetwister.disassembler.chunk import RecordsChunk, Chunk
+from tonguetwister.disassembler.chunk import EntryMapChunk, Chunk
 from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.disassembler.chunks.lingo_script import LingoScript
 from tonguetwister.disassembler.chunks.thumbnail import Thumbnail
@@ -17,6 +17,6 @@ CHUNK_VIEW_MAP = {
     BitmapCastMember.__name__: BitmapCastMemberView,
     Thumbnail.__name__: ThumbnailView,
     FontXtraMap.__name__: FontXtraMapView,
-    RecordsChunk.__name__: DefaultRecordsChunkView,
+    EntryMapChunk.__name__: DefaultRecordsChunkView,
     Chunk.__name__: DefaultChunkView
 }

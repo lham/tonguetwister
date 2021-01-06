@@ -1,13 +1,11 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunk import RecordsChunk, InternalChunkRecord
+from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class FontMap(RecordsChunk):
+class FontMap(EntryMapChunk):
     @classmethod
     def parse_header(cls, stream):
-        header = OrderedDict()
+        header = {}
         header['u1'] = stream.uint32()
         header['records_length'] = stream.uint32()
         header['u2'] = stream.uint32()
@@ -21,12 +19,12 @@ class FontMap(RecordsChunk):
 
         header['record_headers'] = record_headers = []
         for i in range(header['n_font_headers']):
-            record_headers.append(OrderedDict())
+            record_headers.append({})
             record_headers[i]['offset'] = stream.uint32()
             record_headers[i]['u1'] = stream.uint16()
             record_headers[i]['u2'] = stream.uint16()
 
-        header['font_data'] = font_data = OrderedDict()
+        header['font_data'] = font_data = {}
         font_data['u8'] = stream.uint32()
         font_data['u9'] = stream.uint32()
         font_data['font_data_length'] = stream.uint32()
@@ -36,7 +34,7 @@ class FontMap(RecordsChunk):
         return header
 
     @classmethod
-    def parse_records(cls, stream: ByteBlockIO, header):
+    def parse_entries(cls, stream: ByteBlockIO, header):
         offset = 60
         #records = [FontEntry.parse(stream, header, i) for i in range(header['n_font_records'])]
         #stream.seek(offset + header['font_data']['font_data_length'])
@@ -47,12 +45,12 @@ class FontMap(RecordsChunk):
         return records
 
 
-class FontEntry(InternalChunkRecord):
+class FontEntry(InternalChunkEntry):
     # noinspection PyTypeChecker
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
-        data['header'] = parent_header['record_headers'][index]
+    def parse_data(cls, stream: ByteBlockIO, header, index):
+        data = {}
+        data['header'] = header['record_headers'][index]
 
         if data['header']['offset'] >> 31 != 1:
             stream.seek(60 + data['header']['offset'])
