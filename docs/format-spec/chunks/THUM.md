@@ -1,12 +1,15 @@
 # Thumbnail (THUM)
+
 A thumbnail can belong to a [bitmap cast member](./castmembers/bitmap.md) and is a downscaled version of the image used
 in the [cast](#TODO) windows and property explorer in Director. A thumbnail for a bitmap seems to be created once the
 size of the bitmap is larger than 2500 pixels.
 
+*TODO: CAN belong? Doesn't it always belong?*
+
 The chunk abbreviation is `THUM`.
 
-
 ## Structure
+
 The thumbnail chunk is saved in **big-endian**.
 
 The structure is described by:
@@ -18,8 +21,8 @@ Ref.   | Bytes | Type   | Description
 `DL`   | 4     | uint32 | Image data length
 &nbsp; | `DL`  | &nbsp; | Raw [image data](#unpacking-the-image-data) for the thumbnail.
 
-
 ## Chunk header
+
 The structure of the thumbnail header is:
 
 Ref.   | Bytes | Type   | Name    | Description
@@ -31,10 +34,10 @@ Ref.   | Bytes | Type   | Name    | Description
 
 We can construct the width `W` as `right - left` and the height `H` as `bottom - top`.
 
-
 ## Unpacking the image data
+
 The image data in a thumbnail is basically just the same data as in a [bitmap data chunk](./BITD.md). We can parse it in
-the the same way if we set
+the same way if we set
 
 * `bit-depth` = 8
 * `palette` = [predefined palette "System - Mac"](./castmembers/palette.md#TODO)

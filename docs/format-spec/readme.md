@@ -13,7 +13,7 @@ It's a work in progress and not (yet) a complete source of truth.
     1. [Loading the file](#loading-the-file)
     1. [Resources](#resources)
         1. [The memory map](#the-memory-map)
-        1. [Data resources](#data-resources)
+        1. [Resource relationships](#data-resources)
         1. [Movie resources](#movie-resources)
     1. [Chunk reference](#chunk-reference)
 1. [Sources](#sources)
@@ -67,7 +67,7 @@ This also means that an unoptimized Director file data can contain a lot of data
 reality are not. They are just dereferenced chunks that are relics in the dumped memory that is the file. Thus, we can
 not simply loop through the file looking for chunks since we might get false positives.
 
-Finally, we continue loading the file by looking up and loading data resource map chunk, and then loading all resources
+Finally, we continue loading the file by looking up and loading resource key table chunk, and then loading all resources
 belonging to the Director movie itself. These steps are described further [below](#resources).
 
 ## Resources
@@ -85,38 +85,42 @@ There are two types of resources.
 ### The memory map
 
 The [memory map chunk](./chunks/mmap.md) is actually an array of aforementioned chunk resources, each entry representing
-a chunk resource. The index of an entry it that resource's resource id, obviously not negative.
+a single chunk resource. The index of that entry is the resource's resource id (obviously not negative in this case).
 
 The first four resources of the memory map are always the same, pointing to the following chunks:
 
 1. The [RIFX](./chunks/RIFX.md) chunk.
 2. The [initial map](./chunks/imap.md) chunk.
 3. The [memory map](./chunks/mmap.md) chunk (i.e. a self reference).
-4. The [data resource map](./chunks/KEY*.md) chunk. See section [Data resources](#data-resources).
+4. The [resource key table](./chunks/KEY*.md) chunk.
 
-### Data resources
+### Resource relationships
 
-To complicate things further resources can have linked **data resources**. For example,
-a [bitmap cast member chunk](./chunks/castmembers/bitmap.md) only contains metadata about the bitmap cast member, the
-actual image data is contained in a [bitmap data chunk](./chunks/BITD.md). So in order for us to read the image
-correctly we need to connect it with its image data chunk. We already know that a resource exist for each of these
-chunks with in the memory map, so how do we connect them?
+Resources can have linked resources in a `1..*` parent-child relation. In fact, most resources have a parent resource,
+though in some cases the parent resource will be an abstract resource. However, it's easier to think of the majority of
+the resources as "standalone" resources, i.e. that they don't have an actual parent. That way we can describe the child
+resources in more tightly coupled relationships as **data resources**.
 
-This is done using the [data resource map chunk](./chunks/KEY*.md), given by the fourth resource in the memory map. This
-is a resource mapping table, where each entry represents a [belongs-to relationship](#TODO). Such an entry consists of a
-resource id, a FourCC and the resource id of parent resource to which it belongs. We loosely call a resource belong to
-another resource a **data resource**.
+For example, a [cast](./chunks/CAS*.md) will have multiple [cast members](./chunks/CASt.md), but each cast member is a
+pretty much standalone entity and would in theory need to be assigned to a cast. An example of a much stronger
+relationship would be that between a [bitmap cast member chunk](./chunks/castmembers/bitmap.md) (which only contains
+metadata) and a [bitmap data chunk](./chunks/BITD.md) (which only contains raw encoded image data). So in order for us
+to read the image in the chunk correctly we need to connect it with its image data chunk, hence the tight coupling.
 
-The resource id and the FourCC forms the [primary key](#TODO) for the data mapping table. The reason for having such a
-combined primary key is so that a resource can own multiple data resources. Here In our example above the image would
-only have one data resource, namely the image data, but other things might need more than one data resource.
+This is done using the [resource key table chunk](./chunks/KEY*.md), given by the fourth resource in the memory map.
+This is a relationship mapping table, where each entry represents a [belongs-to relationship](#TODO). Such an entry
+consists of a resource id, a FourCC and the resource id of parent resource to which it belongs.
+
+The resource id and the FourCC forms the [primary key](#TODO) for the relationship mapping table. The reason for having
+such a combined primary key is to represent resources that can own multiple data resources. In our example above the
+image would only have a single data resource, namely the image data, but other chunks might need more.
 
 ### Movie resources
 
-Inside the data resource map there are a couple of data resources belonging to the movie itself. They all have a fixed
+Inside the resource key table there are a couple of resources belonging to the movie itself. They all have a fixed
 parent resource id, namely the `INTERNAL_RESOURCE_ID = 1024`. All saved Director movie data in the loaded file can be
-traced back to these resources through belongs-to relationships nested in different ways. Hence, once the memory map and
-the data resource map are identified and parsed, the rest of the data follows by loading the resources having this
+traced back to these resources through nested belongs-to relationships. Hence, once the memory map chunk and the
+resource key table chunk are identified and parsed, the rest of the data follows by loading the resources having this
 parent resource id.
 
 The movie resources listed below can be present in a Director file and are loaded in the following order:
@@ -150,7 +154,7 @@ specification.
 - [`FXmp` Font Xtra Map](./chunks/FXmp.md)
 - [`imap` Initial Map](./chunks/imap.md)
 - [`junk` Dummy](#chunk-reference)
-- [`KEY*` Cast Key Map](./chunks/KEY*.md)
+- [`KEY*` Resource Key Table](./chunks/KEY*.md)
 - [`Lctx` Lingo Context](./chunks/Lctx.md)
 - [`Lnam` Lingo Name List](./chunks/Lnam.md)
 - [`Lscr` Lingo Script](./chunks/Lscr.md)

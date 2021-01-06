@@ -1,19 +1,20 @@
 # Bitmap cast member
-A bitmap [cast member](../CASt.md) can either be an externally linked bitmap, a linked bitmap with the data duplicated
-inside or an entirely internal bitmap. The bitmaps can have color depths of 2, 4, 8, 16 or 32-bit. However it seems like
-the alpha value in Director 6 is ignored, so the 32-bit images are in fact 24-bit. For 8-bit or lower the colors are
-defined by a [palette](#TODO) rather than being inlined.
 
+A bitmap [cast member](../CASt.md) can either be an externally linked bitmap, a linked bitmap with the data duplicated
+inside or an entirely internal bitmap. The bitmaps can have color depths of 2, 4, 8, 16 or 32-bit. However, it seems
+like the alpha value in Director 6 is ignored, so the 32-bit images are in fact 24-bit. For 8-bit and lower the colors
+are defined by a [palette](#TODO) rather than being inlined.
 
 ## Structure
-The cast member itself contains only header data, consisting of `TSDL` bytes (see [cast member](../CASt.md)). The actual
-image data is either externally located in an image file, or located in on of the following resource chunks:
 
-* [Bitmap data](../BITD.md)
-* [Editable media](../ediM.md)
+The cast member itself contains only image metadata, consisting of `TSDL` bytes (see [cast member](../CASt.md)). The
+actual image data is either externally located in an image file, or located in on of the following chunks:
 
+- [Bitmap data](../BITD.md)
+- [Editable media](../ediM.md)
 
 ## Type specific data
+
 Ref.   | Bytes | Type   | Name                                          | Description
 ---    | ---:  | ---    | ---                                           | ---
 `BPR`  | 2     | uint16 | bytes&#8209;per&#8209;image&#8209;row         | The number of bytes per row of the image. For a 32-bit image this would be the image width * 4 (alpha, red, green, blue). This value needs to be masked with `0x7fff` for some reason?

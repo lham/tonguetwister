@@ -1,11 +1,12 @@
 # Cast member (CASt)
-The cast members are the basic building blocks of a Director [movie](#TODO). Each cast member has a type which in turn gives
-it specific properties. All types are listed [below](#cast-member-types).
+
+The cast members are the basic building blocks of a Director [movie](../readme.md#director-overview). Each cast member
+has a type which in turn gives it specific properties. All types are listed [below](#cast-member-types).
 
 The chunk abbreviation is `CASt`.
 
-
 ## Structure
+
 The cast member chunk is saved in **big-endian**.
 
 The structure is described by:
@@ -16,8 +17,8 @@ Ref.   | Bytes  | Description
 &nbsp; | `CDL`  | [Common data](#common-data)
 &nbsp; | `TSDL` | [Type specific data](#type-specific-data)
 
-
 ## Chunk header
+
 The structure of the cast member chunk header is:
 
 Ref.   | Bytes | Type   | Name                                        | Description
@@ -26,8 +27,8 @@ Ref.   | Bytes | Type   | Name                                        | Descript
 `CDL`  | 4     | uint32 | common&#8209;data&#8209;length              | Length of the [common data](#common-data).
 `TSDL` | 4     | uint32 | type&#8209;specific&#8209;data&#8209;length | Length of the [type specific data](#type-specific-data).
 
-
 ## Common data
+
 The common data consists of `CDL` bytes. The structure is defined as follows:
 
 Ref.   | Bytes                                     | Type(s)  | Name                                                      | Description
@@ -38,8 +39,8 @@ Ref.   | Bytes                                     | Type(s)  | Name            
 `PL`   | (`NDP`&nbsp;+&nbsp;1)&nbsp;&times;&nbsp;4 | uint32   | data&#8209;property&#8209;lengths                         | Array of **data property** lengths (the raw uint32 values are offsets, see explanation below).
 &nbsp; | &Sigma;(`PL`)                             | *varies* | data&#8209;properties                                     | Array of **data properties**.
 
-This is a bit tricky to parse. First you need to know that each common **data property** has a fixed index. The properties
-with their indices and types are given by the following table:
+This is a bit tricky to parse. First you need to know that each common **data property** has a fixed index. The
+properties with their indices and types are given by the following table:
 
 Index | Type               | Name                         | Description
 ---:  | ---                | ---                          | ---
@@ -75,13 +76,13 @@ Finally each data property can be read using the lengths `PL`. They are just sta
 
 The parsing can probably be done differently/more efficiently as this seems like a convoluted way of saving the data.
 
-
 ## Type specific data
+
 The type specific data consists of `TSDL` bytes. The layout and data depends on the cast member type `T`. See each type
 under the section [Cast member types](#cast-member-types) below for specifics on each cast member type.
 
-
 ## Cast member types
+
 The predefined cast member types in Director are listed below, indexed by their cast member type `T`:
 
 Type `T` | Type name

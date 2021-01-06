@@ -1,6 +1,6 @@
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.cast_association_map import CastAssociationMap
-from tonguetwister.disassembler.chunks.cast_key_map import CastKeyMap
+from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.disassembler.chunk import UndefinedChunk
@@ -33,7 +33,7 @@ CHUNK_MAP = {
     'Fmap': FontMap,
     'FXmp': FontXtraMap,
     'imap': InitialMap,
-    'KEY*': CastKeyMap,
+    'KEY*': ResourceKeyTable,
     'Lctx': LingoContext,
     'Lnam': LingoNamelist,
     'Lscr': LingoScript,

@@ -2,7 +2,7 @@ from typing import Union
 
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.cast_association_map import CastAssociationMap
-from tonguetwister.disassembler.chunks.cast_key_map import CastKeyMap
+from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.disassembler.chunk import UndefinedChunk, Chunk
@@ -44,7 +44,7 @@ CHUNK_MAP = {
     'Lscr': LingoScript,
     'CAS*': CastAssociationMap,
     'ccl ': UndefinedChunk,
-    'KEY*': CastKeyMap,
+    'KEY*': ResourceKeyTable,
     'RTE0': UndefinedChunk,
     'RTE1': UndefinedChunk,
     'RTE2': UndefinedChunk,
@@ -159,8 +159,8 @@ class FileDisassembler:
         return namelists[0]
 
     @property
-    def cast_key_map(self) -> Union[CastKeyMap, None]:
-        cast_key_maps = [chunk for _, chunk in self.chunks if isinstance(chunk, CastKeyMap)]
+    def cast_key_map(self) -> Union[ResourceKeyTable, None]:
+        cast_key_maps = [chunk for _, chunk in self.chunks if isinstance(chunk, ResourceKeyTable)]
         if len(cast_key_maps) == 0:
             return None
         if len(cast_key_maps) > 1:

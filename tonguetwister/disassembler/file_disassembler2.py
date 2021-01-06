@@ -1,7 +1,7 @@
 import logging
 import pprint
 
-from tonguetwister.disassembler.chunks.cast_key_map import CastKeyMapEntry
+from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTableEntry
 from tonguetwister.disassembler.chunk import Chunk
 from tonguetwister.disassembler.chunks.rifx import Rifx
 from tonguetwister.disassembler.errors import \
@@ -47,7 +47,7 @@ class FileDisassembler:
         self._parse_initial_map()
         self._parse_memory_map()
         self._parse_resources()
-        self._parse_relations()
+        self._parse_relationships()
 
         self._build_xformat()
 
@@ -81,8 +81,8 @@ class FileDisassembler:
             else:
                 self._parse_chunk(entry.address, i, entry.get_class())
 
-    def _parse_relations(self):
-        for entry in self.resources.get_key_map_chunk().entries:
+    def _parse_relationships(self):
+        for entry in self.resources.get_resource_key_table_chunk().entries:
             if not entry.is_active():
                 continue
 
@@ -92,7 +92,7 @@ class FileDisassembler:
             else:
                 self._validate_mapping_entry(entry)
                 self.data_mapping[(entry.parent_resource_id, entry.four_cc)] = self.resources.find_by_resource_id(
-                    entry.child_resource_id
+                    entry.resource_id
                 )
 
         pprint.pprint(self.data_mapping)
@@ -119,12 +119,12 @@ class FileDisassembler:
         if not all(validations):
             raise BadResourceCollection()
 
-    def _validate_mapping_entry(self, entry: CastKeyMapEntry):
+    def _validate_mapping_entry(self, entry: ResourceKeyTableEntry):
         # TODO: Can't validate parent exist yet, since those resources are not parsed at this point...
         validations = [
             # self.resources.find_by_resource_id(entry.parent_resource_id) is not None,
-            self.resources.find_by_resource_id(entry.child_resource_id) is not None,
-            self.resources.find_by_resource_id(entry.child_resource_id).chunk.four_cc == entry.four_cc,
+            self.resources.find_by_resource_id(entry.resource_id) is not None,
+            self.resources.find_by_resource_id(entry.resource_id).chunk.four_cc == entry.four_cc,
             entry.is_active()
         ]
 
