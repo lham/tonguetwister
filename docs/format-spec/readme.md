@@ -1,7 +1,7 @@
 # The Director 6 file format
 
 This is an attempt to document the entire director 6 file format. It draws on previous research found in various
-[sources](#source); as well as research conducted by myself, and our contributor's research.
+[sources](#sources); as well as research conducted by myself, and our contributor's research.
 
 It's a work in progress and not (yet) a complete source of truth.
 
@@ -137,35 +137,35 @@ Note that there will only be a single chunk resource of each type listed above.
 The following chunks have been identified. For detailed information about each one of them see their linked
 specification.
 
-- [`RIFX` RIFX](./chunks/RIFX.md)
-- [`imap` Initial Map](./chunks/imap.md)
-- [`mmap` Memory Map](./chunks/mmap.md)
-- [`KEY*` Cast Key Map](./chunks/KEY*.md)
-- [`free` Dummy](#chunk-reference)
-- [`junk` Dummy](#chunk-reference)
-- [`DRCF` Director Config](./chunks/DCRF.md)
-- [`VWFI` VideoWorks File Info](./chunks/VWFI.md)
-- [`FXmp` Font Xtra Map](./chunks/FXmp.md)
-- [`MCsL` Movie Cast Libraries](./chunks/MCsL.md)
-- [`Sord` Sort Order](./chunks/Sord.md)
-- [`VWSC` VideoWorks Score](./chunks/VWSC.md)
+- [`BITD` Bitmap Data](./chunks/BITD.md)
+- [`CAS*` Cast Association Map](./chunks/CAS*.md)
 - [`CASt` Cast Member](./chunks/CASt.md)
-- [`STXT` Styled Text](./chunks/STXT.md)
+- [<code>ccl </code>&nbsp;Unknown](./chunks/ccl.md)
 - [`Cinf` Cast Libraries Info](./chunks/Cinf.md)
+- [`CLUT` Color Lookup Table](./chunks/CLUT.md)
+- [`DRCF` Director Config](./chunks/DCRF.md)
+- [`ediM` Editable Media](./chunks/ediM.md)
 - [`Fmap` Font Map](./chunks/Fmap.md)
+- [`free` Dummy](#chunk-reference)
+- [`FXmp` Font Xtra Map](./chunks/FXmp.md)
+- [`imap` Initial Map](./chunks/imap.md)
+- [`junk` Dummy](#chunk-reference)
+- [`KEY*` Cast Key Map](./chunks/KEY*.md)
 - [`Lctx` Lingo Context](./chunks/Lctx.md)
 - [`Lnam` Lingo Name List](./chunks/Lnam.md)
 - [`Lscr` Lingo Script](./chunks/Lscr.md)
-- [`CAS*` Cast Association Map](./chunks/CAS*.md)
-- [<code>ccl </code>&nbsp;Unknown](./chunks/ccl.md)
+- [`MCsL` Movie Cast Libraries](./chunks/MCsL.md)
+- [`mmap` Memory Map](./chunks/mmap.md)
+- [`RIFX` RIFX](./chunks/RIFX.md)
 - [`RTE0` Unknown](./chunks/RTE0.md)
 - [`RTE1` Unknown](./chunks/RTE1.md)
 - [`RTE2` Unknown](./chunks/RTE2.md)
-- [`BITD` Bitmap Data](./chunks/BITD.md)
-- [`XTRl` Unknown](./chunks/XTRl.md)
-- [`ediM` Editable Media](./chunks/ediM.md)
+- [`Sord` Sort Order](./chunks/Sord.md)
+- [`STXT` Styled Text](./chunks/STXT.md)
 - [`THUM` Thumbnail](./chunks/THUM.md)
-- [`CLUT` Color Lookup Table](./chunks/CLUT.md)
+- [`VWFI` VideoWorks File Info](./chunks/VWFI.md)
+- [`VWSC` VideoWorks Score](./chunks/VWSC.md)
+- [`XTRl` Unknown](./chunks/XTRl.md)
 
 # Sources
 
