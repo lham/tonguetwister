@@ -14,12 +14,21 @@ class Chunk:
     sections = ['data']
     _data: dict
 
+    public_data_attrs = []
+
     def __init__(self, address, four_cc, **sections):
         self.address = address
         self.four_cc = four_cc
 
         for name, values in sections.items():
             setattr(self, f'_{name}', values)
+
+    def __getattr__(self, item):
+        for name in self.sections:
+            if item in getattr(self, f'public_{name}_attrs', []):
+                return getattr(self, f'_{name}')[item]
+
+        raise AttributeError(f'{item} not found in any of the public attrs')
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
@@ -32,13 +41,13 @@ class Chunk:
         return cls(address, four_cc, **parsed)
 
     @classmethod
-    def _parse_section(cls, stream, section, parsed_sections):
+    def _parse_section(cls, stream, section, parsed):
         section_function_name = f'parse_{section}'
 
         if not hasattr(cls, section_function_name):
             raise RuntimeError(f'Chunk {cls.__name__} must define section parser named {section_function_name}')
         else:
-            return getattr(cls, section_function_name)(stream, **parsed_sections)
+            return getattr(cls, section_function_name)(stream, **parsed)
 
 
 class RecordsChunk(Chunk, Sequence):

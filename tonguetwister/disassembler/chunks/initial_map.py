@@ -5,6 +5,8 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 class InitialMap(Chunk):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
+    public_data_attrs = ['mmap_address']
+
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = {}
@@ -16,7 +18,3 @@ class InitialMap(Chunk):
         data['u3'] = stream.uint32()
 
         return data
-
-    @property
-    def mmap_address(self):
-        return self._data['mmap_address']
