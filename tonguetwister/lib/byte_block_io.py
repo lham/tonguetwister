@@ -117,6 +117,12 @@ class ByteBlockIO:
     def set_little_endian(self):
         self.endianess = self.LITTLE_ENDIAN
 
+    def set_endianess(self, endianess: str):
+        if endianess != self.LITTLE_ENDIAN and endianess != self.BIG_ENDIAN:
+            raise ValueError()
+
+        self.endianess = endianess
+
     def get_processed_bytes_string(self):
         return f'Used bytes: {self.total_bytes_processed}/{self.total_bytes}'
 

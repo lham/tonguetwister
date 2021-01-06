@@ -5,9 +5,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
 class InitialMap(Chunk):
-    @classmethod
-    def _set_big_endianess(cls, stream: ByteBlockIO):
-        stream.set_little_endian()
+    endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
     def _parse_header(cls, stream: ByteBlockIO):

@@ -5,6 +5,8 @@ from tonguetwister.lib.helper import grouper
 
 
 class Chunk:
+    endianess = ByteBlockIO.BIG_ENDIAN
+
     def __init__(self, address, four_cc, header, body, footer):
         self.address = address
         self.four_cc = four_cc
@@ -15,7 +17,7 @@ class Chunk:
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_big_endianess(stream)
+        stream.set_endianess(cls.endianess)
 
         header = cls._parse_header(stream)
         body = cls._parse_body(stream, header)
@@ -24,8 +26,8 @@ class Chunk:
         return cls(address, four_cc, header, body, footer)
 
     @classmethod
-    def _set_big_endianess(cls, stream: ByteBlockIO):
-        stream.set_big_endian()
+    def _update_endianess(cls, stream: ByteBlockIO):
+        stream.set_endianess(cls.endianess)
 
     @classmethod
     def _parse_header(cls, stream: ByteBlockIO):
@@ -48,7 +50,7 @@ class RecordsChunk(Chunk, Sequence):
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_big_endianess(stream)
+        cls._update_endianess(stream)
 
         header = cls._parse_header(stream)
         body = cls._parse_body(stream, header)

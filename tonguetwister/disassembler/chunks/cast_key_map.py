@@ -6,9 +6,7 @@ from tonguetwister.lib.helper import maybe_encode_bytes
 
 
 class CastKeyMap(RecordsChunk):
-    @classmethod
-    def _set_big_endianess(cls, stream: ByteBlockIO):
-        stream.set_little_endian()
+    endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
     def _parse_header(cls, stream: ByteBlockIO):
