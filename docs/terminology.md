@@ -1,3 +1,5 @@
+This is an old file, and will be incorporated in some other documentation in time.
+
 ## Decompiler
 Term  | Description
 --- | ---
