@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.disassembler.chunks.castmembers.palette import PaletteCastMember
@@ -13,7 +11,7 @@ class BitmapCastMember(CastMember):
         if length == 0:
             return None
 
-        data = OrderedDict()
+        data = {}
 
         # These are assumed to be skips / reserved
         data['skip_length'] = stream.uint32()
@@ -54,7 +52,7 @@ class BitmapCastMember(CastMember):
         if length == 0:
             return None
 
-        data = OrderedDict()
+        data = {}
 
         data['bytes_per_image_row'] = stream.uint16() & 0x7fff  # Why are we using this mask?
         data['top'] = stream.int16()
@@ -86,11 +84,11 @@ class BitmapCastMember(CastMember):
 
     @property
     def name(self):
-        return self.body['prop_1_data_member_name']
+        return self._body['prop_1_data_member_name']
 
     @property
     def is_linked(self):
-        return 'prop_2_data_ext_path' in self.body and len(self.body['prop_2_data_ext_path']) > 0
+        return 'prop_2_data_ext_path' in self._body and len(self._body['prop_2_data_ext_path']) > 0
 
     @property
     def external_file(self):
@@ -98,36 +96,36 @@ class BitmapCastMember(CastMember):
             return ''
 
         # TODO: The path separator must depend on os version somehow
-        return f"{self.body['prop_2_data_ext_path']}\\{self.body['prop_3_data_ext_filename']}"
+        return f"{self._body['prop_2_data_ext_path']}\\{self._body['prop_3_data_ext_filename']}"
 
     @property
     def width(self):
-        return self.footer['right'] - self.footer['left']
+        return self._footer['right'] - self._footer['left']
 
     @property
     def height(self):
-        return self.footer['bottom'] - self.footer['top']
+        return self._footer['bottom'] - self._footer['top']
 
     @property
     def bit_depth(self):
-        return self.footer['bit_depth']
+        return self._footer['bit_depth']
 
     @property
     def palette(self):
         if self.bit_depth > 8:
             return None
 
-        if self.footer['?use_cast_palette'] >= 0:
+        if self._footer['?use_cast_palette'] >= 0:
             print('Warning: Cast palette not implemented, using a predefined palette')
 
-        return PaletteCastMember.get_predefined_palette(self.bit_depth, self.footer['palette'])
+        return PaletteCastMember.get_predefined_palette(self.bit_depth, self._footer['palette'])
 
     @property
     def palette_name(self):
         if self.bit_depth > 8:
             return 'None'
-        elif self.footer['?use_cast_palette'] < 0:
-            return PaletteCastMember.get_predefined_palette_name(self.bit_depth, self.footer['palette'])
+        elif self._footer['?use_cast_palette'] < 0:
+            return PaletteCastMember.get_predefined_palette_name(self.bit_depth, self._footer['palette'])
         else:
             return 'Unable to parse palette cast member name'
 
@@ -140,6 +138,6 @@ class BitmapCastMember(CastMember):
             self.width,
             self.height,
             self.bit_depth,
-            self.footer['bytes_per_image_row'],
+            self._footer['bytes_per_image_row'],
             self.palette
         )

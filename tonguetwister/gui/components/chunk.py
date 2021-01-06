@@ -18,15 +18,13 @@ class DefaultChunkView(TextInput):
         self.readonly = True
 
     def load(self, file_disassembler: FileDisassembler, chunk):
-        self.text = (
-            f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
-            + self._section_string('Header')
-            + self._format_value(chunk.header)
-            + self._section_string('Body')
-            + self._format_value(chunk.body)
-            + self._section_string('Footer')
-            + self._format_value(chunk.footer)
-        )
+        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
+
+        for name in chunk.sections:
+            text += self._section_string(name.capitalize())
+            text += self._format_value(getattr(chunk, f'_{name}'))
+
+        self.text = text
         scroll_to_top(self)
 
     @staticmethod
@@ -73,17 +71,16 @@ class DefaultChunkView(TextInput):
 
 class DefaultRecordsChunkView(DefaultChunkView):
     def load(self, file_disassembler: FileDisassembler, chunk):
-        self.text = (
-            f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
-            + self._section_string('Header')
-            + self._format_value(chunk.header)
-            + self._section_string('Body')
-            + self._format_value(chunk.body)
-            + self._section_string('Records')
-            + self._display_records(chunk.records)
-            + self._section_string('Footer')
-            + self._format_value(chunk.footer)
-        )
+        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
+
+        for name in chunk.sections:
+            text += self._section_string(name.capitalize())
+            if name == 'records':
+                text += self._display_records(getattr(chunk, f'_{name}'))
+            else:
+                text += self._format_value(getattr(chunk, f'_{name}'))
+
+        self.text = text
         scroll_to_top(self)
 
     def _display_records(self, records, depth=0):

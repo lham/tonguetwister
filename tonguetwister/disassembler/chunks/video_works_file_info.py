@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from tonguetwister.disassembler.chunk import Chunk
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
@@ -26,24 +24,24 @@ class VideoWorksFileInfo(Chunk):
     }
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
-        header['header_length'] = stream.uint32()
-        header['u1'] = stream.uint32()
-        header['u2'] = stream.uint32()
-        header['flags'] = stream.uint32()
-        header['u4'] = stream.uint32()
-        header['u5'] = stream.uint32()
-        header['u6'] = stream.uint32()
-        header['u7'] = stream.uint16()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
+        data['header_length'] = stream.uint32()
+        data['u1'] = stream.uint32()
+        data['u2'] = stream.uint32()
+        data['flags'] = stream.uint32()
+        data['u4'] = stream.uint32()
+        data['u5'] = stream.uint32()
+        data['u6'] = stream.uint32()
+        data['u7'] = stream.uint16()
 
-        header['n_offsets'] = stream.uint32()
-        header['u8'] = stream.uint32()
+        data['n_offsets'] = stream.uint32()
+        data['u8'] = stream.uint32()
 
-        header.update(stream.auto_property_list(
+        data.update(stream.auto_property_list(
             FileInfoHeaderPropertyReader,
-            header['header_length'] + 6,
-            header['n_offsets']
+            data['header_length'] + 6,
+            data['n_offsets']
         ))
 
-        return header
+        return data

@@ -6,7 +6,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 class FontMap(RecordsChunk):
     @classmethod
-    def _parse_header(cls, stream):
+    def parse_header(cls, stream):
         header = OrderedDict()
         header['u1'] = stream.uint32()
         header['records_length'] = stream.uint32()
@@ -36,7 +36,7 @@ class FontMap(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         offset = 60
         #records = [FontEntry.parse(stream, header, i) for i in range(header['n_font_records'])]
         #stream.seek(offset + header['font_data']['font_data_length'])

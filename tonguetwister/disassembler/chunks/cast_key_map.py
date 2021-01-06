@@ -9,7 +9,7 @@ class CastKeyMap(RecordsChunk):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['header_length'] = stream.uint16()
         header['record_length'] = stream.uint16()
@@ -19,11 +19,11 @@ class CastKeyMap(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         return [CastKeyMapEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
 
     def find_resource_chunk_mmap_id_by_cast_member_mmap_id(self, cast_mmap_id):
-        for i, record in enumerate(self.records):
+        for i, record in enumerate(self._records):
             if record.cast_mmap_id == cast_mmap_id:
                 return record.mmap_id
 
@@ -31,7 +31,7 @@ class CastKeyMap(RecordsChunk):
 
     @property
     def entries(self):
-        return self.records
+        return self._records
 
 
 class CastKeyMapEntry(InternalChunkRecord):

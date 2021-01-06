@@ -10,10 +10,15 @@ logger.setLevel(logging.DEBUG)
 
 
 class CastMember(Chunk):
+    sections = ['header', 'body', 'footer']
+    _header: dict
+    _body: dict
+    _footer: dict
+
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
         cls._update_endianess(stream)
-        header = cls._parse_header(stream)
+        header = cls.parse_header(stream)
 
         mapping = CastMemberTypeMapping.get()
         if mapping[header['media_type']] is not None:
@@ -22,10 +27,10 @@ class CastMember(Chunk):
         logger.warning(f'Unknown media type ({header["media_type"]}) for cast member.')
         stream.read_bytes()
 
-        return cls(address, four_cc, header, None, None)
+        return cls(address, four_cc, **{'header': header, 'body': None, 'footer': None})
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['media_type'] = stream.uint32()
         header['data_length'] = stream.uint32()
@@ -38,7 +43,7 @@ class CastMember(Chunk):
         data = cls._parse_member_data(stream, generic_header['data_length'])
         footer = cls._parse_member_footer(stream, generic_header['footer_length'])
 
-        return cls(address, four_cc, generic_header, data, footer)
+        return cls(address, four_cc, **{'header': generic_header, 'body': data, 'footer': footer})
 
     @classmethod
     def _parse_member_data(cls, stream: ByteBlockIO, length):

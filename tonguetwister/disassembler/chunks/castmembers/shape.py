@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
@@ -11,7 +9,7 @@ class ShapeCastMember(CastMember):
         if length == 0:
             return None
 
-        data = OrderedDict()
+        data = {}
         data['u1'] = stream.uint32()
         data['u2'] = stream.uint32()
         data['u3'] = stream.uint32()
@@ -36,7 +34,7 @@ class ShapeCastMember(CastMember):
         if length == 0:
             return None
 
-        footer = OrderedDict()
+        footer = {}
         footer['u1'] = stream.uint16()
         footer['u2'] = stream.uint16()
         footer['u3'] = stream.uint16()

@@ -1,17 +1,15 @@
-from collections import OrderedDict
-
 from tonguetwister.disassembler.chunk import Chunk
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
 class Rifx(Chunk):
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
-        header['version'] = stream.uint32()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
+        data['version'] = stream.uint32()
 
-        return header
+        return data
 
     @property
     def version(self):
-        return self.header['version']
+        return self._data['version']

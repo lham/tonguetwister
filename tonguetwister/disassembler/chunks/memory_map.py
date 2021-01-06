@@ -9,8 +9,8 @@ class MemoryMap(RecordsChunk):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+    def parse_header(cls, stream: ByteBlockIO):
+        header = {}
         header['header_length'] = stream.uint16()
         header['record_length'] = stream.uint16()
         header['n_record_slots'] = stream.uint32()
@@ -22,11 +22,11 @@ class MemoryMap(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         return [MemoryMapEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
 
     def find_record_id_by_address(self, address):
-        for i, record in enumerate(self.records):
+        for i, record in enumerate(self._records):
             if record.address == address:
                 return i
 
@@ -34,7 +34,7 @@ class MemoryMap(RecordsChunk):
 
     @property
     def entries(self):
-        return self.records
+        return self._records
 
 
 class MemoryMapEntry(InternalChunkRecord):

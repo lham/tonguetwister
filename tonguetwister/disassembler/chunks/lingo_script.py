@@ -6,7 +6,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 class LingoScript(RecordsChunk):
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
@@ -40,7 +40,7 @@ class LingoScript(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         records = []
 
         stream.seek(header['properties_offset'], 0)

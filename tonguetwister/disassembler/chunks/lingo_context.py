@@ -6,7 +6,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 class LingoContext(RecordsChunk):
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
@@ -28,7 +28,7 @@ class LingoContext(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         stream.seek(header['records_offset'])
         return [ContextEntry.parse(stream, header, i) for i in range(header['n_scripts'])]
 

@@ -9,7 +9,7 @@ class BitmapData(Chunk):
     DEFAULT_ALPHA = 255
 
     @classmethod
-    def _parse_body(cls, stream: ByteBlockIO, header):
+    def parse_data(cls, stream: ByteBlockIO):
         data = OrderedDict()
         data['run_length_encoded_data'] = stream.read_bytes()
         data['byte_string'] = grouper(data['run_length_encoded_data'], 2)  # A formatted byte list for debug purposes
@@ -20,7 +20,7 @@ class BitmapData(Chunk):
         """
         Unpack the color data saved in this chunk.
         """
-        stream = ByteBlockIO(self.body['run_length_encoded_data'])
+        stream = ByteBlockIO(self._data['run_length_encoded_data'])
 
         return self.unpack_bitmap_data(stream, width, height, bit_depth, bytes_per_row, palette)
 

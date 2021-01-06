@@ -1,73 +1,60 @@
-from collections import Sequence, OrderedDict
+import logging
+from collections import Sequence
 
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper
+
+logger = logging.getLogger('tonguetwister.disassembler.chunk')
+logger.setLevel(logging.DEBUG)
 
 
 class Chunk:
     endianess = ByteBlockIO.BIG_ENDIAN
 
-    def __init__(self, address, four_cc, header, body, footer):
+    sections = ['data']
+    _data: dict
+
+    def __init__(self, address, four_cc, **sections):
         self.address = address
         self.four_cc = four_cc
-        self.header = header
-        self.body = body
-        self.footer = footer
-        self.resource_id = None
+
+        for name, values in sections.items():
+            setattr(self, f'_{name}', values)
 
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
         stream.set_endianess(cls.endianess)
 
-        header = cls._parse_header(stream)
-        body = cls._parse_body(stream, header)
-        footer = cls._parse_footer(stream, header)
+        parsed = {}
+        for section in cls.sections:
+            parsed[section] = cls._parse_section(stream, section, parsed)
 
-        return cls(address, four_cc, header, body, footer)
+        return cls(address, four_cc, **parsed)
+
+    @classmethod
+    def _parse_section(cls, stream, section, parsed_sections):
+        section_function_name = f'parse_{section}'
+
+        if not hasattr(cls, section_function_name):
+            raise RuntimeError(f'Chunk {cls.__name__} must define section parser named {section_function_name}')
+        else:
+            return getattr(cls, section_function_name)(stream, **parsed_sections)
 
     @classmethod
     def _update_endianess(cls, stream: ByteBlockIO):
         stream.set_endianess(cls.endianess)
 
-    @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        return OrderedDict()
-
-    @classmethod
-    def _parse_body(cls, stream: ByteBlockIO, header):
-        return None
-
-    # noinspection PyUnusedLocal
-    @classmethod
-    def _parse_footer(cls, steam: ByteBlockIO, header):
-        return None
-
 
 class RecordsChunk(Chunk, Sequence):
-    def __init__(self, address, four_cc, header, body, records, footer):
-        super().__init__(address, four_cc, header, body, footer)
-        self.records = records
-
-    @classmethod
-    def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._update_endianess(stream)
-
-        header = cls._parse_header(stream)
-        body = cls._parse_body(stream, header)
-        records = cls._parse_records(stream, header)
-        footer = cls._parse_footer(stream, header)
-
-        return cls(address, four_cc, header, body, records, footer)
-
-    @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
-        return None
+    sections = ['header', 'records']
+    _header: dict
+    _records: dict
 
     def __len__(self):
-        return len(self.records)
+        return len(self._records)
 
     def __getitem__(self, i):
-        return self.records[i]
+        return self._records[i]
 
 
 class InternalChunkRecord:
@@ -88,10 +75,14 @@ class InternalChunkRecord:
 class UndefinedChunk(Chunk):
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        print(f'Warning: Chunk parser for {four_cc} is not implemented')
+        logger.warning(f'Chunk parser not implemented for [{four_cc}]')
 
-        data = OrderedDict()
+        return super().parse(stream, stream, address)
+
+    @staticmethod
+    def parse_data(stream: ByteBlockIO):
+        data = {}
         data['all_str'] = stream.read_bytes()
         data['all_hex'] = grouper(data['all_str'], 4)
 
-        return cls(address, four_cc, data, None, None)
+        return data

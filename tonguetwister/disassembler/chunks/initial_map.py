@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from tonguetwister.disassembler.chunk import Chunk
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
@@ -8,17 +6,17 @@ class InitialMap(Chunk):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
-        header['mmap_count'] = stream.uint32()
-        header['mmap_address'] = stream.uint32()
-        header['?version'] = stream.uint32()
-        header['u1'] = stream.uint32()
-        header['u2'] = stream.uint32()
-        header['u3'] = stream.uint32()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
+        data['mmap_count'] = stream.uint32()
+        data['mmap_address'] = stream.uint32()
+        data['?version'] = stream.uint32()
+        data['u1'] = stream.uint32()
+        data['u2'] = stream.uint32()
+        data['u3'] = stream.uint32()
 
-        return header
+        return data
 
     @property
     def mmap_address(self):
-        return self.header['mmap_address']
+        return self._data['mmap_address']

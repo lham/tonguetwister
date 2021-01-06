@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 
 from tonguetwister.disassembler.chunk import Chunk
 from tonguetwister.data.inks import INKS
@@ -34,7 +33,7 @@ TODO: Is this valid for director 6?
 class ScorePropertyReader(PropertyReader):
     @property_reader(0)
     def frame_data(self, stream):
-        data = OrderedDict()
+        data = {}
         data['block_length'] = stream.int32()
         data['header_length'] = stream.int32()
         data['u1'] = stream.int32()
@@ -73,7 +72,7 @@ class ScorePropertyReader(PropertyReader):
 
     @property_reader(1)
     def sprite_order_data(self, stream):
-        data = OrderedDict()
+        data = {}
         data['n_sprites'] = stream.uint32()
 
         sprite_indices = [stream.uint32() for _ in range(data['n_sprites'])]
@@ -91,7 +90,7 @@ class ScorePropertyReader(PropertyReader):
 
     @staticmethod
     def sprite_span(stream):
-        data = OrderedDict()
+        data = {}
         data['frame_start'] = stream.uint32()
         data['frame_end'] = stream.uint32()
         data['u1'] = stream.uint32()
@@ -158,35 +157,35 @@ class VideoWorksScore(Chunk):
         self._generate_notation()
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
 
-        header['chunk_length'] = stream.uint32()
-        header['u1'] = stream.int32(); assert_data_value(header['u1'], -3)
-        header['header_length'] = stream.uint32(); assert_data_value(header['header_length'], 12)
-        header['count1'] = stream.uint32()
-        header['count2'] = stream.uint32()#; assert_data_value(header['count2'], header['count1'] + 1) # TODO: This is because mmap
-        header['u2'] = stream.uint32()
+        data['chunk_length'] = stream.uint32()
+        data['u1'] = stream.int32(); assert_data_value(data['u1'], -3)
+        data['header_length'] = stream.uint32(); assert_data_value(data['header_length'], 12)
+        data['count1'] = stream.uint32()
+        data['count2'] = stream.uint32()#; assert_data_value(header['count2'], header['count1'] + 1) # TODO: This is because mmap
+        data['u2'] = stream.uint32()
 
-        header.update(stream.auto_property_list(
+        data.update(stream.auto_property_list(
             ScorePropertyReader,
-            header['header_length'] + 12,  # 4 bytes for each of: [chunk_length, u2, header_length]
-            header['count1'] + 1
+            data['header_length'] + 12,  # 4 bytes for each of: [chunk_length, u2, header_length]
+            data['count1'] + 1
         ))
 
-        header['remaining_data'] = stream.read_bytes()
-        header['remaining_data-bytes'] = grouper(header['remaining_data'], 4)
+        data['remaining_data'] = stream.read_bytes()
+        data['remaining_data-bytes'] = grouper(data['remaining_data'], 4)
 
-        if len(header['remaining_data']) > 0:
-            logger.warning(f'Unprocessed data remaining ({len(header["remaining_data"])} bytes)')
+        if len(data['remaining_data']) > 0:
+            logger.warning(f'Unprocessed data remaining ({len(data["remaining_data"])} bytes)')
 
-        return header
+        return data
 
     @staticmethod
     def _parse_sprite_data(byte_string):
         stream = ByteBlockIO(byte_string, ByteBlockIO.BIG_ENDIAN)
 
-        data = OrderedDict()
+        data = {}
         data['u_all'] = grouper(byte_string, 4)
         data['u1'] = stream.int8(); assert_data_value(data['u1'], [0x10, 0x00])
 
@@ -226,14 +225,14 @@ class VideoWorksScore(Chunk):
         return data
 
     def _generate_sprite_spans(self):
-        for index in self.header['sprite_order_data']['offset_indices_in_order_of_appearance']:
-            self.sprite_span_store[index] = SpriteSpan(self.header[f'sprite_span_{index}'])
+        for index in self._data['sprite_order_data']['offset_indices_in_order_of_appearance']:
+            self.sprite_span_store[index] = SpriteSpan(self._data[f'sprite_span_{index}'])
 
     def _generate_notation(self):
-        n_bytes_per_sprite = self.header['frame_data']['bytes_per_sprite']
+        n_bytes_per_sprite = self._data['frame_data']['bytes_per_sprite']
         current_frame = [0] * self.number_of_bytes_per_frame
 
-        for frame_no, frame in enumerate(self.header['frame_data']['frames']):
+        for frame_no, frame in enumerate(self._data['frame_data']['frames']):
             for index, byte_list in frame.items():
                 current_frame[index:index + len(byte_list)] = list(byte_list)
 
@@ -282,15 +281,15 @@ class VideoWorksScore(Chunk):
 
     @property
     def number_of_channels(self):
-        return self.header['frame_data']['n_channels']
+        return self._data['frame_data']['n_channels']
 
     @property
     def number_of_frames(self):
-        return len(self.header['frame_data']['frames'])
+        return len(self._data['frame_data']['frames'])
 
     @property
     def number_of_bytes_per_frame(self):
-        return self.header['frame_data']['bytes_per_sprite'] * self.number_of_channels
+        return self._data['frame_data']['bytes_per_sprite'] * self.number_of_channels
 
     def text_representation_frames(self, offset=0, length=None, use_min_height=False):
         if length is None:
@@ -311,7 +310,7 @@ class VideoWorksScore(Chunk):
             output += f"{' ' * frame_number_width}   {'  '.join(numbers[i])}\n"
 
         # Add frame changes
-        for frame_no, frame in enumerate(self.header['frame_data']['frames'], 1):
+        for frame_no, frame in enumerate(self._data['frame_data']['frames'], 1):
             current_frame = [None] * self.number_of_bytes_per_frame
             # Apply the current frame changes
             for index, _bytes in frame.items():

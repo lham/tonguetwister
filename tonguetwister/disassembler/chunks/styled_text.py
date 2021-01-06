@@ -7,7 +7,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 class StyledText(RecordsChunk):
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['header_length'] = stream.uint32()
         header['text_length'] = stream.uint32()
@@ -16,14 +16,14 @@ class StyledText(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_body(cls, stream: ByteBlockIO, header):
+    def parse_body(cls, stream: ByteBlockIO, header):
         body = OrderedDict()
         body['text'] = stream.string_raw(header['text_length'])
 
         return body
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         n_styles = stream.uint16()
         return [TextStyle.parse(stream, header, i) for i in range(n_styles)]
 

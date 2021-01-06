@@ -24,7 +24,7 @@ class SortOrder(RecordsChunk):
     """
 
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
@@ -36,7 +36,7 @@ class SortOrder(RecordsChunk):
         return header
 
     @classmethod
-    def _parse_records(cls, stream: ByteBlockIO, header):
+    def parse_records(cls, stream: ByteBlockIO, header):
         return [CastMemberEntry.parse(stream, header, i) for i in range(header['?n_record_slots_total'])]
 
 

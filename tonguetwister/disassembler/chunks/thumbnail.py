@@ -9,7 +9,7 @@ from tonguetwister.lib.helper import grouper
 
 class Thumbnail(Chunk):
     @classmethod
-    def _parse_header(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
         header['header_length'] = stream.uint16()
         header['top'] = stream.int16()
@@ -21,7 +21,7 @@ class Thumbnail(Chunk):
         return header
 
     @classmethod
-    def _parse_body(cls, stream: ByteBlockIO, header):
+    def parse_body(cls, stream: ByteBlockIO, header):
         body = OrderedDict()
         body['data'] = stream.read_bytes(header['data_length'])
         body['data_as_bytes'] = grouper(body['data'], 2)
