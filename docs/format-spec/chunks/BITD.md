@@ -48,4 +48,4 @@ The steps to unpack the bitmaps data are roughly the following:
    [link](https://medium.com/sysf/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393) for more
    information.
    
-For more information on exact steps see the [implementation](../../../tonguetwister/chunks/bitmap_data.py).
+For more information on exact steps see the [implementation](../../../tonguetwister/disassembler/chunks/bitmap_data.py).

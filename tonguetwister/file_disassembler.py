@@ -1,26 +1,26 @@
 from typing import Union
 
-from tonguetwister.chunks.bitmap_data import BitmapData
-from tonguetwister.chunks.cast_association_map import CastAssociationMap
-from tonguetwister.chunks.cast_key_map import CastKeyMap
-from tonguetwister.chunks.cast_library_info import CastLibraryInfo
-from tonguetwister.chunks.cast_member import CastMember
-from tonguetwister.chunks.chunk import UndefinedChunk, Chunk
-from tonguetwister.chunks.director_config import DirectorConfig
-from tonguetwister.chunks.editable_media import EditableMedia
-from tonguetwister.chunks.font_map import FontMap
-from tonguetwister.chunks.font_xtra_map import FontXtraMap
-from tonguetwister.chunks.initial_map import InitialMap
-from tonguetwister.chunks.lingo_context import LingoContext
-from tonguetwister.chunks.lingo_namelist import LingoNamelist
-from tonguetwister.chunks.lingo_script import LingoScript
-from tonguetwister.chunks.memory_map import MemoryMap
-from tonguetwister.chunks.movie_cast_libraries import MovieCastLibraries
-from tonguetwister.chunks.sort_order import SortOrder
-from tonguetwister.chunks.styled_text import StyledText
-from tonguetwister.chunks.thumbnail import Thumbnail
-from tonguetwister.chunks.video_works_file_info import VideoWorksFileInfo
-from tonguetwister.chunks.video_works_score import VideoWorksScore
+from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
+from tonguetwister.disassembler.chunks.cast_association_map import CastAssociationMap
+from tonguetwister.disassembler.chunks.cast_key_map import CastKeyMap
+from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
+from tonguetwister.disassembler.chunks.cast_member import CastMember
+from tonguetwister.disassembler.chunk import UndefinedChunk, Chunk
+from tonguetwister.disassembler.chunks.director_config import DirectorConfig
+from tonguetwister.disassembler.chunks.editable_media import EditableMedia
+from tonguetwister.disassembler.chunks.font_map import FontMap
+from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
+from tonguetwister.disassembler.chunks.initial_map import InitialMap
+from tonguetwister.disassembler.chunks.lingo_context import LingoContext
+from tonguetwister.disassembler.chunks.lingo_namelist import LingoNamelist
+from tonguetwister.disassembler.chunks.lingo_script import LingoScript
+from tonguetwister.disassembler.chunks.memory_map import MemoryMap
+from tonguetwister.disassembler.chunks.movie_cast_libraries import MovieCastLibraries
+from tonguetwister.disassembler.chunks.sort_order import SortOrder
+from tonguetwister.disassembler.chunks.styled_text import StyledText
+from tonguetwister.disassembler.chunks.thumbnail import Thumbnail
+from tonguetwister.disassembler.chunks.video_works_file_info import VideoWorksFileInfo
+from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 

@@ -3,7 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.chunks.font_xtra_map import FontXtraMap
+from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.utils import scroll_to_top

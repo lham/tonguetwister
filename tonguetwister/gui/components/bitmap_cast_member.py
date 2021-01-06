@@ -1,8 +1,8 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 
-from tonguetwister.chunks.castmembers.bitmap import BitmapCastMember
-from tonguetwister.file_disassembler import FileDisassembler
+from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
+from tonguetwister.disassembler.file_disassembler2 import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
 from tonguetwister.gui.widgets.label_area import LabelArea
@@ -81,12 +81,7 @@ class BitmapCastMemberView(BoxLayout):
         })
 
     def _load_image(self, file_disassembler, bitmap_cast_member):
-        mmap = file_disassembler.mmap
-        key_map = file_disassembler.cast_key_map
-
-        cast_id = mmap.find_record_id_by_address(bitmap_cast_member.address)
-        resource_id = key_map.find_resource_chunk_mmap_id_by_cast_member_mmap_id(cast_id)
-        resource = file_disassembler.find_chunk_by_mmap_id(resource_id)
+        resource = file_disassembler.get_mapped_data_chunk(bitmap_cast_member, 'BITD')
 
         self._detach_image()
         if not bitmap_cast_member.is_linked:

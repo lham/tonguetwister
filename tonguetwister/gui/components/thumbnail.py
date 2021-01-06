@@ -1,4 +1,4 @@
-from tonguetwister.chunks.thumbnail import Thumbnail
+from tonguetwister.disassembler.chunks.thumbnail import Thumbnail
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.bitmap_cast_member import BitmapCastMemberView
 from tonguetwister.gui.widgets.label_area import LabelArea

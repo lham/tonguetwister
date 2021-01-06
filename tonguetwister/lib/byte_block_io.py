@@ -1,7 +1,11 @@
+import logging
 from collections import OrderedDict
 from contextlib import contextmanager
 from io import BytesIO
 from struct import unpack
+
+logger = logging.getLogger('tonguetwister.lib.byte_block_io')
+logger.setLevel(logging.DEBUG)
 
 
 class ByteBlockIO:
@@ -14,6 +18,11 @@ class ByteBlockIO:
         self.endianess = endianess
         self.total_bytes_processed = 0
         self.total_bytes = len(byte_block)
+        self.byte_is_unprocessed = [True] * self.total_bytes
+
+    def reset(self):
+        self.stream.seek(0)
+        self.total_bytes_processed = 0
         self.byte_is_unprocessed = [True] * self.total_bytes
 
     def _read(self, n_bytes=-1):
@@ -33,39 +42,35 @@ class ByteBlockIO:
             if self.byte_is_unprocessed[addr + i]:
                 self.byte_is_unprocessed[addr + i] = False
             else:
-                print(f'WARNING: Byte at address {addr + i} already read')
+                logger.warning(f'Byte at address 0x{addr+i:x} ({addr+i}) already read')
+
+    def _parse_value(self, _type, n_bytes, endianess):
+        endianess = self.endianess if endianess is None else endianess
+        return unpack(endianess + _type, self._read(n_bytes))[0]
 
     def uint32(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'I', self._read(4))[0]
+        return self._parse_value('I', 4, endianess)
 
     def int32(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'i', self._read(4))[0]
+        return self._parse_value('i', 4, endianess)
 
     def uint16(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'H', self._read(2))[0]
+        return self._parse_value('H', 2, endianess)
 
     def int16(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'h', self._read(2))[0]
+        return self._parse_value('h', 2, endianess)
 
     def uint8(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'B', self._read(1))[0]
+        return self._parse_value('B', 1, endianess)
 
     def int8(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'b', self._read(1))[0]
+        return self._parse_value('b', 1, endianess)
 
     def float(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'f', self._read(4))[0]
+        return self._parse_value('f', 4, endianess)
 
     def double(self, endianess=None):
-        endianess = self.endianess if endianess is None else endianess
-        return unpack(endianess + 'd', self._read(8))[0]
+        return self._parse_value('d', 8, endianess)
 
     def string_raw(self, length, endianess=None):
         return self._string(length, endianess)
@@ -88,6 +93,7 @@ class ByteBlockIO:
     def read_bytes(self, size=-1):
         if size < 0:
             size = self.size() - self.tell()
+
         return self._read(size)
 
     def read_pad(self, size):

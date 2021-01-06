@@ -16,7 +16,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 
-from tonguetwister.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
+from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.utils import scroll_to_top
