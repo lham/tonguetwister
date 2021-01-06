@@ -39,7 +39,7 @@ as described in the following table:
 
 Ref.   | Bytes | Type     | Name               | Description
 ---    | ---:  | ---      | ---                | ---
-&nbsp; | 4     | char     | four&#8209;cc      | A four-character code identifying the chunk, a a [FourCC](#TODO).
+&nbsp; | 4     | char     | four&#8209;cc      | A four-character code identifying the chunk, a [FourCC](#TODO).
 `CL`   | 4     | uint32   | chunk&#8209;length | Length of the chunk data.
 &nbsp; | `CL`  | *varies* | chunk&#8209;data   | The data contained within the chunk.
 
@@ -73,7 +73,7 @@ belonging to the Director movie itself. These steps are described further [below
 ## Resources
 
 The next thing to talk about is **resources**. If a **chunk** contains all Director movie data, then the file format
-uses a **resource* to link the chunks together. Each resource is identified by its resource id, which can be negative.
+uses a **resource** to link the chunks together. Each resource is identified by its resource id, which can be negative.
 
 There are two types of resources.
 
