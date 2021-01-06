@@ -12,7 +12,7 @@ logger.setLevel(logging.DEBUG)
 class CastMember(Chunk):
     @classmethod
     def parse(cls, stream: ByteBlockIO, address, four_cc):
-        cls._set_big_endianess(stream)
+        cls._update_endianess(stream)
         header = cls._parse_header(stream)
 
         mapping = CastMemberTypeMapping.get()

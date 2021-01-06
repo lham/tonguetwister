@@ -3,6 +3,7 @@ from typing import Optional
 
 from tonguetwister.disassembler.chunks.cast_key_map import CastKeyMap
 from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunks.director_config import DirectorConfig
 from tonguetwister.disassembler.errors import ChunkNotFound
 from tonguetwister.disassembler.chunks.initial_map import InitialMap
 from tonguetwister.disassembler.chunks.memory_map import MemoryMapEntry, MemoryMap
@@ -81,6 +82,9 @@ class ResourceCollection:
 
     def get_key_map_chunk(self) -> CastKeyMap:
         return self._get_chunk(CastKeyMap)
+
+    def get_director_config_chunk(self) -> DirectorConfig:
+        return self._get_chunk(DirectorConfig)
 
     def all(self):
         return self._resources_by_address.values()

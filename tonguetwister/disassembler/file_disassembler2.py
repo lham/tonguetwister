@@ -14,6 +14,8 @@ from tonguetwister.disassembler.chunks.memory_map import MemoryMap
 from tonguetwister.disassembler.reader import extract_chunk
 from tonguetwister.disassembler.resources import ResourceCollection, Resource
 from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.xformat.movie import MovieFormat
+from tonguetwister.xformat.rect import Rect
 
 logger = logging.getLogger('tonguetwister.file_disassembler.disassembler')
 logger.setLevel(logging.DEBUG)
@@ -24,6 +26,7 @@ class FileDisassembler:
         self.stream = None
         self.resources = ResourceCollection()
         self.data_mapping = {}
+        self.movie = MovieFormat()
 
         if filename is not None:
             self.load_file(filename)
@@ -40,18 +43,13 @@ class FileDisassembler:
     def unpack(self):
         logger.info('Unpacking RIFX director file')
         self.stream.reset()
+
         self._parse_initial_map()
         self._parse_memory_map()
         self._parse_resources()
         self._parse_relations()
-        # self._parse_config()  # VWCF or DRCF (DRCF is the later name, from around v6 or so)
-        # self._parse_move_cast_libs  # MCsL
-        # self._parse_cast_sort_order()  # Sord
-        # self._parse_score()  # VWSC
-        # TODO: FCOL (Favorite colors)
-        # TODO: VWFI (FileInfo)
-        # TODO: GRID (Guides and Grid)
-        # TODO: FXmp (Font map)
+
+        self._build_xformat()
 
     def _parse_chunk(self, address, resource_id, expected_chunk_class, ignore_parse_check=False):
         chunk = extract_chunk(self.stream, address, expected_chunk_class, ignore_parse_check)
@@ -132,3 +130,19 @@ class FileDisassembler:
 
         if not all(validations):
             raise BadRelationCollection()
+
+    def _build_xformat(self):
+        # Parse data from director config
+        self.movie.info.stage_rect = Rect(**self.director_config.stage_rect)
+
+        # self._parse_move_cast_libs  # MCsL
+        # self._parse_cast_sort_order()  # Sord
+        # self._parse_score()  # VWSC
+        # TODO: FCOL (Favorite colors)
+        # TODO: VWFI (FileInfo)
+        # TODO: GRID (Guides and Grid)
+        # TODO: FXmp (Font map)
+
+    @property
+    def director_config(self):
+        return self.resources.get_director_config_chunk()

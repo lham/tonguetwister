@@ -6,18 +6,18 @@ from tonguetwister.lib.helper import grouper
 
 
 class DirectorConfig(Chunk):
-    """
-    The Config, as you might imagine, has some basic properties about the movie itself.
-    This includes the version number, stage size, background colour and etc. In older
-    Director versions where only one Cast was allowed, Cast Properties were also stored
-    here, but now they are stored somewhere else. Also, it’s worth mentioning that Config
-    is not actually a guessed name, as it is one of the clipboard types registered by
-    Director, so we know this is its official name.
-    -- https://medium.com/@nosamu/a-tour-of-the-adobe-director-file-format-e375d1e063c0
 
-    """
     @classmethod
     def _parse_header(cls, stream: ByteBlockIO):
+        """
+        We should be able to find
+        - version number
+        - stage size
+        - background color
+
+        In older versions cast properties were stored here.
+        -- https://medium.com/@nosamu/a-tour-of-the-adobe-director-file-format-e375d1e063c0
+        """
         header = OrderedDict()
         header['chunk_length'] = stream.uint16()  # Inclusive self
         header['?version'] = stream.uint16()
@@ -35,3 +35,12 @@ class DirectorConfig(Chunk):
         header['u2'] = stream.uint32()
 
         return header
+
+    @property
+    def stage_rect(self):
+        return {
+            'top': self.header['stage_top'],
+            'right': self.header['stage_right'],
+            'bottom': self.header['stage_bottom'],
+            'left': self.header['stage_left']
+        }
