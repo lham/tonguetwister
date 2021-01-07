@@ -10,7 +10,7 @@ class InitialMap(ChunkParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = {}
-        data['mmap_count'] = stream.uint32()
+        data['?mmap_count'] = stream.uint32()
         data['mmap_address'] = stream.uint32()
         data['?version'] = stream.uint32()
         data['u1'] = stream.uint32()
