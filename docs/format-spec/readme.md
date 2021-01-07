@@ -1,7 +1,7 @@
 # The Director 6 file format
 
 This is an attempt to document the entire director 6 file format. It draws on previous research found in various
-[sources](#sources); as well as research conducted by myself, and our contributor's research.
+[sources](#sources); research conducted by myself, and research conducted by our contributors.
 
 It's a work in progress and not (yet) a complete source of truth.
 
@@ -13,9 +13,38 @@ It's a work in progress and not (yet) a complete source of truth.
     1. [Loading the file](#loading-the-file)
     1. [Resources](#resources)
         1. [The memory map](#the-memory-map)
-        1. [Resource relationships](#data-resources)
+        1. [Resource relationships](#resource-relationships)
         1. [Movie resources](#movie-resources)
     1. [Chunk reference](#chunk-reference)
+        1. [`BITD`](./chunks/BITD.md)
+        1. [`CAS*`](./chunks/CAS*.md)
+        1. [`CASt`](./chunks/CASt.md)
+        1. [<code>ccl </code>](./chunks/ccl.md)
+        1. [`Cinf`](./chunks/Cinf.md)
+        1. [`CLUT`](./chunks/CLUT.md)
+        1. [`DCRF`](./chunks/DRCF.md)
+        1. [`ediM`](./chunks/ediM.md)
+        1. [`Fmap`](./chunks/Fmap.md)
+        1. [`free`](#chunk-reference)
+        1. [`FXmp`](./chunks/FXmp.md)
+        1. [`imap`](./chunks/imap.md)
+        1. [`junk`](#chunk-reference)
+        1. [`KEY*`](./chunks/KEY*.md)
+        1. [`Lctx`](./chunks/Lctx.md)
+        1. [`Lnam`](./chunks/Lnam.md)
+        1. [`Lscr`](./chunks/Lscr.md)
+        1. [`MCsL`](./chunks/MCsL.md)
+        1. [`mmap`](./chunks/mmap.md)
+        1. [`RIFX`](./chunks/RIFX.md)
+        1. [`RTE0`](./chunks/RTE0.md)
+        1. [`RTE1`](./chunks/RTE1.md)
+        1. [`RTE2`](./chunks/RTE2.md)
+        1. [`Sord`](./chunks/Sord.md)
+        1. [`STXT`](./chunks/STXT.md)
+        1. [`THUM`](./chunks/THUM.md)
+        1. [`VWFI`](./chunks/VWFI.md)
+        1. [`VWSC`](./chunks/VWSC.md)
+        1. [`XTRl`](./chunks/XTRl.md)
 1. [Sources](#sources)
 
 # Director overview
@@ -173,7 +202,7 @@ specification.
 
 # Sources
 
-Offline written material:
+Printed material:
 
 - Bruce A. Epstein. **Director in a Nutshell**. O'Reilly. 1999. *A bit of everything about everything. Not necessarily
   describing the exact file format but filling in a lot of gaps on how stuff works behind the scenes. Targets Director
@@ -184,7 +213,7 @@ Offline written material:
 - Macromedia. **Director 6: Lingo Dictionary**. 1997. Macromedia. *The written Lingo reference included with the
   program.*
 
-Online written material:
+Digitally published material:
 
 - [**A Tour of the Adobe Director
   Format**](https://medium.com/@nosamu/a-tour-of-the-adobe-director-file-format-e375d1e063c0). *A detailed description
