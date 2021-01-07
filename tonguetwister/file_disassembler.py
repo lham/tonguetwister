@@ -1,6 +1,6 @@
 import logging
 
-from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.disassembler.errors import UnexpectedChunkClass, InvalidDirectorFile
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.disassembler.resources import ChunkResource, ResourceEngine

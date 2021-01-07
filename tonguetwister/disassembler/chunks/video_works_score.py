@@ -1,6 +1,6 @@
 import logging
 
-from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.data.inks import INKS
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper, chunk, assert_data_value

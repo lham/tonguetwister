@@ -5,7 +5,7 @@ from tonguetwister.disassembler.chunks.cast_association_map import CastAssociati
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
-from tonguetwister.disassembler.chunk import UnknownChunkParser, ChunkParser
+from tonguetwister.disassembler.chunkparser import UnknownChunkParser, ChunkParser
 from tonguetwister.disassembler.chunks.rifx import Rifx
 from tonguetwister.disassembler.chunks.director_config import DirectorConfig
 from tonguetwister.disassembler.chunks.editable_media import EditableMedia

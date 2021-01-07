@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.castmembers.palette import PaletteCastMember
-from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper
 

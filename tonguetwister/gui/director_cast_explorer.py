@@ -10,7 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.disassembler.chunk import EntryMapChunkParser, ChunkParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
 from tonguetwister.gui.components.score import ScoreNotationCanvas

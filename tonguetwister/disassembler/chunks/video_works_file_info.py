@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 

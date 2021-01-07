@@ -1,6 +1,6 @@
 import logging
 
-from tonguetwister.disassembler.chunk import UnknownChunkParser
+from tonguetwister.disassembler.chunkparser import UnknownChunkParser
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.errors import BadMemoryMapEntry, ResourceAlreadyExists, ResourceNotLocated
 from tonguetwister.disassembler.chunks.initial_map import InitialMap

@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 

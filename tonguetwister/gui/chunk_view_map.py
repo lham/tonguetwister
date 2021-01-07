@@ -1,5 +1,5 @@
 from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
-from tonguetwister.disassembler.chunk import EntryMapChunkParser, ChunkParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, ChunkParser
 from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.disassembler.chunks.lingo_script import LingoScript
 from tonguetwister.disassembler.chunks.thumbnail import Thumbnail

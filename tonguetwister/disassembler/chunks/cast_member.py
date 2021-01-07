@@ -1,7 +1,7 @@
 import logging
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.disassembler.mappings.cast_member_types import CastMemberTypeMapping
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
