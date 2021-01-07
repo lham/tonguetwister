@@ -1,6 +1,6 @@
 import logging
 
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.data.inks import INKS
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper, chunk, assert_data_value
@@ -145,7 +145,7 @@ class ScorePropertyReader(PropertyReader):
         return data, False
 
 
-class VideoWorksScore(Chunk):
+class VideoWorksScore(ChunkParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

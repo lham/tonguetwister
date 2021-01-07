@@ -1,8 +1,8 @@
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class Rifx(Chunk):
+class Rifx(ChunkParser):
     public_data_attrs = ['version']
 
     @classmethod

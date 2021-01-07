@@ -1,8 +1,8 @@
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class InitialMap(Chunk):
+class InitialMap(ChunkParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     public_data_attrs = ['mmap_address']

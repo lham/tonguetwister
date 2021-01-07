@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import InternalChunkEntry, EntryMapChunk
+from tonguetwister.disassembler.chunk import InternalChunkEntryParser, EntryMapChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class LingoScript(EntryMapChunk):
+class LingoScript(EntryMapChunkParser):
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
@@ -75,7 +75,7 @@ class LingoScript(EntryMapChunk):
         return [record for record in self.records if isinstance(record, LingoU9)]
 
 
-class LingoProperty(InternalChunkEntry):
+class LingoProperty(InternalChunkEntryParser):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
@@ -84,7 +84,7 @@ class LingoProperty(InternalChunkEntry):
         return data
 
 
-class LingoGlobal(InternalChunkEntry):
+class LingoGlobal(InternalChunkEntryParser):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()
@@ -93,7 +93,7 @@ class LingoGlobal(InternalChunkEntry):
         return data
 
 
-class LingoFunction(InternalChunkEntry):
+class LingoFunction(InternalChunkEntryParser):
     header_length = 42
 
     @classmethod
@@ -190,7 +190,7 @@ class LingoFunction(InternalChunkEntry):
         return self.header['function_id']
 
 
-class LingoLiteral(InternalChunkEntry):
+class LingoLiteral(InternalChunkEntryParser):
     TYPE_STRING = 1
     TYPE_INT = 4
     TYPE_DOUBLE = 9
@@ -262,7 +262,7 @@ class LingoLiteral(InternalChunkEntry):
         return self.data['value']
 
 
-class LingoU9(InternalChunkEntry):
+class LingoU9(InternalChunkEntryParser):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()

@@ -1,8 +1,8 @@
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class FontMap(EntryMapChunk):
+class FontMap(EntryMapChunkParser):
     @classmethod
     def parse_header(cls, stream):
         header = {}
@@ -45,7 +45,7 @@ class FontMap(EntryMapChunk):
         return records
 
 
-class FontEntry(InternalChunkEntry):
+class FontEntry(InternalChunkEntryParser):
     # noinspection PyTypeChecker
     @classmethod
     def parse_data(cls, stream: ByteBlockIO, header, index):

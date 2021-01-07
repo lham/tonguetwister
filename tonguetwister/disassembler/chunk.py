@@ -1,11 +1,7 @@
-import logging
 from collections import Sequence
 
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import grouper
-
-logger = logging.getLogger('tonguetwister.disassembler.chunk')
-logger.setLevel(logging.DEBUG)
 
 
 class ByteBlockParser:
@@ -43,22 +39,20 @@ class ByteBlockParser:
             return getattr(cls, section_function_name)(stream, *args, **{**kwargs, **parsed})
 
 
-class Chunk(ByteBlockParser):
+class ChunkParser(ByteBlockParser):
     sections = ['data']
     public_data_attrs = []
 
-    def __init__(self, address, four_cc, **sections):
+    def __init__(self, **sections):
         super().__init__(**sections)
-
-        self.address = address
-        self.four_cc = four_cc
+        self.resource = None
 
     @classmethod
-    def parse(cls, stream: ByteBlockIO, address, four_cc):
-        return cls(address, four_cc, **cls._parse_byte_block_stream(stream))
+    def parse(cls, stream: ByteBlockIO):
+        return cls(**cls._parse_byte_block_stream(stream))
 
 
-class EntryMapChunk(Chunk, Sequence):
+class EntryMapChunkParser(ChunkParser, Sequence):
     sections = ['header', 'entries']
     public_header_attrs = []
 
@@ -73,7 +67,7 @@ class EntryMapChunk(Chunk, Sequence):
         return self._entries
 
 
-class InternalChunkEntry(ByteBlockParser):
+class InternalChunkEntryParser(ByteBlockParser):
     sections = ['data']
     public_data_attrs = []
 
@@ -82,13 +76,7 @@ class InternalChunkEntry(ByteBlockParser):
         return cls(**cls._parse_byte_block_stream(stream, *args, **kwargs))
 
 
-class UndefinedChunk(Chunk):
-    @classmethod
-    def parse(cls, stream: ByteBlockIO, address, four_cc):
-        logger.warning(f'Chunk parser not implemented for [{four_cc}]')
-
-        return super().parse(stream, stream, address)
-
+class UnknownChunkParser(ChunkParser):
     @staticmethod
     def parse_data(stream: ByteBlockIO):
         data = {}

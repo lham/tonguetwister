@@ -10,7 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.disassembler.chunk import EntryMapChunk, Chunk
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, ChunkParser
 from tonguetwister.disassembler.file_disassembler2 import FileDisassembler
 from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
 from tonguetwister.gui.components.score import ScoreNotationCanvas
@@ -161,7 +161,7 @@ class DirectorCastExplorer(App):
             chunk_count = type_counts.get(chunk_name, 0)
             type_counts[chunk_name] = chunk_count + 1
 
-            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.address:X})', chunk))
+            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.resource.chunk_address:X})', chunk))
 
     def _load_chunks_into_menu(self):
         self.menu.clear_list_items()
@@ -177,13 +177,13 @@ class DirectorCastExplorer(App):
         if self.current_chunk.item is not None:
             chunk = self.current_chunk.item[2]
 
-        if isinstance(chunk, Chunk):
+        if isinstance(chunk, ChunkParser):
             if chunk.__class__.__name__ in self.views:
                 key = chunk.__class__.__name__
-            elif isinstance(chunk, EntryMapChunk):
-                key = EntryMapChunk.__name__
+            elif isinstance(chunk, EntryMapChunkParser):
+                key = EntryMapChunkParser.__name__
             else:
-                key = Chunk.__name__
+                key = ChunkParser.__name__
 
             view = self.views[key]
             view.load(self.file_disassembler, chunk)

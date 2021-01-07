@@ -5,7 +5,7 @@ from tonguetwister.disassembler.chunks.cast_association_map import CastAssociati
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
-from tonguetwister.disassembler.chunk import UndefinedChunk, Chunk
+from tonguetwister.disassembler.chunk import UnknownChunkParser, ChunkParser
 from tonguetwister.disassembler.chunks.director_config import DirectorConfig
 from tonguetwister.disassembler.chunks.editable_media import EditableMedia
 from tonguetwister.disassembler.chunks.font_map import FontMap
@@ -25,7 +25,7 @@ from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
 CHUNK_MAP = {
-    'RIFX': UndefinedChunk,
+    'RIFX': UnknownChunkParser,
     'imap': InitialMap,
     'mmap': MemoryMap,
     'DRCF': DirectorConfig,
@@ -38,22 +38,22 @@ CHUNK_MAP = {
     'STXT': StyledText,
     'Cinf': CastLibraryInfo,
     'Fmap': FontMap,
-    'free': UndefinedChunk,
+    'free': UnknownChunkParser,
     'Lctx': LingoContext,
     'Lnam': LingoNamelist,
     'Lscr': LingoScript,
     'CAS*': CastAssociationMap,
-    'ccl ': UndefinedChunk,
+    'ccl ': UnknownChunkParser,
     'KEY*': ResourceKeyTable,
-    'RTE0': UndefinedChunk,
-    'RTE1': UndefinedChunk,
-    'RTE2': UndefinedChunk,
+    'RTE0': UnknownChunkParser,
+    'RTE1': UnknownChunkParser,
+    'RTE2': UnknownChunkParser,
     'BITD': BitmapData,
-    'XTRl': UndefinedChunk,
+    'XTRl': UnknownChunkParser,
     'ediM': EditableMedia,
     'THUM': Thumbnail,
-    'CLUT': UndefinedChunk,
-    'SCRF': UndefinedChunk
+    'CLUT': UnknownChunkParser,
+    'SCRF': UnknownChunkParser
 }
 
 
@@ -176,7 +176,7 @@ class FileDisassembler:
             print('Warning: More than one namelist')
         return memory_maps[0]
 
-    def find_chunk_by_mmap_id(self, mmap_id) -> Union[Chunk, None]:
+    def find_chunk_by_mmap_id(self, mmap_id) -> Union[ChunkParser, None]:
         address = self.mmap[mmap_id].address
         for (chunk_address, chunk) in self.chunks:
             if chunk_address == address:

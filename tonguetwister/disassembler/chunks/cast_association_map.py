@@ -1,8 +1,8 @@
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class CastAssociationMap(EntryMapChunk):
+class CastAssociationMap(EntryMapChunkParser):
     sections = ['entries']
 
     @classmethod
@@ -14,7 +14,7 @@ class CastAssociationMap(EntryMapChunk):
         return data
 
 
-class MapEntry(InternalChunkEntry):
+class MapEntry(InternalChunkEntryParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = {}

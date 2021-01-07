@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class SortOrder(EntryMapChunk):
+class SortOrder(EntryMapChunkParser):
     """
     This is an array of INT32s, each of which form the number property of a Cast Member.
     Each INT32 is really made up of two INT16s: the two most significant bytes of each
@@ -40,7 +40,7 @@ class SortOrder(EntryMapChunk):
         return [CastMemberEntry.parse(stream) for _ in range(header['?n_record_slots_total'])]
 
 
-class CastMemberEntry(InternalChunkEntry):
+class CastMemberEntry(InternalChunkEntryParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = OrderedDict()

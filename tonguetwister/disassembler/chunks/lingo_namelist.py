@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class LingoNamelist(EntryMapChunk):
+class LingoNamelist(EntryMapChunkParser):
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
         header = OrderedDict()
@@ -25,7 +25,7 @@ class LingoNamelist(EntryMapChunk):
         return self.records[i]._data['text']
 
 
-class NameEntry(InternalChunkEntry):
+class NameEntry(InternalChunkEntryParser):
     @classmethod
     def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
         data = OrderedDict()

@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
@@ -22,7 +22,7 @@ class CastLibraryPropertyReader(PropertyReader):
         return record
 
 
-class MovieCastLibraries(Chunk):
+class MovieCastLibraries(ChunkParser):
     """
     This Chunk was introduced in Director 5 to allow Movies to have multiple Casts.
     The Cast Properties, which used to be a part of the Config, were moved here.

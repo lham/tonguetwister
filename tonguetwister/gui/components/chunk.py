@@ -18,7 +18,7 @@ class DefaultChunkView(TextInput):
         self.readonly = True
 
     def load(self, file_disassembler: FileDisassembler, chunk):
-        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
+        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.resource.chunk_type})'
 
         for name in chunk.sections:
             text += self._section_string(name.capitalize())
@@ -71,7 +71,7 @@ class DefaultChunkView(TextInput):
 
 class DefaultRecordsChunkView(DefaultChunkView):
     def load(self, file_disassembler: FileDisassembler, chunk):
-        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.four_cc})'
+        text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.resource.chunk_type})'
 
         for name in chunk.sections:
             text += self._section_string(name.capitalize())

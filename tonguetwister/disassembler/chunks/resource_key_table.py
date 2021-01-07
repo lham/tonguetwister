@@ -1,9 +1,9 @@
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import maybe_encode_bytes
 
 
-class ResourceKeyTable(EntryMapChunk):
+class ResourceKeyTable(EntryMapChunkParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
@@ -21,7 +21,7 @@ class ResourceKeyTable(EntryMapChunk):
         return [ResourceKeyTableEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
 
 
-class ResourceKeyTableEntry(InternalChunkEntry):
+class ResourceKeyTableEntry(InternalChunkEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     public_data_attrs = ['parent_resource_id', 'resource_id', 'four_cc']

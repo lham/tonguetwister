@@ -1,9 +1,9 @@
-from tonguetwister.disassembler.chunk import EntryMapChunk, InternalChunkEntry, UndefinedChunk
+from tonguetwister.disassembler.chunk import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.helper import maybe_encode_bytes
 
 
-class MemoryMap(EntryMapChunk):
+class MemoryMap(EntryMapChunkParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     @classmethod
@@ -31,10 +31,10 @@ class MemoryMap(EntryMapChunk):
         return -1
 
 
-class MemoryMapEntry(InternalChunkEntry):
+class MemoryMapEntry(InternalChunkEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
-    public_data_attrs = ['four_cc', 'index']
+    public_data_attrs = ['four_cc', 'index', 'chunk_length', 'chunk_address']
 
     @classmethod
     def parse_data(cls, stream: ByteBlockIO, header, index):
@@ -50,14 +50,6 @@ class MemoryMapEntry(InternalChunkEntry):
         data['u2'] = stream.uint16()
 
         return data
-
-    def get_class(self):
-        from tonguetwister.disassembler.mappings.four_cc import CHUNK_MAP
-
-        if self._data['four_cc'] not in CHUNK_MAP:
-            return UndefinedChunk
-
-        return CHUNK_MAP[self._data['four_cc']]
 
     def is_active(self):
         return self._data['active'] and self._data['four_cc'] != 'free' and self._data['four_cc'] != 'junk'

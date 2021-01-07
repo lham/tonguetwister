@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
@@ -17,7 +17,7 @@ class FileInfoHeaderPropertyReader(PropertyReader):
         return stream.string_auto()
 
 
-class VideoWorksFileInfo(Chunk):
+class VideoWorksFileInfo(ChunkParser):
     OPTION_FLAGS = {
         0x01: 'Pause When Window Inactive',  # Modify > Movie > Playback...
         0x40: 'Remap Palettes When Needed'  # Modify > Movie > Properties...

@@ -1,31 +1,24 @@
 import logging
-import pprint
 
-from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTableEntry
-from tonguetwister.disassembler.chunk import Chunk
-from tonguetwister.disassembler.chunks.rifx import Rifx
-from tonguetwister.disassembler.errors import \
-    UnexpectedChunkClass, \
-    InvalidDirectorFile, \
-    BadResourceCollection, \
-    BadRelationCollection
-from tonguetwister.disassembler.chunks.initial_map import InitialMap
-from tonguetwister.disassembler.chunks.memory_map import MemoryMap
-from tonguetwister.disassembler.reader import extract_chunk
-from tonguetwister.disassembler.resources import ResourceCollection, Resource
+from tonguetwister.disassembler.chunk import ChunkParser
+from tonguetwister.disassembler.errors import UnexpectedChunkClass, InvalidDirectorFile
+from tonguetwister.disassembler.mappings.chunks import ChunkType
+from tonguetwister.disassembler.resources import ChunkResource, ResourceEngine
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 from tonguetwister.xformat.movie import MovieFormat
 from tonguetwister.xformat.rect import Rect
 
-logger = logging.getLogger('tonguetwister.file_disassembler.disassembler')
+logger = logging.getLogger('tonguetwister.file_disassembler.file_disassembler')
 logger.setLevel(logging.DEBUG)
 
 
 class FileDisassembler:
+    ADDRESS_RIFX = 0x00  # The rifx chunk is always found at address 0, it's how we identify the file
+    ADDRESS_IMAP = 0x0c  # The initial map is always located right after the rifx chunk (actually inside the chunk data)
+
     def __init__(self, filename=None, silent=False):
         self.stream = None
-        self.resources = ResourceCollection()
-        self.data_mapping = {}
+        self.resources = ResourceEngine()
         self.movie = MovieFormat()
 
         if filename is not None:
@@ -51,89 +44,45 @@ class FileDisassembler:
 
         self._build_xformat()
 
-    def _parse_chunk(self, address, resource_id, expected_chunk_class, ignore_parse_check=False):
-        chunk = extract_chunk(self.stream, address, expected_chunk_class, ignore_parse_check)
-        self.resources.append(Resource.from_chunk(chunk, resource_id, address))
-
     def _parse_rifx(self):
-        address = 0  # The rifx chunk is always found at address 0, it's how we identify the file
-        self._parse_chunk(address, 0, Rifx, True)
+        resource = ChunkResource(ResourceEngine.RESOURCE_ID_RIFX, ChunkType.RIFX, self.ADDRESS_RIFX)
+        resource.parse_chunk(self.stream, True)
+        self.resources.insert(resource)
 
     def _parse_initial_map(self):
-        address = 12  # The initial map is always located right after the rifx chunk (actually inside the chunk data)
-        self._parse_chunk(address, 1, InitialMap)
+        resource = ChunkResource(ResourceEngine.RESOURCE_ID_IMAP, ChunkType.InitialMap, self.ADDRESS_IMAP)
+        resource.parse_chunk(self.stream)
+        self.resources.insert(resource)
 
     def _parse_memory_map(self):
-        address = self.resources.get_initial_map_chunk().mmap_address
-        self._parse_chunk(address, 2, MemoryMap)
+        address = self.resources.initial_map.mmap_address
+        resource = ChunkResource(ResourceEngine.RESOURCE_ID_MMAP, ChunkType.MemoryMap, address)
+        resource.parse_chunk(self.stream)
+        self.resources.insert(resource)
 
     def _parse_resources(self):
-        for i, entry in enumerate(self.resources.get_memory_map_chunk().entries):
+        for index, entry in enumerate(self.resources.memory_map.entries):
             if not entry.is_active():
                 continue
 
-            logger.debug(f'Extracting mmap entry {i:3d}: [{entry.four_cc}]'
-                         f' at 0x{entry.address:08x}'
-                         f' -> {entry.get_class().__name__}')
-
-            if self.resources.find_by_address(entry.address) is not None:
-                self._validate_preparsed_resource(self.resources.find_by_address(entry.address), entry, i)
-            else:
-                self._parse_chunk(entry.address, i, entry.get_class())
+            if index > ResourceEngine.RESOURCE_ID_MMAP:
+                resource = ChunkResource.from_memory_map_entry(index, entry)
+                resource.parse_chunk(self.stream)
+                self.resources.insert(resource)
 
     def _parse_relationships(self):
-        for entry in self.resources.get_resource_key_table_chunk().entries:
-            if not entry.is_active():
-                continue
+        self.resources.build_relationships()
 
-            if (entry.parent_resource_id, entry.four_cc) in self.data_mapping:
-                logger.error(f'A data resource for ({entry.parent_resource_id}, {entry.four_cc}) already exist!')
-                raise BadRelationCollection()
-            else:
-                self._validate_mapping_entry(entry)
-                self.data_mapping[(entry.parent_resource_id, entry.four_cc)] = self.resources.find_by_resource_id(
-                    entry.resource_id
-                )
-
-        pprint.pprint(self.data_mapping)
-
-    def get_mapped_data_chunk(self, parent: Chunk, four_cc: str):
-        parent_resource = self.resources.find_by_address(parent.address)  # TODO: save a reference chunk.resource?
-        data_resource = self.data_mapping[(parent_resource.resource_id, four_cc)]
-
-        return data_resource.chunk
+    def get_linked_resource_chunk(self, parent: ChunkParser, child_type: ChunkType):
+        return self.resources.get_child(parent.resource, child_type).chunk
 
     @property
     def chunks(self):
-        return [(resource.chunk_address, resource.chunk) for resource in self.resources.all()]
-
-    @staticmethod
-    def _validate_preparsed_resource(resource, mmap_entry, resource_id):
-        validations = [
-            resource.resource_id == resource_id,
-            resource.chunk.four_cc == mmap_entry.four_cc,
-            resource.chunk_address == mmap_entry.address,
-            resource.active
-        ]
-
-        if not all(validations):
-            raise BadResourceCollection()
-
-    def _validate_mapping_entry(self, entry: ResourceKeyTableEntry):
-        # TODO: Can't validate parent exist yet, since those resources are not parsed at this point...
-        validations = [
-            # self.resources.find_by_resource_id(entry.parent_resource_id) is not None,
-            self.resources.find_by_resource_id(entry.resource_id) is not None,
-            self.resources.find_by_resource_id(entry.resource_id).chunk.four_cc == entry.four_cc,
-            entry.is_active()
-        ]
-
-        if not all(validations):
-            raise BadRelationCollection()
+        return [(resource.chunk_address, resource.chunk) for resource in self.resources.to_list()]
 
     def _build_xformat(self):
         # Parse data from director config
-        self.movie.info.stage_rect = Rect(**self.director_config.stage_rect)
+        # self.movie.info.stage_rect = Rect(**self.director_config.stage_rect)
 
         # self._parse_move_cast_libs  # MCsL
         # self._parse_cast_sort_order()  # Sord
@@ -142,7 +91,9 @@ class FileDisassembler:
         # TODO: VWFI (FileInfo)
         # TODO: GRID (Guides and Grid)
         # TODO: FXmp (Font map)
+        pass
 
     @property
     def director_config(self):
-        return self.resources.get_director_config_chunk()
+        # return self.resources.get_director_config_chunk()
+        pass

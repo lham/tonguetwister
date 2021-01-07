@@ -1,8 +1,8 @@
-from tonguetwister.disassembler.chunk import Chunk
+from tonguetwister.disassembler.chunk import ChunkParser
 from tonguetwister.lib.byte_block_io import ByteBlockIO
 
 
-class FontXtraMap(Chunk):
+class FontXtraMap(ChunkParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         header = {}

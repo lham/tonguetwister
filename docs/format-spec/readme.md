@@ -147,7 +147,7 @@ specification.
 - [<code>ccl </code>&nbsp;Unknown](./chunks/ccl.md)
 - [`Cinf` Cast Libraries Info](./chunks/Cinf.md)
 - [`CLUT` Color Lookup Table](./chunks/CLUT.md)
-- [`DRCF` Director Config](./chunks/DCRF.md)
+- [`DCRF` Director Config](./chunks/DRCF.md)
 - [`ediM` Editable Media](./chunks/ediM.md)
 - [`Fmap` Font Map](./chunks/Fmap.md)
 - [`free` Dummy](#chunk-reference)
