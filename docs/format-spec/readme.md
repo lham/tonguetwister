@@ -16,35 +16,36 @@ It's a work in progress and not (yet) a complete source of truth.
         1. [Resource relationships](#resource-relationships)
         1. [Movie resources](#movie-resources)
     1. [Chunk reference](#chunk-reference)
-        1. [`BITD`](./chunks/BITD.md)
-        1. [`CAS*`](./chunks/CAS*.md)
-        1. [`CASt`](./chunks/CASt.md)
-        1. [<code>ccl </code>&nbsp;](./chunks/ccl.md)
-        1. [`Cinf`](./chunks/Cinf.md)
-        1. [`CLUT`](./chunks/CLUT.md)
-        1. [`DCRF`](./chunks/DRCF.md)
-        1. [`ediM`](./chunks/ediM.md)
-        1. [`Fmap`](./chunks/Fmap.md)
-        1. [`free`](#chunk-reference)
-        1. [`FXmp`](./chunks/FXmp.md)
-        1. [`imap`](./chunks/imap.md)
-        1. [`junk`](#chunk-reference)
-        1. [`KEY*`](./chunks/KEY*.md)
-        1. [`Lctx`](./chunks/Lctx.md)
-        1. [`Lnam`](./chunks/Lnam.md)
-        1. [`Lscr`](./chunks/Lscr.md)
-        1. [`MCsL`](./chunks/MCsL.md)
-        1. [`mmap`](./chunks/mmap.md)
-        1. [`RIFX`](./chunks/RIFX.md)
-        1. [`RTE0`](./chunks/RTE0.md)
-        1. [`RTE1`](./chunks/RTE1.md)
-        1. [`RTE2`](./chunks/RTE2.md)
-        1. [`Sord`](./chunks/Sord.md)
-        1. [`STXT`](./chunks/STXT.md)
-        1. [`THUM`](./chunks/THUM.md)
-        1. [`VWFI`](./chunks/VWFI.md)
-        1. [`VWSC`](./chunks/VWSC.md)
-        1. [`XTRl`](./chunks/XTRl.md)
+       
+        [`BITD`](./chunks/BITD.md),
+        [`CAS*`](./chunks/CAS*.md),
+        [`CASt`](./chunks/CASt.md),
+        [<code>ccl </code>](./chunks/ccl.md),
+        [`Cinf`](./chunks/Cinf.md),
+        [`CLUT`](./chunks/CLUT.md),
+        [`DCRF`](./chunks/DRCF.md),
+        [`ediM`](./chunks/ediM.md),
+        [`Fmap`](./chunks/Fmap.md),
+        [`free`](#chunk-reference),
+        [`FXmp`](./chunks/FXmp.md),
+        [`imap`](./chunks/imap.md),
+        [`junk`](#chunk-reference),
+        [`KEY*`](./chunks/KEY*.md),
+        [`Lctx`](./chunks/Lctx.md),
+        [`Lnam`](./chunks/Lnam.md),
+        [`Lscr`](./chunks/Lscr.md),
+        [`MCsL`](./chunks/MCsL.md),
+        [`mmap`](./chunks/mmap.md),
+        [`RIFX`](./chunks/RIFX.md),
+        [`RTE0`](./chunks/RTE0.md),
+        [`RTE1`](./chunks/RTE1.md),
+        [`RTE2`](./chunks/RTE2.md),
+        [`Sord`](./chunks/Sord.md),
+        [`STXT`](./chunks/STXT.md),
+        [`THUM`](./chunks/THUM.md),
+        [`VWFI`](./chunks/VWFI.md),
+        [`VWSC`](./chunks/VWSC.md),
+        [`XTRl`](./chunks/XTRl.md)
 1. [Sources](#sources)
 
 # Director overview
