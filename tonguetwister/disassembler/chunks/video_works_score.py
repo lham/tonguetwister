@@ -2,7 +2,7 @@ import logging
 
 from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.data.inks import INKS
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.lib.helper import grouper, chunk, assert_data_value
 from tonguetwister.lib.logger import log_expected_trailing_bytes
 from tonguetwister.lib.property_reader import PropertyReader, property_reader

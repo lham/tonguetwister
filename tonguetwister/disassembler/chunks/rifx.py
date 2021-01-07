@@ -1,5 +1,5 @@
 from tonguetwister.disassembler.chunkparser import ChunkParser
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 
 class Rifx(ChunkParser):

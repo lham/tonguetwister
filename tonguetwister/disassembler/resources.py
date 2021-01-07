@@ -6,7 +6,7 @@ from tonguetwister.disassembler.errors import BadMemoryMapEntry, ResourceAlready
 from tonguetwister.disassembler.chunks.initial_map import InitialMap
 from tonguetwister.disassembler.chunks.memory_map import MemoryMapEntry, MemoryMap
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 logger = logging.getLogger('tonguetwister.file_disassembler.resource_engine')
 logger.setLevel(logging.DEBUG)

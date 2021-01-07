@@ -1,7 +1,7 @@
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.disassembler.chunks.castmembers.palette import PaletteCastMember
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.lib.helper import assert_data_value
 
 

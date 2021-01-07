@@ -1,5 +1,5 @@
 from tonguetwister.disassembler.chunks.cast_member import CastMember
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 
 # noinspection DuplicatedCode

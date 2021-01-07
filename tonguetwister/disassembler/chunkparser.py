@@ -1,6 +1,6 @@
 from collections import Sequence
 
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.lib.helper import grouper
 
 

@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences
 from tonguetwister.decompiler.data.operators import *
 from tonguetwister.decompiler.data.opcode import OPCode
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 
 def detokenize(bytecode):

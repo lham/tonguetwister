@@ -1,6 +1,6 @@
 from functools import wraps
 
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 
 registry = {}

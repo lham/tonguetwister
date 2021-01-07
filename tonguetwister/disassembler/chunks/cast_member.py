@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.disassembler.mappings.castmembers import CastMemberTypeMapping
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 logger = logging.getLogger('tonguetwister.disassembler.cast_member')
 logger.setLevel(logging.DEBUG)

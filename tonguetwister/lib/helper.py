@@ -3,7 +3,7 @@ import traceback
 from collections import OrderedDict
 from inspect import getframeinfo, stack
 
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 
 
 def grouper(ws, size, newline=False, indent=1):

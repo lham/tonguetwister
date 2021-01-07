@@ -4,7 +4,7 @@ from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.disassembler.errors import UnexpectedChunkClass, InvalidDirectorFile
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.disassembler.resources import ChunkResource, ResourceEngine
-from tonguetwister.lib.byte_block_io import ByteBlockIO
+from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.xformat.movie import MovieFormat
 from tonguetwister.xformat.rect import Rect
 
