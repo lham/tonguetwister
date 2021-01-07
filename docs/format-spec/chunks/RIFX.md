@@ -8,7 +8,7 @@ The chunk abbreviation is `RIFX`.
 
 ## Structure
 
-The RIFX chunk is saved in **big-endian**.
+The RIFX chunk is saved in **little-endian**.
 
 The structure of the chunk data is:
 
