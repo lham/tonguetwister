@@ -45,4 +45,4 @@ Ref.   | Bytes | Type(s) | Name                           | Description
 ---    | ---:  | ---     | ---                            | ---
 &nbsp; | 4     | uint32  | child&#8209;resource&#8209;id  | The resource id of the child resource.
 &nbsp; | 4     | uint32  | parent&#8209;resource&#8209;id | The resource id of the parent resource.
-¤nbsp; | 4     | char    | four&#8209;cc                  | The [FourCC](#TODO) identifying the of the child resource.
+&nbsp; | 4     | char    | four&#8209;cc                  | The [FourCC](#TODO) identifying the of the child resource.
