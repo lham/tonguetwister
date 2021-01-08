@@ -19,7 +19,7 @@ Ref.   | Bytes  | Description
 
 ## Chunk header
 
-The structure of the cast member chunk header is:
+The structure of chunk header is:
 
 Ref.   | Bytes | Type   | Name                                        | Description
 ---    | ---:  | ---    | ---                                         | ---
@@ -29,7 +29,7 @@ Ref.   | Bytes | Type   | Name                                        | Descript
 
 ## Common data
 
-The common data consists of `CDL` bytes. The structure is defined as follows:
+The common data consists of `CDL` bytes. The structure is:
 
 Ref.   | Bytes                                     | Type(s)  | Name                                                      | Description
 ---    | ---:                                      | ---      | ---                                                       | ---
@@ -44,22 +44,22 @@ properties with their indices and types are given by the following table:
 
 Index | Type               | Name                         | Description
 ---:  | ---                | ---                          | ---
-0     | Unknown            | &nbsp;                       | &nbsp;
+0     | &nbsp;             | &nbsp;                       | Unknown.
 1     | string<sup>1</sup> | cast&#8209;member&#8209;name | Name of the cast member.
 2     | string<sup>1</sup> | external&#8209;path          | The relative path/directory of an [imported](#TODO) cast member.
 3     | string<sup>1</sup> | external&#8209;filename      | The filename (excluding extension) of an [imported](#TODO) cast member.
-4     | Unknown            | &nbsp;                       | &nbsp;
-5     | Unknown            | &nbsp;                       | &nbsp;
-6     | Unknown            | &nbsp;                       | &nbsp;
-7     | Unknown            | &nbsp;                       | &nbsp;
-8     | Unknown            | &nbsp;                       | &nbsp;
-9     | Unknown            | &nbsp;                       | &nbsp;
-10    | Unknown            | &nbsp;                       | &nbsp;
-11    | Unknown            | &nbsp;                       | &nbsp;
-12    | Unknown            | &nbsp;                       | &nbsp;
-13    | Unknown            | &nbsp;                       | &nbsp;
-14    | Unknown            | &nbsp;                       | &nbsp;
-15    | Unknown            | &nbsp;                       | &nbsp;
+4     | &nbsp;             | &nbsp;                       | Unknown.
+5     | &nbsp;             | &nbsp;                       | Unknown.
+6     | &nbsp;             | &nbsp;                       | Unknown.
+7     | &nbsp;             | &nbsp;                       | Unknown.
+8     | &nbsp;             | &nbsp;                       | Unknown.
+9     | &nbsp;             | &nbsp;                       | Unknown.
+10    | &nbsp;             | &nbsp;                       | Unknown.
+11    | &nbsp;             | &nbsp;                       | Unknown.
+12    | &nbsp;             | &nbsp;                       | Unknown.
+13    | &nbsp;             | &nbsp;                       | Unknown.
+14    | &nbsp;             | &nbsp;                       | Unknown.
+15    | &nbsp;             | &nbsp;                       | Unknown.
 16    | string<sup>1</sup> | file&#8209;format&#8209;name | The [format](#TODO) name an [imported](#TODO) cast member.
 
 <sup>1</sup> A string here consists of an uint8 length `L`, followed by `L` characters and a terminating `NULL` byte.

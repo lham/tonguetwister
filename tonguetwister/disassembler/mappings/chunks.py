@@ -30,6 +30,8 @@ class ChunkType(Enum):
     InitialMap = ('imap', InitialMap)
     MemoryMap = ('mmap', MemoryMap)
     ResourceKeyTable = ('KEY*', ResourceKeyTable)
+    Junk = ('free', UnknownChunkParser)
+    Free = ('junk', UnknownChunkParser)
 
     # Config
     VideoWorksFileInfo = ('VWFI', VideoWorksFileInfo)

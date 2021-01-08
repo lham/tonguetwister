@@ -26,10 +26,10 @@ It's a work in progress and not (yet) a complete source of truth.
         [`DCRF`](./chunks/DRCF.md),
         [`ediM`](./chunks/ediM.md),
         [`Fmap`](./chunks/Fmap.md),
-        [`free`](#chunk-reference),
+        [`free`](./chunks/mmap.md#special-fourccs),
         [`FXmp`](./chunks/FXmp.md),
         [`imap`](./chunks/imap.md),
-        [`junk`](#chunk-reference),
+        [`junk`](./chunks/mmap.md#special-fourccs),
         [`KEY*`](./chunks/KEY*.md),
         [`Lctx`](./chunks/Lctx.md),
         [`Lnam`](./chunks/Lnam.md),
@@ -180,10 +180,10 @@ specification.
 - [`DCRF` Director Config](./chunks/DRCF.md)
 - [`ediM` Editable Media](./chunks/ediM.md)
 - [`Fmap` Font Map](./chunks/Fmap.md)
-- [`free` Dummy](#chunk-reference)
+- [`free` Dummy](./chunks/mmap.md#special-fourccs)
 - [`FXmp` Font Xtra Map](./chunks/FXmp.md)
 - [`imap` Initial Map](./chunks/imap.md)
-- [`junk` Dummy](#chunk-reference)
+- [`junk` Dummy](./chunks/mmap.md#special-fourccs)
 - [`KEY*` Resource Key Table](./chunks/KEY*.md)
 - [`Lctx` Lingo Context](./chunks/Lctx.md)
 - [`Lnam` Lingo Name List](./chunks/Lnam.md)

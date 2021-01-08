@@ -63,7 +63,7 @@ class ChunkResource(Resource):
 
     @classmethod
     def from_memory_map_entry(cls, index: int, entry: MemoryMapEntry):
-        return cls(index, ChunkType(entry.four_cc), entry.chunk_address)
+        return cls(index, entry.chunk_type, entry.chunk_address)
 
     def __repr__(self):
         return f'<ChunkResource: {self.resource_id:03d}::{self.chunk_type.name}>'

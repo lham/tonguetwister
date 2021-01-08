@@ -17,7 +17,7 @@ class ByteBlockParser:
             if item in getattr(self, f'public_{name}_attrs', []):
                 return getattr(self, f'_{name}')[item]
 
-        raise AttributeError(f'"{item}" not found in any of the public attrs')
+        return self.__getattribute__(item)
 
     @classmethod
     def _parse_byte_block_stream(cls, stream: ByteBlockIO, *args, **kwargs):

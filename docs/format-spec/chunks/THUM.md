@@ -23,7 +23,7 @@ Ref.   | Bytes | Type   | Description
 
 ## Chunk header
 
-The structure of the thumbnail header is:
+The structure of the chunk header is:
 
 Ref.   | Bytes | Type   | Name    | Description
 ---    | ---:  | ---    | ---     | ---

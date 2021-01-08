@@ -1,6 +1,5 @@
 from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
-from tonguetwister.lib.helper import maybe_encode_bytes
 
 
 class MemoryMap(EntryMapChunkParser):
@@ -10,50 +9,51 @@ class MemoryMap(EntryMapChunkParser):
     def parse_header(cls, stream: ByteBlockIO):
         header = {}
         header['header_length'] = stream.uint16()
-        header['record_length'] = stream.uint16()
-        header['n_record_slots'] = stream.uint32()
-        header['n_record_slots_used'] = stream.uint32()
-        header['last_junk_record_id'] = stream.int32()
-        header['?last_prev_mmap_id'] = stream.int32()
-        header['first_empty_record_id'] = stream.int32()  # Free pointer
+        header['entry_length'] = stream.uint16()
+        header['allocated_array_elements'] = stream.uint32()
+        header['used_array_elements'] = stream.uint32()
+        header['?junk_entry_position'] = stream.int32()
+        header['u1'] = stream.int32()
+        header['?free_entry_position'] = stream.int32()
 
         return header
 
     @classmethod
     def parse_entries(cls, stream: ByteBlockIO, header):
-        return [MemoryMapEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
+        entries = [MemoryMapEntry.parse(stream) for _ in range(header['used_array_elements'])]
 
-    def find_record_id_by_address(self, address):
-        for i, record in enumerate(self.entires):
-            if record.address == address:
-                return i
+        # Read the allocated but unused array slots
+        stream.read_bytes(header['entry_length'] * (header['allocated_array_elements'] - header['used_array_elements']))
 
-        return -1
+        return entries
 
 
 class MemoryMapEntry(InternalChunkEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
-    public_data_attrs = ['four_cc', 'index', 'chunk_length', 'chunk_address']
+    public_data_attrs = ['chunk_length', 'chunk_address']
 
     @classmethod
-    def parse_data(cls, stream: ByteBlockIO, header, index):
+    def parse_data(cls, stream: ByteBlockIO):
         data = {}
-        data['record_address'] = stream.tell()
-        data['index'] = index
-        data['active'] = index < header['n_record_slots_used']
-        data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])
+
+        data['four_cc'] = stream.string_raw(4)
         data['chunk_length'] = stream.uint32()
         data['chunk_address'] = stream.uint32()
-        data['flags'] = stream.uint32()
         data['u1'] = stream.uint16()
         data['u2'] = stream.uint16()
+        data['u3'] = stream.uint16()
+        data['u4'] = stream.uint16()
 
         return data
 
-    def is_active(self):
-        return self._data['active'] and self._data['four_cc'] != 'free' and self._data['four_cc'] != 'junk'
-
     @property
-    def address(self):
-        return self._data['chunk_address']
+    def chunk_type(self):
+        from tonguetwister.disassembler.mappings.chunks import ChunkType
+
+        return ChunkType(self._data['four_cc'])
+
+    def is_active(self):
+        from tonguetwister.disassembler.mappings.chunks import ChunkType
+
+        return self.chunk_type != ChunkType.Free and self.chunk_type != ChunkType.Junk
