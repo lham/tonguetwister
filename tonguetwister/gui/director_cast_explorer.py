@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -18,10 +19,9 @@ from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.file_dialogs import FileDialogPopup
 from tonguetwister.gui.widgets.listview import ListView, IndexedItem
 
-
 Config.set('graphics', 'position', 'custom')
 Config.set('graphics', 'left', 0)
-Config.set('graphics', 'top',  0)
+Config.set('graphics', 'top', 0)
 Window.size = (1600, 900)
 
 
@@ -38,7 +38,7 @@ class DirectorCastExplorer(App):
         # Director data
         self.initial_filename = filename
         self.file_disassembler = None
-        self._chunks = []
+        self.resources = []
 
         # Actions
         self.file_dialog = FileDialogPopup(title='Select a Director 6 movie', base_dir=base_dir)
@@ -69,7 +69,8 @@ class DirectorCastExplorer(App):
             for child in widget.children:
                 check_if_text_input_focused(child)
 
-            if (isinstance(widget, TextInput) or isinstance(widget, ScoreNotationCanvas)) and widget.collide_point(*touch.pos):
+            if (isinstance(widget, TextInput) or isinstance(widget, ScoreNotationCanvas)) and widget.collide_point(
+                    *touch.pos):
                 nonlocal is_text_input
                 is_text_input = True
                 widget.on_touch_down(touch)
@@ -94,7 +95,11 @@ class DirectorCastExplorer(App):
     def _build_menu(self):
         width = 300
 
-        self.menu = ListView(self._chunks, self._build_chunk_menu_item, width=width, size_hint_x=None, size_hint_y=None)
+        self.menu = ListView(self.resources,
+                             self._build_chunk_menu_item,
+                             width=width,
+                             size_hint_x=None,
+                             size_hint_y=None)
         self.menu.bind(selected_element=self._update_chunk)
 
         scroll_view = ScrollView(size_hint_x=None, width=width)
@@ -102,12 +107,12 @@ class DirectorCastExplorer(App):
 
         return scroll_view
 
-    def _build_chunk_menu_item(self, index, chunk, parent):
-        text = chunk[1]
+    def _build_chunk_menu_item(self, index, resource_data, parent):
+        text = resource_data[1]
         if self.current_chunk.index == index:
             text = f'[b]{text}[/b]'
 
-        return Label(text=text, halign='left', text_size=(parent.width, None), markup=True)
+        return Label(text=text, halign='left', text_size=(parent.width, None), markup=True, font_name=self.FONT_NAME)
 
     def _build_views(self):
         self.default_view = TextInput(font_name=self.FONT_NAME, readonly=True)
@@ -124,7 +129,7 @@ class DirectorCastExplorer(App):
         if keycode[1] == 'up':
             self.menu.select_item(max(0, current - 1))
         elif keycode[1] == 'down':
-            self.menu.select_item(min(len(self._chunks) - 1, current + 1))
+            self.menu.select_item(min(len(self.resources) - 1, current + 1))
         elif 'ctrl' in modifiers and keycode[1] == 'o':
             self._open_file_chooser()
 
@@ -154,19 +159,21 @@ class DirectorCastExplorer(App):
             self.title += f': {filename}'
 
     def _set_chunks(self):
-        self._chunks = []
+        self.resources = []
         type_counts = {}
-        for (address, chunk) in self.file_disassembler.chunks:
-            chunk_name = chunk.__class__.__name__
+        for resource in self.file_disassembler.chunk_resources:
+            chunk_name = resource.chunk_type.name
             chunk_count = type_counts.get(chunk_name, 0)
             type_counts[chunk_name] = chunk_count + 1
 
-            self._chunks.append((chunk_count, f'{chunk_name} #{chunk_count} (addr: 0x{chunk.resource.chunk_address:X})', chunk))
+            name = f'{resource.resource_id:4d} (0x{resource.chunk_address:04x}): {chunk_name} #{chunk_count}'
+
+            self.resources.append((chunk_count, name, resource.chunk, resource))
 
     def _load_chunks_into_menu(self):
         self.menu.clear_list_items()
-        for chunk in self._chunks:
-            self.menu.add_list_item(chunk)
+        for resource in self.resources:
+            self.menu.add_list_item(resource)
 
         Clock.schedule_once(lambda _: self.menu.select_item(0))
 
@@ -187,6 +194,9 @@ class DirectorCastExplorer(App):
 
             view = self.views[key]
             view.load(self.file_disassembler, chunk)
+            if hasattr(view, 'select_resource_id'):
+                # TODO: Remove hasattr once everything is a ChunkView
+                view.bind(select_resource_id=self._on_chunk_view_redirect)
         else:
             view = self.default_view
             view.text = repr(chunk)
@@ -194,3 +204,23 @@ class DirectorCastExplorer(App):
 
         self.view_wrapper.clear_widgets()
         self.view_wrapper.add_widget(view)
+
+    def _on_chunk_view_redirect(self, view, resource_id: Optional[int]):
+        if resource_id is None:
+            return
+
+        view.select_resource_id = None
+
+        index = self._index_of_resource(resource_id)
+        if index is not None:
+            self.menu.select_item(index)
+
+    def _index_of_resource(self, resource_id):
+        for i, resource_data in enumerate(self.resources):
+            if resource_data[3].resource_id == resource_id:
+                return i
+
+        return None
+
+
+

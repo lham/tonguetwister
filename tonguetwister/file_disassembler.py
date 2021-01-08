@@ -79,8 +79,8 @@ class FileDisassembler:
         return resource.chunk if as_chunk else resource
 
     @property
-    def chunks(self):
-        return [(resource.chunk_address, resource.chunk) for resource in self.resources.to_list()]
+    def chunk_resources(self):
+        return self.resources.to_list()
 
     def _build_xformat(self):
         # Parse data from director config
