@@ -8,7 +8,7 @@ child.
 This means that there can be multiple child resources to each parent resource, but only a single child resource of each
 chunk type.
 
-``The [FourCC](#TODO) of the chunk is `KEY*`.
+The [FourCC](#TODO) of the chunk is `KEY*`.
 
 ## Structure
 
@@ -43,6 +43,6 @@ The structure of a resource key table array entry is:
 
 Ref.   | Bytes | Type(s) | Name                           | Description
 ---    | ---:  | ---     | ---                            | ---
-`CHA`  | 4     | uint32  | child&#8209;resource&#8209;id  | The resource id of the child resource.
-`CHA`  | 4     | uint32  | parent&#8209;resource&#8209;id | The resource id of the parent resource.
-`FCC`  | 4     | char    | four&#8209;cc                  | The [FourCC](#TODO) identifying the of the child resource.
+&nbsp; | 4     | uint32  | child&#8209;resource&#8209;id  | The resource id of the child resource.
+&nbsp; | 4     | uint32  | parent&#8209;resource&#8209;id | The resource id of the parent resource.
+¤nbsp; | 4     | char    | four&#8209;cc                  | The [FourCC](#TODO) identifying the of the child resource.
