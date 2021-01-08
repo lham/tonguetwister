@@ -1,11 +1,11 @@
 # TongueTwister
 
 A file disassembler for programs created in Macromedia Director. It is also a decompiler for Lingo bytecode, the script
-language used in Director. Finally, it is also an attempt to document the data format used by Director.
+language used in Director. Finally, it is also an attempt to document the file/data format used by Director.
 
 The project is initially targeting Macromedia Director version 6.5.
 
-**The project is still in development**
+**The project is still in development.** For current status see the [wiki](https://github.com/lham/tonguetwister/wiki).
 
 # Format documentation
 
@@ -14,18 +14,15 @@ at [./docs/format-spec/readme.md](./docs/format-spec/readme.md).
 
 # Setup
 
-The project is written in **python 3.8**. It is recommended to use a virtual environment when running the project
-locally.
+The project is written in **python 3.8**. It is recommended to use a virtual environment when running the project.
+locally. To set it up (on a unix-like environment), run the following commands
 
-Begin by installing/updating the following pip-packages:
-
-    pip install -U pip setuptools pip-tools
-
-Then run
-
-    pip-sync requirements.txt
-
-to install all dependencies.
+```sh
+python3.8 -m venv venv
+source ./venv/bin/activate
+pip install -U pip setuptools pip-tools
+pip-sync requirements.txt
+```
 
 # Usage
 
@@ -42,14 +39,16 @@ This package can be used in two ways:
       <dt>--basedir path/to/basedir/</dt>
       <dd>Specify the default directory to show when opening the file explorer inside the program.</dd>
     </dl>
+    *Remember to activate your virtual environment first, using `source /path/to/venv/bin/activate`*
 
 2. Use the library from python directly:
+    ```python
+    from tonguetwister.disassembler.file_disassembler import FileDisassembler
 
-        from tonguetwister.disassembler.file_disassembler import FileDisassembler
-
-        file_disassembler = FileDisassembler()
-        file_disassembler.load_file(filename)
-        file_disassembler.unpack()
+    file_disassembler = FileDisassembler()
+    file_disassembler.load_file(filename)
+    file_disassembler.unpack()
+    ```
 
 **"Legacy"**
 
