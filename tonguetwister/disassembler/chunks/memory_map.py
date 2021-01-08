@@ -46,8 +46,3 @@ class MemoryMapEntry(InternalChunkEntryParser):
         data['u4'] = stream.uint16()
 
         return data
-
-    def is_active(self):
-        from tonguetwister.disassembler.mappings.chunks import ChunkType
-
-        return self.four_cc != ChunkType.Free.four_cc and self.four_cc != ChunkType.Junk.four_cc

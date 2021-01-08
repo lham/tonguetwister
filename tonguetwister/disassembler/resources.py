@@ -1,4 +1,5 @@
 import logging
+import pprint
 
 from tonguetwister.disassembler.chunkparser import UnknownChunkParser
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
@@ -77,16 +78,17 @@ class ResourceEngine:
 
     def __init__(self):
         self._resources = {}
-        self.relationships = {}
+        self._relationships = {}
 
     def insert(self, resource: Resource):
         self._resources[resource.resource_id] = resource
 
-    def get_child(self, resource: Resource, child_chunk_type: ChunkType):
-        if (resource.resource_id, child_chunk_type.four_cc) not in self.relationships:
+    def get_child_resource(self, parent_resource: Resource, child_chunk_type: ChunkType):
+        primary_key = (parent_resource.resource_id, child_chunk_type.four_cc)
+        if primary_key not in self._relationships:
             raise ResourceNotLocated()
 
-        return self.relationships[(resource.resource_id, child_chunk_type.four_cc)]
+        return self._relationships[primary_key]
 
     def __getitem__(self, resource_id):
         if resource_id not in self._resources:
@@ -96,18 +98,15 @@ class ResourceEngine:
 
     def build_relationships(self):
         for entry in self.resource_key_table.entries:
-            if not entry.is_active():
-                continue
+            ChunkType(entry.child_four_cc)  # Parse the chunk type as a means of validation
 
-            chunk_type = ChunkType(entry.four_cc)
-
-            if (entry.parent_resource_id, chunk_type.four_cc) in self.relationships:
+            if entry.primary_key in self._relationships:
                 raise ResourceAlreadyExists()
 
-            if entry.resource_id not in self._resources:
+            if entry.child_resource_id not in self._resources:
                 raise ResourceNotLocated()
 
-            self.relationships[(entry.parent_resource_id, chunk_type.four_cc)] = self._resources[entry.resource_id]
+            self._relationships[entry.primary_key] = self._resources[entry.child_resource_id]
 
     @property
     def initial_map(self) -> InitialMap:

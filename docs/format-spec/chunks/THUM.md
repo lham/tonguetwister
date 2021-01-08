@@ -6,7 +6,7 @@ size of the bitmap is larger than 2500 pixels.
 
 *TODO: CAN belong? Doesn't it always belong?*
 
-The chunk abbreviation is `THUM`.
+The [FourCC](#TODO) of the chunk is `THUM`.
 
 ## Structure
 

@@ -1,6 +1,5 @@
 from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
-from tonguetwister.lib.helper import maybe_encode_bytes
 
 
 class ResourceKeyTable(EntryMapChunkParser):
@@ -10,31 +9,36 @@ class ResourceKeyTable(EntryMapChunkParser):
     def parse_header(cls, stream: ByteBlockIO):
         header = {}
         header['header_length'] = stream.uint16()
-        header['record_length'] = stream.uint16()
-        header['n_record_slots'] = stream.uint32()
-        header['n_record_slots_used'] = stream.uint32()
+        header['entry_length'] = stream.uint16()
+        header['allocated_array_elements'] = stream.uint32()
+        header['used_array_elements'] = stream.uint32()
 
         return header
 
     @classmethod
     def parse_entries(cls, stream: ByteBlockIO, header):
-        return [ResourceKeyTableEntry.parse(stream, header, i) for i in range(header['n_record_slots'])]
+        entries = [ResourceKeyTableEntry.parse(stream) for _ in range(header['used_array_elements'])]
+
+        # Read the allocated but unused array slots
+        stream.read_bytes(header['entry_length'] * (header['allocated_array_elements'] - header['used_array_elements']))
+
+        return entries
 
 
 class ResourceKeyTableEntry(InternalChunkEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
-    public_data_attrs = ['parent_resource_id', 'resource_id', 'four_cc']
+    public_data_attrs = ['parent_resource_id', 'child_resource_id', 'child_four_cc']
 
     @classmethod
-    def parse_data(cls, stream: ByteBlockIO, header, index):
+    def parse_data(cls, stream: ByteBlockIO):
         data = {}
-        data['active'] = index < header['n_record_slots_used']
-        data['resource_id'] = stream.uint32()
+        data['child_resource_id'] = stream.uint32()
         data['parent_resource_id'] = stream.uint32()
-        data['four_cc'] = maybe_encode_bytes(stream.string_raw(4), data['active'])
+        data['child_four_cc'] = stream.string_raw(4)
 
         return data
 
-    def is_active(self):
-        return self._data['active']
+    @property
+    def primary_key(self):
+        return self.parent_resource_id, self.child_four_cc

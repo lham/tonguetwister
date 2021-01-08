@@ -6,7 +6,7 @@ memory map chunk serves as a lookup table for all the resources in the memory du
 
 The array entry index represent the resource id of the chunk resource.
 
-The chunk abbreviation is `mmap`.
+The [FourCC](#TODO) of the chunk is `mmap`.
 
 ## Structure
 

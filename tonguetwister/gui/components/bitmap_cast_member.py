@@ -82,7 +82,7 @@ class BitmapCastMemberView(BoxLayout):
         })
 
     def _load_image(self, file_disassembler, bitmap_cast_member):
-        image_data_chunk = file_disassembler.get_linked_resource_chunk(bitmap_cast_member, ChunkType.BitmapData)
+        image_data_chunk = file_disassembler.get_linked_resource(bitmap_cast_member, ChunkType.BitmapData)
 
         self._detach_image()
         if not bitmap_cast_member.is_linked:

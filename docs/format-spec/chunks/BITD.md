@@ -4,7 +4,7 @@ This chunk is a [**data resource**](../readme.md#resource-relationships). It con
 a [bitmap cast member](./castmembers/bitmap.md). The bitmap data can not be decoded and rendered without data from its
 bitmap cast member chunk.
 
-The chunk abbreviation is `BITD`.
+The [FourCC](#TODO) of the chunk is `BITD`.
 
 ## Structure
 

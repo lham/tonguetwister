@@ -62,7 +62,7 @@ class FileDisassembler:
 
     def _parse_resources(self):
         for index, entry in enumerate(self.resources.memory_map.entries):
-            if not entry.is_active():
+            if entry.four_cc == ChunkType.Free.four_cc or entry.four_cc == ChunkType.Junk.four_cc:
                 continue
 
             if index > ResourceEngine.RESOURCE_ID_MMAP:
@@ -73,8 +73,10 @@ class FileDisassembler:
     def _parse_relationships(self):
         self.resources.build_relationships()
 
-    def get_linked_resource_chunk(self, parent: ChunkParser, child_type: ChunkType):
-        return self.resources.get_child(parent.resource, child_type).chunk
+    def get_linked_resource(self, parent: ChunkParser, child_type: ChunkType, as_chunk=True):
+        resource = self.resources.get_child_resource(parent.resource, child_type)
+
+        return resource.chunk if as_chunk else resource
 
     @property
     def chunks(self):

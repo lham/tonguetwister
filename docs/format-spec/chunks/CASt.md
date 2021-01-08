@@ -3,7 +3,7 @@
 The cast members are the basic building blocks of a Director [movie](../readme.md#director-overview). Each cast member
 has a type which in turn gives it specific properties. All types are listed [below](#cast-member-types).
 
-The chunk abbreviation is `CASt`.
+The [FourCC](#TODO) of the chunk is `CASt`.
 
 ## Structure
 

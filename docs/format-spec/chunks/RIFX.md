@@ -4,7 +4,7 @@ The RIFX is the container chunk for the Director file format. All other chunks a
 determine if we're looking at a Director file, and if so, which version of the program the file was created with. The
 RIFX chunk will always reside at the same address in a Director file, namely `0x00`.
 
-The chunk abbreviation is `RIFX`.
+The [FourCC](#TODO) of the chunk is `RIFX`.
 
 ## Structure
 
