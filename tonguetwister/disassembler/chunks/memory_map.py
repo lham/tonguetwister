@@ -31,7 +31,7 @@ class MemoryMap(EntryMapChunkParser):
 class MemoryMapEntry(InternalChunkEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
-    public_data_attrs = ['chunk_length', 'chunk_address']
+    public_data_attrs = ['four_cc', 'chunk_length', 'chunk_address']
 
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
@@ -47,13 +47,7 @@ class MemoryMapEntry(InternalChunkEntryParser):
 
         return data
 
-    @property
-    def chunk_type(self):
-        from tonguetwister.disassembler.mappings.chunks import ChunkType
-
-        return ChunkType(self._data['four_cc'])
-
     def is_active(self):
         from tonguetwister.disassembler.mappings.chunks import ChunkType
 
-        return self.chunk_type != ChunkType.Free and self.chunk_type != ChunkType.Junk
+        return self.four_cc != ChunkType.Free.four_cc and self.four_cc != ChunkType.Junk.four_cc
