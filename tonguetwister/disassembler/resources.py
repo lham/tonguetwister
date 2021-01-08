@@ -86,7 +86,7 @@ class ResourceEngine:
     def get_child_resource(self, parent_resource: Resource, child_chunk_type: ChunkType):
         primary_key = (parent_resource.resource_id, child_chunk_type.four_cc)
         if primary_key not in self._relationships:
-            raise ResourceNotLocated()
+            return None
 
         return self._relationships[primary_key]
 

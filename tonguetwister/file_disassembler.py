@@ -76,7 +76,10 @@ class FileDisassembler:
     def get_linked_resource(self, parent: ChunkParser, child_type: ChunkType, as_chunk=True):
         resource = self.resources.get_child_resource(parent.resource, child_type)
 
-        return resource.chunk if as_chunk else resource
+        if as_chunk and resource is not None:
+            return resource.chunk
+
+        return resource
 
     @property
     def chunk_resources(self):
