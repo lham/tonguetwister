@@ -13,7 +13,7 @@ from kivy.uix.textinput import TextInput
 
 from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.chunk_view_map import CHUNK_VIEW_MAP
+from tonguetwister.gui.chunkviewmap import CHUNK_VIEW_MAP
 from tonguetwister.gui.components.score import ScoreNotationCanvas
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.file_dialogs import FileDialogPopup
@@ -185,14 +185,7 @@ class DirectorCastExplorer(App):
             chunk = self.current_chunk.item[2]
 
         if isinstance(chunk, ChunkParser):
-            if chunk.__class__.__name__ in self.views:
-                key = chunk.__class__.__name__
-            elif isinstance(chunk, EntryMapChunkParser):
-                key = EntryMapChunkParser.__name__
-            else:
-                key = ChunkParser.__name__
-
-            view = self.views[key]
+            view = self._get_view(chunk)
             view.load(self.file_disassembler, chunk)
             if hasattr(view, 'select_resource_id'):
                 # TODO: Remove hasattr once everything is a ChunkView
@@ -204,6 +197,13 @@ class DirectorCastExplorer(App):
 
         self.view_wrapper.clear_widgets()
         self.view_wrapper.add_widget(view)
+
+    def _get_view(self, chunk):
+        for chunk_class, view_class in self.views.items():
+            if isinstance(chunk, chunk_class):
+                return view_class
+
+        raise RuntimeError(f'Did not find view for chunk class {chunk.__class__}')
 
     def _on_chunk_view_redirect(self, view, resource_id: Optional[int]):
         if resource_id is None:
