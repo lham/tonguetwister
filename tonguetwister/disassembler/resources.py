@@ -1,5 +1,4 @@
 import logging
-import pprint
 
 from tonguetwister.disassembler.chunkparser import UnknownChunkParser
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
@@ -54,7 +53,14 @@ class ChunkResource(Resource):
 
         four_cc = stream.string_raw(4)
         chunk_length = stream.uint32()
-        chunk_data = stream.read_bytes(chunk_length)
+
+        if (stream.size() - stream.tell()) < chunk_length:
+            # TODO: Hack to open some files... For some reason some RIFX chunk lengths are 1 byte too long?
+            # TODO: Just read the remaining bytes :)
+            chunk_data = stream.read_bytes(stream.size() - stream.tell())
+        else:
+            chunk_data = stream.read_bytes(chunk_length)
+
         # TODO: Mark padding as read?
 
         if four_cc != self.chunk_type.four_cc:
