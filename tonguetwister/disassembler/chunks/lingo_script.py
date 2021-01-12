@@ -1,13 +1,11 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunkparser import InternalChunkEntryParser, EntryMapChunkParser
+from tonguetwister.disassembler.chunkparser import InternalEntryParser, EntryMapChunkParser
 from tonguetwister.lib.stream import ByteBlockIO
 
 
 class LingoScript(EntryMapChunkParser):
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+        header = {}
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
         header['chunk_length'] = stream.uint32()
@@ -75,32 +73,32 @@ class LingoScript(EntryMapChunkParser):
         return [record for record in self.records if isinstance(record, LingoU9)]
 
 
-class LingoProperty(InternalChunkEntryParser):
+class LingoProperty(InternalEntryParser):
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = {}
         data['value'] = stream.uint16()
 
         return data
 
 
-class LingoGlobal(InternalChunkEntryParser):
+class LingoGlobal(InternalEntryParser):
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = {}
         data['value'] = stream.uint16()
 
         return data
 
 
-class LingoFunction(InternalChunkEntryParser):
+class LingoFunction(InternalEntryParser):
     header_length = 42
 
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+    def parse_data(cls, stream: ByteBlockIO, parent_header=None, index=None):
         offset = parent_header['function_headers_offset'] + index * cls.header_length
 
-        data = OrderedDict()
+        data = {}
         data['header'] = header = cls._parse_header(stream, offset)
         data['bytecode'] = cls._parse_bytecode(stream, header['record_offset'], header['record_length'])
         data['args'] = cls._parse_args(stream, header['args_offset'], header['n_args'])
@@ -113,7 +111,7 @@ class LingoFunction(InternalChunkEntryParser):
     @classmethod
     def _parse_header(cls, stream, offset):
         stream.seek(offset, 0)
-        header = OrderedDict()
+        header = {}
         header['function_id'] = stream.uint16()
         header['u2'] = stream.uint16()
         header['record_length'] = stream.uint32()
@@ -190,7 +188,7 @@ class LingoFunction(InternalChunkEntryParser):
         return self.header['function_id']
 
 
-class LingoLiteral(InternalChunkEntryParser):
+class LingoLiteral(InternalEntryParser):
     TYPE_STRING = 1
     TYPE_INT = 4
     TYPE_DOUBLE = 9
@@ -199,10 +197,10 @@ class LingoLiteral(InternalChunkEntryParser):
     header_length = 8
 
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
+    def parse_data(cls, stream: ByteBlockIO, parent_header=None, index=None):
         offset = parent_header['literal_headers_offset'] + index * cls.header_length
 
-        data = OrderedDict()
+        data = {}
         data['header'] = header = cls._parse_header(stream, offset)
         data['value'], data['length'] = cls._parse_body(stream, parent_header['literals_body_offset'], header)
 
@@ -211,7 +209,7 @@ class LingoLiteral(InternalChunkEntryParser):
     @classmethod
     def _parse_header(cls, stream, offset):
         stream.seek(offset, 0)
-        header = OrderedDict()
+        header = {}
         header['type'] = stream.uint32()
         header['offset'] = stream.uint32()
 
@@ -262,10 +260,10 @@ class LingoLiteral(InternalChunkEntryParser):
         return self.data['value']
 
 
-class LingoU9(InternalChunkEntryParser):
+class LingoU9(InternalEntryParser):
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO, parent_header=None, index=None):
+        data = {}
         data['value'] = stream.uint16()
 
         return data

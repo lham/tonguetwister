@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
 
 
@@ -27,7 +27,7 @@ class StyledText(EntryMapChunkParser):
         return [TextStyle.parse(stream) for _ in range(n_styles)]
 
 
-class TextStyle(InternalChunkEntryParser):
+class TextStyle(InternalEntryParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = {}

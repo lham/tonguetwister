@@ -52,7 +52,21 @@ class ChunkParser(ByteBlockParser):
         return cls(**cls._parse_byte_block_stream(stream))
 
 
+class InternalEntryParser(ByteBlockParser):
+    sections = ['data']
+    public_data_attrs = []
+
+    @classmethod
+    def parse(cls, stream: ByteBlockIO, *args, **kwargs):
+        return cls(**cls._parse_byte_block_stream(stream, *args, **kwargs))
+
+
 class EntryMapChunkParser(ChunkParser, Sequence):
+    entry_class = InternalEntryParser
+    name_entry_size = 'entry_length'
+    name_allocated = 'allocated_array_elements'
+    name_used_slots = 'used_array_elements'
+
     sections = ['header', 'entries']
     public_header_attrs = []
 
@@ -66,14 +80,15 @@ class EntryMapChunkParser(ChunkParser, Sequence):
     def entries(self):
         return self._entries
 
-
-class InternalChunkEntryParser(ByteBlockParser):
-    sections = ['data']
-    public_data_attrs = []
-
     @classmethod
-    def parse(cls, stream: ByteBlockIO, *args, **kwargs):
-        return cls(**cls._parse_byte_block_stream(stream, *args, **kwargs))
+    def parse_entries(cls, stream: ByteBlockIO, header):
+        entries = [cls.entry_class.parse(stream) for _ in range(header[cls.name_used_slots])]
+
+        # Read the allocated but unused array slots
+        n_remaining_elements = header[cls.name_allocated] - header[cls.name_used_slots]
+        stream.read_bytes(header[cls.name_entry_size] * n_remaining_elements)
+
+        return entries
 
 
 class UnknownChunkParser(ChunkParser):

@@ -1,6 +1,4 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
 
 
@@ -25,7 +23,7 @@ class SortOrder(EntryMapChunkParser):
 
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+        header = {}
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
         header['?n_record_slots_total'] = stream.uint32()
@@ -40,10 +38,10 @@ class SortOrder(EntryMapChunkParser):
         return [CastMemberEntry.parse(stream) for _ in range(header['?n_record_slots_total'])]
 
 
-class CastMemberEntry(InternalChunkEntryParser):
+class CastMemberEntry(InternalEntryParser):
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
-        data = OrderedDict()
+        data = {}
         data['cast_lib'] = stream.uint16()
         data['cast_slot'] = stream.uint16()
 

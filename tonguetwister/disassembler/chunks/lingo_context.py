@@ -1,13 +1,11 @@
-from collections import OrderedDict
-
-from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalChunkEntryParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
 
 
 class LingoContext(EntryMapChunkParser):
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):
-        header = OrderedDict()
+        header = {}
         header['u1'] = stream.uint32()
         header['u2'] = stream.uint32()
         header['n_scripts'] = stream.uint32()
@@ -30,13 +28,13 @@ class LingoContext(EntryMapChunkParser):
     @classmethod
     def parse_entries(cls, stream: ByteBlockIO, header):
         stream.seek(header['records_offset'])
-        return [ContextEntry.parse(stream, header, i) for i in range(header['n_scripts'])]
+        return [ContextEntry.parse(stream) for _ in range(header['n_scripts'])]
 
 
-class ContextEntry(InternalChunkEntryParser):
+class ContextEntry(InternalEntryParser):
     @classmethod
-    def _parse(cls, stream: ByteBlockIO, parent_header=None, index=None):
-        data = OrderedDict()
+    def parse_data(cls, stream: ByteBlockIO):
+        data = {}
         data['script_number'] = (stream.uint8(), stream.uint8(), stream.uint8(), stream.uint8())
         data['mmap_idx'] = stream.uint32()
         data['u2'] = stream.uint16()
