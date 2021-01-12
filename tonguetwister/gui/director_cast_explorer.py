@@ -166,7 +166,7 @@ class DirectorCastExplorer(App):
             chunk_count = type_counts.get(chunk_name, 0)
             type_counts[chunk_name] = chunk_count + 1
 
-            name = f'{resource.resource_id:4d} (0x{resource.chunk_address:04x}): {chunk_name} #{chunk_count}'
+            name = f'[{resource.resource_id:4d}] 0x{resource.chunk_address:04x}: {chunk_name} #{chunk_count}'
 
             self.resources.append((chunk_count, name, resource.chunk, resource))
 
