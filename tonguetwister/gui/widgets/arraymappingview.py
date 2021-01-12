@@ -1,6 +1,7 @@
 from kivy.core.window import Window
 from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
 
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ChunkView
@@ -23,10 +24,14 @@ class ArrayMappingEntryView(BoxLayout):
 
         self.orientation = 'horizontal'
         self.spacing = 10
+        self.size_hint_x = None
 
         Window.bind(mouse_pos=self.on_mouse_pos)
 
         self.build_entry()
+
+    def on_minimum_width(self, _, width):
+        self.width = width
 
     # noinspection PyMethodMayBeStatic
     def is_active(self):
@@ -47,7 +52,7 @@ class ArrayMappingEntryView(BoxLayout):
         if not self.get_root_window():
             return  # Not displayed
 
-        if self.collide_point(*mouse_pos):
+        if self.collide_point(*self.to_widget(*mouse_pos)):
             self.hovered = True
         elif self.hovered:
             self.hovered = False
@@ -65,7 +70,7 @@ class ArrayMappingView(ChunkView):
 
     def __init__(self, **kwargs):
         self.hovered = None
-        self.wrapper = None
+        self.entry_widget_layout = None
 
         super().__init__(**kwargs)
 
@@ -78,23 +83,26 @@ class ArrayMappingView(ChunkView):
         return DefaultRecordsChunkView(font_name=self.font_name)
 
     def build_reconstructed_view(self):
-        self.wrapper = VerticalStackLayout()
+        self.entry_widget_layout = VerticalStackLayout()
 
-        return self.wrapper
+        scroll_view = ScrollView(scroll_type=['bars', 'content'], bar_width=10)
+        scroll_view.add_widget(self.entry_widget_layout)
+
+        return scroll_view
 
     def load(self, disassembler: FileDisassembler, chunk):
         super().load(disassembler, chunk)
         self._load_reconstructed_view(chunk)
 
     def _load_reconstructed_view(self, chunk):
-        self.wrapper.clear_widgets()
+        self.entry_widget_layout.clear_widgets()
 
         for index, entry in enumerate(chunk.entries):
             widget = self.entry_class(index, entry, self.font_name)
             widget.bind(hovered=self._on_hovered)
             widget.bind(on_touch_down=self._on_click)
 
-            self.wrapper.add_widget(widget)
+            self.entry_widget_layout.add_widget(widget)
 
     def _on_hovered(self, entry_widget, hovered):
         if hovered:
@@ -108,5 +116,6 @@ class ArrayMappingView(ChunkView):
             self.hovered = None
 
     def _on_click(self, entry_widget, touch):
-        if entry_widget.collide_point(*touch.pos) and entry_widget.is_active():
+        if entry_widget.collide_point(*touch.pos) and entry_widget.is_active() and touch.button == 'left':
             self.select_resource_id = entry_widget.resource_id()
+            return True
