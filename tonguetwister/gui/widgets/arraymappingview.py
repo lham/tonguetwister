@@ -85,7 +85,7 @@ class ArrayMappingView(ChunkView):
     def build_reconstructed_view(self):
         self.entry_widget_layout = VerticalStackLayout()
 
-        scroll_view = ScrollView(scroll_type=['bars', 'content'], bar_width=10)
+        scroll_view = ScrollView(scroll_type=['bars'], bar_width=10)
         scroll_view.add_widget(self.entry_widget_layout)
 
         return scroll_view
