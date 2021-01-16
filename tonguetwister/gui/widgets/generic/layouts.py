@@ -1,6 +1,6 @@
 from kivy.uix.gridlayout import GridLayout
 
-from tonguetwister.gui.generic.props import FixedHeight
+from tonguetwister.gui.widgets.generic.props import FixedHeight
 
 
 class VerticalStackLayout(FixedHeight, GridLayout):

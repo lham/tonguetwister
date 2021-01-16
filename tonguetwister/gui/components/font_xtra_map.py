@@ -6,7 +6,7 @@ from kivy.uix.textinput import TextInput
 from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkviews.default import RawChunkView
-from tonguetwister.gui.generic.props import MonoFont
+from tonguetwister.gui.widgets.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 
 

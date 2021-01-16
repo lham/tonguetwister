@@ -7,9 +7,9 @@ from kivy.uix.scrollview import ScrollView
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ChunkView, ResourceLink
 from tonguetwister.gui.chunkviews.default import RawEntriesChunkView
-from tonguetwister.gui.generic.labels import FixedSizeLabel, FixedSizeLinkLabel
-from tonguetwister.gui.generic.layouts import VerticalStackLayout
-from tonguetwister.gui.generic.props import FixedSize
+from tonguetwister.gui.widgets.generic.labels import FixedSizeLabel, FixedSizeLinkLabel
+from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout
+from tonguetwister.gui.widgets.generic.props import FixedSize
 
 
 class EntryView(GridLayout, FixedSize):

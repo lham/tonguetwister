@@ -19,7 +19,7 @@ from kivy.uix.widget import Widget
 from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkviews.default import RawChunkView
-from tonguetwister.gui.generic.props import MonoFont
+from tonguetwister.gui.widgets.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.label_area import LabelArea
 

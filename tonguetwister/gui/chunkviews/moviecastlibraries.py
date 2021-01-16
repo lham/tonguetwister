@@ -1,6 +1,6 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.gui.chunkview import ResourceLink
-from tonguetwister.gui.generic.layouts import VerticalStackLayout
+from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout
 from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 
 

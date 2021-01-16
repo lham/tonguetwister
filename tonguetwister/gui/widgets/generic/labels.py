@@ -1,7 +1,7 @@
 from kivy.uix.label import Label
 
-from tonguetwister.gui.generic.effects import Highlight
-from tonguetwister.gui.generic.props import MonoFont
+from tonguetwister.gui.widgets.generic.effects import Highlight
+from tonguetwister.gui.widgets.generic.props import MonoFont
 
 
 class FixedSizeLabel(MonoFont, Label):

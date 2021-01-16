@@ -9,7 +9,7 @@ from kivy.uix.textinput import TextInput
 
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkviews.default import RawEntriesChunkView
-from tonguetwister.gui.generic.props import MonoFont
+from tonguetwister.gui.widgets.generic.props import MonoFont
 from tonguetwister.gui.utils import load_script_function, update_text_area, highlight_word_in_text_area
 from tonguetwister.lib.helper import exception_as_lines
 

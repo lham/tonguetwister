@@ -1,6 +1,6 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.gui.chunkview import ResourceLink
-from tonguetwister.gui.generic.labels import FixedSizeLinkLabel, FixedSizeLabel
+from tonguetwister.gui.widgets.generic.labels import FixedSizeLinkLabel, FixedSizeLabel
 from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 
 

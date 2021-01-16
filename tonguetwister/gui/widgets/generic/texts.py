@@ -1,6 +1,6 @@
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.gui.generic.props import MonoFont
+from tonguetwister.gui.widgets.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 
 
