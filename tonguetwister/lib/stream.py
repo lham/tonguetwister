@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 from contextlib import contextmanager
 from io import BytesIO
 from struct import unpack
@@ -163,7 +162,7 @@ class ByteBlockIO:
         """
         prop_reader = prop_reader_cls()
         use_sub_lists = n_items_per_sub_list > 0
-        prop_list = OrderedDict()
+        prop_list = {}
 
         # If we don't have sub lists in the property list, just use the main prop_list as the current sub list
         if use_sub_lists:
@@ -184,7 +183,7 @@ class ByteBlockIO:
                 prop_id = prop_id % n_sub_lists
 
                 if prop_id == 0:
-                    prop_list[f'{sub_list_prefix}{sub_list_id}'] = sub_list = OrderedDict()
+                    prop_list[f'{sub_list_prefix}{sub_list_id}'] = sub_list = {}
 
             # Read the property
             next_offset = self.uint32()

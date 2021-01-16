@@ -1,6 +1,5 @@
 import os
 import traceback
-from collections import OrderedDict
 from inspect import getframeinfo, stack
 
 from tonguetwister.lib.stream import ByteBlockIO
@@ -14,25 +13,6 @@ def grouper(ws, size, newline=False, indent=1):
     groups = [hex_str[i:i+size] for i in range(0, len(hex_str), size)]
 
     return f'{newline_str}{indent_str}'.join(groups)
-
-
-def splat_ordered_dict(ordered_dict, sep=', ', key_width=1):
-    return sep.join(f'{k:.<{key_width}s}: {_handle_value(v, sep, key_width)}' for k, v in ordered_dict.items())
-
-
-def splat_list(lst, sep=', ', key_width=1):
-    return sep.join(f'{_handle_value(item, sep, key_width)}' for item in lst)
-
-
-def _handle_value(value, sep, key_width):
-    if isinstance(value, OrderedDict):
-        return sep + (' ' * key_width) + splat_ordered_dict(value, sep=(sep + ' ' * key_width))
-    elif isinstance(value, (list, tuple)):
-        return splat_list(value, sep, key_width)
-    elif isinstance(value, int):
-        return f'{value}{" " * (12 - len(str(value)))}(0x{value:08x})'
-    else:
-        return value
 
 
 def exception_as_lines(ex):

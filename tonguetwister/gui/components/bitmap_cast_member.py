@@ -4,7 +4,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.gui.components.chunk import DefaultChunkView
+from tonguetwister.gui.components.chunk import RawChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
 from tonguetwister.gui.widgets.label_area import LabelArea
 from tonguetwister.gui.widgets.palette import PaletteDisplay
@@ -22,7 +22,7 @@ class BitmapCastMemberView(BoxLayout):
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area = DefaultChunkView()
+        self.text_area = RawChunkView()
         self.reconstructed_area = self._build_reconstructed_area()
 
         tab1 = TabbedPanelItem(text='Reconstructed Data')

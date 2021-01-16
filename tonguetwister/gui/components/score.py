@@ -18,7 +18,7 @@ from kivy.uix.widget import Widget
 
 from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.components.chunk import DefaultChunkView
+from tonguetwister.gui.components.chunk import RawChunkView
 from tonguetwister.gui.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.label_area import LabelArea
@@ -35,7 +35,7 @@ class ScoreView(BoxLayout):
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area = DefaultChunkView()
+        self.text_area = RawChunkView()
 
         tab1 = TabbedPanelItem(text='Score View')
         tab1.add_widget(self._build_reconstructed_area())
