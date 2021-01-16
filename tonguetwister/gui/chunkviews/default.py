@@ -5,7 +5,7 @@ from tonguetwister.disassembler.chunkparser import ChunkParser, InternalEntryPar
 from tonguetwister.disassembler.resources import ChunkResource
 from tonguetwister.gui.generic.texts import MonoReadOnlyTextInput
 
-logger = logging.getLogger('tonguetwister.gui.views.default')
+logger = logging.getLogger('tonguetwister.gui.chunkviews.default')
 logger.setLevel(logging.DEBUG)
 
 

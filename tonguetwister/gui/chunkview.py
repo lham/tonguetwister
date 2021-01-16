@@ -4,7 +4,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 
 from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.components.chunk import RawChunkView
+from tonguetwister.gui.chunkviews.default import RawChunkView
 from tonguetwister.gui.utils import scroll_to_top
 
 

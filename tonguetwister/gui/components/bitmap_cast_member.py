@@ -4,7 +4,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.gui.components.chunk import RawChunkView
+from tonguetwister.gui.chunkviews.default import RawChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
 from tonguetwister.gui.widgets.label_area import LabelArea
 from tonguetwister.gui.widgets.palette import PaletteDisplay
