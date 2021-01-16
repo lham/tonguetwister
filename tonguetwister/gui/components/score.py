@@ -19,6 +19,7 @@ from kivy.uix.widget import Widget
 from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
+from tonguetwister.gui.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.label_area import LabelArea
 
@@ -29,14 +30,12 @@ class ScoreView(BoxLayout):
     byte_change_notation_area_offset = NumericProperty(0)
     BYTE_CHANGE_NOTATION_AREA_WIDTH = 50
 
-    def __init__(self, font_name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_name = font_name
-
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area = DefaultChunkView(font_name=self.font_name)
+        self.text_area = DefaultChunkView()
 
         tab1 = TabbedPanelItem(text='Score View')
         tab1.add_widget(self._build_reconstructed_area())
@@ -55,10 +54,10 @@ class ScoreView(BoxLayout):
     def _build_reconstructed_area(self):
         self.score_wrapper = BoxLayout(orientation='vertical')
         self.raw_area_sprite = Label(
-            font_name=self.font_name, halign='left', valign='top', height=240, size_hint_y=None)
+            font_name=MonoFont.font_name, halign='left', valign='top', height=240, size_hint_y=None)
         self.raw_area_sprite.bind(size=self.raw_area_sprite.setter('text_size'))
         self.raw_area_sprite_span = Label(
-            font_name=self.font_name, halign='left', valign='top', height=240, size_hint_y=None)
+            font_name=MonoFont.font_name, halign='left', valign='top', height=240, size_hint_y=None)
         self.raw_area_sprite_span.bind(size=self.raw_area_sprite_span.setter('text_size'))
         self.info_area_sprite = LabelArea({
             'x': ('x', 1),
@@ -112,7 +111,7 @@ class ScoreView(BoxLayout):
         action_bar.add_widget(next_button)
         action_bar.add_widget(prev_button)
 
-        self.byte_change_notation_area = TextInput(readonly=True, font_name=self.font_name)
+        self.byte_change_notation_area = TextInput(readonly=True, font_name=MonoFont.font_name)
 
         layout = BoxLayout(orientation='vertical', padding=(10, 10, 10, 10), spacing=10)
         layout.add_widget(action_bar)
@@ -156,7 +155,7 @@ class ScoreView(BoxLayout):
         self.score_wrapper.add_widget(Label(text='Loading score notation...'))
 
     def _load_score(self):
-        notation = ScoreNotation(self.score, self.font_name)
+        notation = ScoreNotation(self.score)
         notation.bind(selected=self._display_sprite_data)
 
         self.score_wrapper.clear_widgets()
@@ -235,11 +234,11 @@ class ScoreView(BoxLayout):
 class ScoreNotation(BoxLayout):
     selected = ObjectProperty(EmptySprite())
 
-    def __init__(self, score: VideoWorksScore, font_name, **kwargs):
+    def __init__(self, score: VideoWorksScore, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
 
-        notation = ScoreNotationCanvas(score, font_name)
+        notation = ScoreNotationCanvas(score)
         notation.bind(selected=lambda _, box: setattr(self, 'selected', box.sprite))
 
         layout = AnchorLayout(anchor_x='left', anchor_y='top', size=notation.size, size_hint=[None, None])
@@ -269,10 +268,9 @@ class ScoreNotationCanvas(FocusBehavior, Widget):
 
     selected = ObjectProperty(None)
 
-    def __init__(self, score: VideoWorksScore, font_name, **kwargs):
+    def __init__(self, score: VideoWorksScore, **kwargs):
         super().__init__(**kwargs)
         self.score = score
-        self.font_name = font_name
 
         self.n_frames = score.number_of_frames
         self.n_channels = score.highest_channel_used + 1
@@ -418,7 +416,7 @@ class ScoreNotationCanvas(FocusBehavior, Widget):
             x_pos = x_offset + (self.SPRITE_BOX_WIDTH + self.spacing) * frame_no
             y_pos = y_offset + self.size[1]
 
-            label = CoreLabel(text=f'{frame_no + 1}', font_size=12, font_name=self.font_name)
+            label = CoreLabel(text=f'{frame_no + 1}', font_size=12, font_name=MonoFont.font_name)
             label.refresh()
 
             Color(*self.COLOR_BLACK)
@@ -429,7 +427,7 @@ class ScoreNotationCanvas(FocusBehavior, Widget):
         x_offset, y_offset = self.sprite_box_offset()
 
         for channel_no in range(self.n_channels):
-            label = CoreLabel(text=self.get_channel_name(channel_no), font_size=12, font_name=self.font_name)
+            label = CoreLabel(text=self.get_channel_name(channel_no), font_size=12, font_name=MonoFont.font_name)
             label.refresh()
 
             row_offset = (self.SPRITE_BOX_HEIGHT + self.spacing) * channel_no

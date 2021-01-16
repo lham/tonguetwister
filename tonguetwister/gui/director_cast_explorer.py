@@ -13,6 +13,7 @@ from kivy.uix.textinput import TextInput
 
 from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
+from tonguetwister.gui.chunkview import ChunkView, ResourceLink
 from tonguetwister.gui.chunkviewmap import CHUNK_VIEW_MAP
 from tonguetwister.gui.components.score import ScoreNotationCanvas
 from tonguetwister.gui.utils import scroll_to_top
@@ -116,7 +117,7 @@ class DirectorCastExplorer(App):
 
     def _build_views(self):
         self.default_view = TextInput(font_name=self.FONT_NAME, readonly=True)
-        self.views = {key: view_class(font_name=self.FONT_NAME) for key, view_class in CHUNK_VIEW_MAP.items()}
+        self.views = {key: view_class() for key, view_class in CHUNK_VIEW_MAP.items()}
 
         self.view_wrapper = BoxLayout()
         self.view_wrapper.add_widget(self.default_view)
@@ -187,9 +188,9 @@ class DirectorCastExplorer(App):
         if isinstance(chunk, ChunkParser):
             view = self._get_view(chunk)
             view.load(self.file_disassembler, chunk)
-            if hasattr(view, 'select_resource_id'):
+            if hasattr(view, 'resource_link'):
                 # TODO: Remove hasattr once everything is a ChunkView
-                view.bind(select_resource_id=self._on_chunk_view_redirect)
+                view.bind(resource_link=self.open_linked_resource)
         else:
             view = self.default_view
             view.text = repr(chunk)
@@ -205,22 +206,18 @@ class DirectorCastExplorer(App):
 
         raise RuntimeError(f'Did not find view for chunk class {chunk.__class__}')
 
-    def _on_chunk_view_redirect(self, view, resource_id: Optional[int]):
-        if resource_id is None:
+    def open_linked_resource(self, view: ChunkView, resource_link: Optional[ResourceLink]):
+        if resource_link is None:
             return
+        view.resource_link = None
 
-        view.select_resource_id = None
-
-        index = self._index_of_resource(resource_id)
+        index = self._index_of_resource(resource_link.get_linked_resource_id(self.file_disassembler))
         if index is not None:
             self.menu.select_item(index)
 
     def _index_of_resource(self, resource_id):
-        for i, resource_data in enumerate(self.resources):
+        for index, resource_data in enumerate(self.resources):
             if resource_data[3].resource_id == resource_id:
-                return i
+                return index
 
         return None
-
-
-

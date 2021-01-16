@@ -6,9 +6,6 @@ from tonguetwister.lib.helper import flatten
 
 
 class ThumbnailView(BitmapCastMemberView):
-    def __init__(self, font_name, **kwargs):
-        super().__init__(font_name, **kwargs)
-
     def _build_label_area(self):
         self.label_area = LabelArea({
             'size': 'Image size',

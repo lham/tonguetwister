@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunkparser import ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser, EntryMapChunkParser, InternalEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
@@ -22,7 +22,7 @@ class CastLibraryPropertyReader(PropertyReader):
         return record
 
 
-class MovieCastLibraries(ChunkParser):
+class MovieCastLibraries(EntryMapChunkParser):
     """
     This Chunk was introduced in Director 5 to allow Movies to have multiple Casts.
     The Cast Properties, which used to be a part of the Config, were moved here.
@@ -34,7 +34,7 @@ class MovieCastLibraries(ChunkParser):
     """
 
     @classmethod
-    def parse_data(cls, stream: ByteBlockIO):
+    def parse_header(cls, stream: ByteBlockIO):
         data = {}
         data['header_length'] = stream.uint32()
         data['?n_props'] = stream.uint32()
@@ -43,11 +43,37 @@ class MovieCastLibraries(ChunkParser):
         data['n_offsets'] = stream.int32()
         data['u2'] = stream.uint32()
 
-        data.update(stream.auto_property_list(
+        return data
+
+    @classmethod
+    def parse_entries(cls, stream: ByteBlockIO, header):
+        data = stream.auto_property_list(
             CastLibraryPropertyReader,
-            data['header_length'] + 6,
-            data['n_offsets'],
-            data['?n_props']
-        ))
+            header['header_length'] + 6,
+            header['n_offsets'],
+            header['?n_props']
+        )
+
+        return [CastEntry.parse(stream, entry) for entry in data.values()]
+
+
+class CastEntry(InternalEntryParser):
+    public_data_attrs = ['name', 'cast_resource_id', 'cast_member_id_first', 'cast_member_id_last']
+
+    @classmethod
+    def parse_data(cls, _, entry):
+        data = {}
+        data.update(entry)
 
         return data
+
+    def is_linked(self):
+        return len(self._data['external_path']) > 0
+
+    @property
+    def external_path(self):
+        if self.is_linked():
+            return self._data['external_path']
+
+        return None
+

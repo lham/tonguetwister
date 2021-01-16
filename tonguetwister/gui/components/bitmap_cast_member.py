@@ -12,10 +12,8 @@ from tonguetwister.lib.helper import flatten
 
 
 class BitmapCastMemberView(BoxLayout):
-    def __init__(self, font_name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_name = font_name
-
         self.label_area = None
         self.image = None
         self.image_wrapper = None
@@ -24,7 +22,7 @@ class BitmapCastMemberView(BoxLayout):
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area = DefaultChunkView(font_name=self.font_name)
+        self.text_area = DefaultChunkView()
         self.reconstructed_area = self._build_reconstructed_area()
 
         tab1 = TabbedPanelItem(text='Reconstructed Data')

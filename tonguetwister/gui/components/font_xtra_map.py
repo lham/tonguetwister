@@ -6,15 +6,15 @@ from kivy.uix.textinput import TextInput
 from tonguetwister.disassembler.chunks.font_xtra_map import FontXtraMap
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.components.chunk import DefaultChunkView
+from tonguetwister.gui.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 
 
 class FontXtraMapView(BoxLayout):
     current_function_index = NumericProperty(0)
 
-    def __init__(self, font_name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_name = font_name
 
         self.orientation = 'vertical'
         self.spacing = 0
@@ -22,8 +22,8 @@ class FontXtraMapView(BoxLayout):
         self.add_widget(self._build_tabbed_panel())
 
     def _build_tabbed_panel(self):
-        self.text_area_reconstructed = TextInput(font_name='UbuntuMono-R.ttf')
-        self.text_area_chunk = DefaultChunkView(font_name='UbuntuMono-R.ttf')
+        self.text_area_reconstructed = TextInput(font_name=MonoFont.font_name)
+        self.text_area_chunk = DefaultChunkView()
 
         tab1 = TabbedPanelItem(text='Reconstructed')
         tab1.add_widget(self.text_area_reconstructed)

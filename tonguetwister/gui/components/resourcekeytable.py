@@ -1,26 +1,30 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.gui.widgets.defaultwidgets import FixedWidthLabel
-from tonguetwister.gui.widgets.arraymappingview import ArrayMappingView, ArrayMappingEntryView
+from tonguetwister.gui.chunkview import ResourceLink
+from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 
 
-class ResourceKeyTableEntryView(ArrayMappingEntryView):
-    def __init__(self, index, entry, font_name, **kwargs):
+class ResourceKeyTableEntryView(EntryView):
+    rows = 1
+    cols = 3
+    col_sizes = [130, 20, 300]
+
+    def __init__(self, index, entry, **kwargs):
         self.chunk_type = ChunkType(entry.child_four_cc)
+        super().__init__(index, entry, **kwargs)
 
-        super().__init__(index, entry, font_name, **kwargs)
+    def entry_kwarg_list(self):
+        return [
+            {'text': f'([{self.entry.parent_resource_id:4d}], {self.chunk_type})', 'halign': 'right'},
+            {'text': '->', 'halign': 'center'},
+            {
+                'text': f'[{self.entry.child_resource_id:4d}]: {self.chunk_type.name}',
+                'link_target': self.set_resource_link
+            }
+        ]
 
-    def resource_id(self):
-        return self.entry.child_resource_id
-
-    def build_entry(self):
-        text = f'({self.entry.parent_resource_id}, {self.chunk_type})'
-        label = FixedWidthLabel(text, 130, 'right', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
-
-        text = f'-> {self.entry.child_resource_id:4d}: {self.chunk_type.name}'
-        label = FixedWidthLabel(text, 300, 'left', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
+    def set_resource_link(self):
+        self.resource_link = ResourceLink(self.entry.parent_resource_id, self.chunk_type)
 
 
-class ResourceKeyTableView(ArrayMappingView):
+class ResourceKeyTableView(EntryListView):
     entry_class = ResourceKeyTableEntryView

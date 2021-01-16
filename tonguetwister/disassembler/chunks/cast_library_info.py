@@ -17,6 +17,6 @@ class CastLibraryInfo(ChunkParser):
         # body['text_length'] = stream.uint8()
         # body['text'] = stream.string(body['text_length'])
         # stream.read_pad(1)
-        stream.read_bytes()
+        data['rest'] = stream.read_bytes()
 
         return data

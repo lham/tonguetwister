@@ -1,4 +1,4 @@
-from kivy.properties import NumericProperty
+from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 
@@ -8,17 +8,43 @@ from tonguetwister.gui.components.chunk import DefaultChunkView
 from tonguetwister.gui.utils import scroll_to_top
 
 
-class ChunkView(BoxLayout):
-    select_resource_id = NumericProperty(None, allownone=True)
+class ResourceLink:
+    def __init__(self, resource_id, chunk_type=None):
+        self.resource_id = resource_id
+        self.chunk_type = chunk_type
 
-    def __init__(self, font_name, **kwargs):
+    def is_linked_resource(self):
+        return self.chunk_type is not None
+
+    def get_linked_resource_id(self, disassembler: FileDisassembler):
+        if not self.is_linked_resource():
+            return self.resource_id
+
+        resource = disassembler.get_linked_resource_by_id(
+            self.resource_id,
+            self.chunk_type,
+            as_chunk=False
+        )
+
+        if resource is not None:
+            return resource.resource_id
+        else:
+            return None
+
+
+class ChunkView(BoxLayout):
+    resource_link = ObjectProperty(None, allownone=True)
+
+    def __init__(self, tab_width=170, tab_height=30, **kwargs):
         super().__init__(**kwargs)
-        self.font_name = font_name
+        self.tab_width = tab_width
+        self.tab_height = tab_height
+
         self.raw_view = None
         self.add_widget(self.build())
 
     def build(self):
-        tabbed_panel = TabbedPanel(do_default_tab=False, tab_width=170, tab_height=30)
+        tabbed_panel = TabbedPanel(do_default_tab=False, tab_width=self.tab_width, tab_height=self.tab_height)
 
         for title, build_view in self.tabs():
             tab = TabbedPanelItem(text=title)
@@ -36,7 +62,7 @@ class ChunkView(BoxLayout):
         return []
 
     def build_raw_view(self):
-        return DefaultChunkView(font_name=self.font_name)
+        return DefaultChunkView()
 
     def load(self, disassembler: FileDisassembler, chunk: ChunkParser):
         self.raw_view.load(disassembler, chunk)

@@ -89,8 +89,8 @@ class ResourceEngine:
     def insert(self, resource: Resource):
         self._resources[resource.resource_id] = resource
 
-    def get_child_resource(self, parent_resource: Resource, child_chunk_type: ChunkType):
-        primary_key = (parent_resource.resource_id, child_chunk_type.four_cc)
+    def get_child_resource(self, parent_resource_id: int, child_chunk_type: ChunkType):
+        primary_key = (parent_resource_id, child_chunk_type.four_cc)
         if primary_key not in self._relationships:
             return None
 

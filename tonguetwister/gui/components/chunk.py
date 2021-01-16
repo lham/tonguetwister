@@ -3,6 +3,7 @@ import os
 from kivy.uix.textinput import TextInput
 
 from tonguetwister.file_disassembler import FileDisassembler
+from tonguetwister.gui.generic.props import MonoFont
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.lib.helper import splat_ordered_dict
 
@@ -13,9 +14,11 @@ class DefaultChunkView(TextInput):
     indent = '    '
     separator = f'{os.linesep}{indent}'
 
+    readonly = True
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.readonly = True
+        self.font_name = MonoFont.font_name
 
     def load(self, file_disassembler: FileDisassembler, chunk):
         text = f'Chunk type: {chunk.__class__.__name__} (FOUR CC: {chunk.resource.chunk_type})'

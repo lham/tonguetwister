@@ -1,38 +1,55 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.gui.widgets.defaultwidgets import FixedWidthLabel
-from tonguetwister.gui.widgets.arraymappingview import ArrayMappingView, ArrayMappingEntryView
+from tonguetwister.gui.chunkview import ResourceLink
+from tonguetwister.gui.generic.labels import FixedSizeLinkLabel, FixedSizeLabel
+from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 
 
-class MemoryMapEntryView(ArrayMappingEntryView):
-    def __init__(self, index, entry, font_name, **kwargs):
-        self._resource_id = index
+class InactiveFixedSizeLabel(FixedSizeLabel):
+    color = (1, 1, 1, 0.2)
+
+    def __init__(self, *args, **kwargs):
+        if 'link_target' in kwargs:
+            kwargs.pop('link_target')
+
+        super().__init__(*args, **kwargs)
+
+
+class MemoryMapEntryView(EntryView):
+    rows = 1
+    cols = 6
+    col_sizes = [35, 20, 140, 20, 250, 200]
+
+    def __init__(self, index, entry, **kwargs):
         self.chunk_type = ChunkType(entry.four_cc)
-
-        super().__init__(index, entry, font_name, **kwargs)
+        super().__init__(index, entry, **kwargs)
 
     def is_active(self):
         return self.chunk_type != ChunkType.Free and self.chunk_type != ChunkType.Junk
 
-    def resource_id(self):
-        return self._resource_id
+    @property
+    def label_class(self):
+        return FixedSizeLabel if self.is_active() else InactiveFixedSizeLabel
 
-    def build_entry(self):
-        text = f'{self._resource_id} ->'
-        label = FixedWidthLabel(text, 60, 'right', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
+    @property
+    def link_label_class(self):
+        return FixedSizeLinkLabel if self.is_active() else InactiveFixedSizeLabel
 
-        text = f'0x{self.entry.chunk_address:08x}:'
-        label = FixedWidthLabel(text, 100, 'left', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
+    def entry_kwarg_list(self):
+        return [
+            {'text': f'{self.index}', 'halign': 'right'},
+            {'text': '--', 'halign': 'center'},
+            {'text': f'0x{self.entry.chunk_address:08x} / {self.chunk_type}', 'halign': 'center'},
+            {'text': '->', 'halign': 'center'},
+            {
+                'text': f'[{self.index:4d}]: {self.chunk_type.name}',
+                'link_target': self.set_resource_link
+            },
+            {'text': f'(Size: {self.entry.chunk_length} bytes)'}
+        ]
 
-        text = f'[{self.chunk_type}] = {self.chunk_type.name}'
-        label = FixedWidthLabel(text, 220, 'left', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
-
-        text = f'(Size: {self.entry.chunk_length} bytes)'
-        label = FixedWidthLabel(text, 200, 'left', font_name=self.font_name, color=self.color())
-        self.add_widget(label)
+    def set_resource_link(self):
+        self.resource_link = ResourceLink(self.index)
 
 
-class MemoryMapView(ArrayMappingView):
+class MemoryMapView(EntryListView):
     entry_class = MemoryMapEntryView
