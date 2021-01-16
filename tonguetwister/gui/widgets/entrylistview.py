@@ -62,7 +62,6 @@ class EntryListView(ChunkView):
 
     def __init__(self, *args, **kwargs):
         self.layout = None
-        print(args, kwargs)
         super().__init__(*args, **kwargs)
 
     def tabs(self):
