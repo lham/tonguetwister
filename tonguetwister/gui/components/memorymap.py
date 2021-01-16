@@ -17,7 +17,7 @@ class InactiveFixedSizeLabel(FixedSizeLabel):
 class MemoryMapEntryView(EntryView):
     rows = 1
     cols = 6
-    col_sizes = [35, 20, 140, 20, 250, 200]
+    col_widths = [35, 20, 140, 20, 250, 200]
 
     def __init__(self, index, entry, **kwargs):
         self.chunk_type = ChunkType(entry.four_cc)

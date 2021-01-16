@@ -7,7 +7,7 @@ from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 class MovieCastLibrariesEntryView(EntryView):
     rows = 2
     cols = 4
-    col_sizes = [200, 20, 300, 300]
+    col_widths = [200, 20, 300, 300]
 
     def entry_kwarg_list(self):
         return [

@@ -21,7 +21,7 @@ class EntryView(GridLayout, FixedSize):
     spacing = (10, 0)
     rows = 1
     cols = 1
-    col_sizes = [300]
+    col_widths = [300]
     row_height = 20
 
     def __init__(self, index, entry, **kwargs):
@@ -47,7 +47,7 @@ class EntryView(GridLayout, FixedSize):
         ]
 
     def add_label(self, text='', link_target=None, **kwargs):
-        width = self.col_sizes[len(self.children) % len(self.col_sizes)]
+        width = self.col_widths[len(self.children) % len(self.col_widths)]
 
         if link_target is not None:
             label = self.link_label_class(text, width, self.row_height, link_target=link_target, **kwargs)

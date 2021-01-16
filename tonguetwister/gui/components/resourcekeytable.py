@@ -6,7 +6,7 @@ from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 class ResourceKeyTableEntryView(EntryView):
     rows = 1
     cols = 3
-    col_sizes = [130, 20, 300]
+    col_widths = [130, 20, 300]
 
     def __init__(self, index, entry, **kwargs):
         self.chunk_type = ChunkType(entry.child_four_cc)
