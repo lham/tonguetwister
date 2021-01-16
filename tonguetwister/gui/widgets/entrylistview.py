@@ -33,15 +33,16 @@ class EntryView(GridLayout, FixedSize):
 
     def build(self):
         if self.rows == 1:
-            for label_kwargs in self.entry_kwarg_list():
-                self.add_label(**label_kwargs)
+            self.build_row(self.label_kwargs())
         else:
-            for row in self.entry_kwarg_list():
-                for label_kwargs in row:
-                    # noinspection PyArgumentList
-                    self.add_label(**label_kwargs)
+            for row in self.label_kwargs():
+                self.build_row(row)
 
-    def entry_kwarg_list(self):
+    def build_row(self, label_kwarg_list):
+        for label_kwargs in label_kwarg_list:
+            self.add_label(**label_kwargs)
+
+    def label_kwargs(self):
         return [
             {'text': str(self.entry)}
         ]

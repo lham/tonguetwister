@@ -34,7 +34,7 @@ class MemoryMapEntryView(EntryView):
     def link_label_class(self):
         return FixedSizeLinkLabel if self.is_active() else InactiveFixedSizeLabel
 
-    def entry_kwarg_list(self):
+    def label_kwargs(self):
         return [
             {'text': f'{self.index}', 'halign': 'right'},
             {'text': '--', 'halign': 'center'},

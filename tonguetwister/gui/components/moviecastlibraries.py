@@ -9,7 +9,7 @@ class MovieCastLibrariesEntryView(EntryView):
     cols = 4
     col_widths = [200, 20, 300, 300]
 
-    def entry_kwarg_list(self):
+    def label_kwargs(self):
         return [
             [
                 {'text': self.entry.name},

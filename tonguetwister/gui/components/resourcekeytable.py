@@ -12,7 +12,7 @@ class ResourceKeyTableEntryView(EntryView):
         self.chunk_type = ChunkType(entry.child_four_cc)
         super().__init__(index, entry, **kwargs)
 
-    def entry_kwarg_list(self):
+    def label_kwargs(self):
         return [
             {'text': f'([{self.entry.parent_resource_id:4d}], {self.chunk_type})', 'halign': 'right'},
             {'text': '->', 'halign': 'center'},
