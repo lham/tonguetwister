@@ -9,7 +9,7 @@ from tonguetwister.disassembler.chunks.thumbnail import Thumbnail
 from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore
 from tonguetwister.gui.chunkview import ChunkView
 from tonguetwister.gui.chunkviews.bitmapcastmember import BitmapCastMemberView
-from tonguetwister.gui.components.font_xtra_map import FontXtraMapView
+from tonguetwister.gui.chunkviews.fontxtramap import FontXtraMapView
 from tonguetwister.gui.chunkviews.memorymap import MemoryMapView
 from tonguetwister.gui.chunkviews.moviecastlibraries import MovieCastLibrariesView
 from tonguetwister.gui.chunkviews.resourcekeytable import ResourceKeyTableView
