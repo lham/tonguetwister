@@ -1,7 +1,7 @@
+from kivy.clock import Clock
 from kivy.uix.textinput import TextInput
 
 from tonguetwister.gui.widgets.generic.props import MonoFont
-from tonguetwister.gui.utils import scroll_to_top
 
 
 class MonoReadOnlyTextInput(TextInput):
@@ -12,4 +12,4 @@ class MonoReadOnlyTextInput(TextInput):
         self.font_name = MonoFont.font_name
 
     def scroll_to_top(self):
-        scroll_to_top(self)
+        Clock.schedule_once(lambda _: setattr(self, 'cursor', (0, 0)))

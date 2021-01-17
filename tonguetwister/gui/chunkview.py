@@ -5,7 +5,6 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkviews.default import RawChunkView
-from tonguetwister.gui.utils import scroll_to_top
 
 
 class ResourceLink:
@@ -51,7 +50,7 @@ class ChunkView(BoxLayout):
             tab.add_widget(self.with_margin(build_view()))
             tabbed_panel.add_widget(tab)
 
-        self.raw_view = self.build_raw_view()
+        self.raw_view = RawChunkView()
         tab = TabbedPanelItem(text='Raw parse info')
         tab.add_widget(self.with_margin(self.raw_view))
         tabbed_panel.add_widget(tab)
@@ -68,9 +67,6 @@ class ChunkView(BoxLayout):
     def tabs(self):
         return []
 
-    def build_raw_view(self):
-        return RawChunkView()
-
     def load(self, disassembler: FileDisassembler, chunk: ChunkParser):
         self.raw_view.load(disassembler, chunk)
-        scroll_to_top(self.raw_view)
+        self.raw_view.scroll_to_top()

@@ -8,7 +8,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
 from kivy.uix.textinput import TextInput
 
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.chunkviews.default import RawEntriesChunkView
+from tonguetwister.gui.chunkviews.default import RawChunkView
 from tonguetwister.gui.widgets.generic.props import MonoFont
 from tonguetwister.gui.utils import load_script_function, update_text_area, highlight_word_in_text_area
 from tonguetwister.lib.helper import exception_as_lines
@@ -53,7 +53,7 @@ class ScriptPanel(BoxLayout):
         self.text_area_reconstructed = TextInput(font_name=MonoFont.font_name)
         self.text_area_named = TextInput(font_name=MonoFont.font_name)
         self.text_area_raw = TextInput(font_name=MonoFont.font_name)
-        self.text_area_chunk = RawEntriesChunkView(font_name=MonoFont.font_name)
+        self.text_area_chunk = RawChunkView(font_name=MonoFont.font_name)
 
         self.text_area_generated.bind(on_touch_down=self._on_text_area_touch_down)
         self.text_area_reconstructed.bind(on_touch_down=self._on_text_area_touch_down)

@@ -6,7 +6,6 @@ from kivy.uix.scrollview import ScrollView
 
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ChunkView, ResourceLink
-from tonguetwister.gui.chunkviews.default import RawEntriesChunkView
 from tonguetwister.gui.widgets.generic.labels import FixedSizeLabel, FixedSizeLinkLabel
 from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout
 from tonguetwister.gui.widgets.generic.props import FixedSize
@@ -69,9 +68,6 @@ class EntryListView(ChunkView):
         return [
             ('Reconstructed', self.build_reconstructed_view),
         ]
-
-    def build_raw_view(self):
-        return RawEntriesChunkView()
 
     def build_reconstructed_view(self):
         self.layout = self.build_reconstructed_view_layout()

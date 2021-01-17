@@ -1,7 +1,7 @@
 import logging
 import os
 
-from tonguetwister.disassembler.chunkparser import ChunkParser, InternalEntryParser
+from tonguetwister.disassembler.chunkparser import ChunkParser, InternalEntryParser, EntryMapChunkParser
 from tonguetwister.disassembler.resources import ChunkResource
 from tonguetwister.gui.widgets.generic.texts import MonoReadOnlyTextInput
 
@@ -30,7 +30,15 @@ class RawChunkView(MonoReadOnlyTextInput):
         return f'{chunk_type.name} (FOUR CC: {chunk_type.four_cc}) at 0x{resource.chunk_address:08x}'
 
     def section_text(self, section_name, chunk):
-        return self.section_title(section_name.capitalize()) + self.render_values(getattr(chunk, f'_{section_name}'))
+        text = self.section_title(section_name.capitalize())
+        values = getattr(chunk, f'_{section_name}')
+
+        if isinstance(chunk, EntryMapChunkParser) and section_name == 'entries':
+            text += self.render_entries(values)
+        else:
+            text += self.render_values(values)
+
+        return text
 
     @staticmethod
     def section_title(title):
@@ -79,19 +87,6 @@ class RawChunkView(MonoReadOnlyTextInput):
 
     def prefix_with_indent(self, line, depth):
         return f'{self.indent_string * depth}{line}'
-
-
-class RawEntriesChunkView(RawChunkView):
-    def section_text(self, section_name, chunk):
-        text = self.section_title(section_name.capitalize())
-        values = getattr(chunk, f'_{section_name}')
-
-        if section_name == 'entries':
-            text += self.render_entries(values)
-        else:
-            text += self.render_values(values)
-
-        return text
 
     def render_entries(self, entries, depth=0):
         lines = [self.render_entry(entry, depth, index) for index, entry in enumerate(entries)]
