@@ -26,6 +26,10 @@ class FixedStackLayout(FixedSize, GridLayout):
         super().__init__(spacing=spacing, **kwargs)
 
 
+class PlainVerticalStackLayout(GridLayout):
+    cols = 1
+
+
 class VerticalBoxLayout(BoxLayout):
     orientation = 'vertical'
 

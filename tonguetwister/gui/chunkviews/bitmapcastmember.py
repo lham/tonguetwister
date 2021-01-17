@@ -1,9 +1,12 @@
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+
 from tonguetwister.disassembler.chunks.castmembers.bitmap import BitmapCastMember
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.gui.chunkview import ChunkView
 from tonguetwister.gui.widgets.bitmap_image import BitmapImage
-from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout
+from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout, PlainVerticalStackLayout
 from tonguetwister.gui.widgets.labelcollection import LabelCollection
 from tonguetwister.gui.widgets.palette import PaletteDisplay
 from tonguetwister.lib.helper import flatten
@@ -23,7 +26,7 @@ class BitmapCastMemberView(ChunkView):
         ]
 
     def build_reconstructed_view(self):
-        layout = VerticalStackLayout(spacing=(0, 10))
+        layout = PlainVerticalStackLayout(spacing=(0, 10))
         layout.add_widget(self.build_labels())
         layout.add_widget(self.build_image())
         layout.add_widget(self.build_palette())
