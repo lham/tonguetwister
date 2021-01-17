@@ -7,165 +7,204 @@ from kivy.graphics.vertex_instructions import Rectangle, Line
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.behaviors import FocusBehavior
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.stacklayout import StackLayout
-from kivy.uix.tabbedpanel import TabbedPanelItem, TabbedPanel
-from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 
 from tonguetwister.disassembler.chunks.video_works_score import VideoWorksScore, Sprite, EmptySprite
 from tonguetwister.file_disassembler import FileDisassembler
-from tonguetwister.gui.chunkviews.default import RawChunkView
+from tonguetwister.gui.chunkview import ChunkView
+from tonguetwister.gui.widgets.generic.actionbar import ActionBarPanel
+from tonguetwister.gui.widgets.generic.buttons import LeftButton, RightButton
+from tonguetwister.gui.widgets.generic.labels import FixedSizeLabel
+from tonguetwister.gui.widgets.generic.layouts import HorizontalStackLayout, VerticalBoxLayout, FixedStackLayout, \
+    ScrollContainer
 from tonguetwister.gui.widgets.generic.props import MonoFont
-from tonguetwister.gui.utils import scroll_to_top
-from tonguetwister.gui.widgets.label_area import LabelArea
+from tonguetwister.gui.widgets.generic.texts import MonoReadOnlyTextInput
+from tonguetwister.gui.widgets.labelcollection import LabelCollection
+from tonguetwister.lib.helper import format_unknowns
 
 
-class ScoreView(BoxLayout):
+class ScoreView(ChunkView):
     score: VideoWorksScore
 
-    byte_change_notation_area_offset = NumericProperty(0)
-    BYTE_CHANGE_NOTATION_AREA_WIDTH = 50
+    byte_change_notation_offset = NumericProperty(0)
+    BYTE_CHANGE_NOTATION_WIDTH = 50
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.add_widget(self._build_tabbed_panel())
+    def __init__(self, *args, **kwargs):
+        self.score_wrapper = None
+        self.sprite_info = None
+        self.unknowns_sprite = None
+        self.unknowns_sprite_span = None
+        self.byte_change_notation = None
+        super().__init__(*args, **kwargs)
 
-    def _build_tabbed_panel(self):
-        self.text_area = RawChunkView()
+    def tabs(self):
+        return [
+            ('Score View', self.build_reconstructed_view),
+            ('Byte Change Notation', self.build_byte_change_notation_area),
+        ]
 
-        tab1 = TabbedPanelItem(text='Score View')
-        tab1.add_widget(self._build_reconstructed_area())
-        tab2 = TabbedPanelItem(text='Byte Change Notation')
-        tab2.add_widget(self._build_byte_change_notation_area())
-        tab3 = TabbedPanelItem(text='Raw Chunk Info')
-        tab3.add_widget(self.text_area)
-
-        tabbed_panel = TabbedPanel(do_default_tab=False, tab_width=170, tab_height=30)
-        tabbed_panel.add_widget(tab1)
-        tabbed_panel.add_widget(tab2)
-        tabbed_panel.add_widget(tab3)
-
-        return tabbed_panel
-
-    def _build_reconstructed_area(self):
-        self.score_wrapper = BoxLayout(orientation='vertical')
-        self.raw_area_sprite = Label(
-            font_name=MonoFont.font_name, halign='left', valign='top', height=240, size_hint_y=None)
-        self.raw_area_sprite.bind(size=self.raw_area_sprite.setter('text_size'))
-        self.raw_area_sprite_span = Label(
-            font_name=MonoFont.font_name, halign='left', valign='top', height=240, size_hint_y=None)
-        self.raw_area_sprite_span.bind(size=self.raw_area_sprite_span.setter('text_size'))
-        self.info_area_sprite = LabelArea({
-            'x': ('x', 1),
-            'y': ('y', 1),
-            'width': ('Width', 1),
-            'height': ('Height', 1),
-            'cast_member': ('Cast Member', 0),
-            'start': ('Start', 0),
-            'end': ('End', 0),
-            'length': ('Length', 0),
-            'ink': ('Ink', 2),
-            'blend': ('Blend', 2),
-            'editable': ('Editable', 3),
-            'moveable': ('Moveable', 3),
-            'tails': ('Trails', 3)
-        }, key_width=100)
-        self.info_area_sprite_span = LabelArea({
-            'tween_path': ('Tween Path', 0),
-            'tween_size': ('Tween Size', 0),
-            'tween_blend': ('Tween Blend', 0),
-            'tween_fg': ('Tween Foreground Color', 0),
-            'tween_bg': ('Tween Background Color', 0),
-            'tween_curvature': ('Curvature', 1),
-            'tween_continuous': ('Continuous at Endpoints', 1),
-            'tween_speed': ('Speed', 2),
-            'tween_ease_in': ('Ease-In', 3),
-            'tween_ease_out': ('Ease-Out', 3),
-        })
-
-        layout_raw = BoxLayout(orientation='horizontal')
-        layout_raw.add_widget(self.raw_area_sprite)
-        layout_raw.add_widget(self.raw_area_sprite_span)
-
-        layout = BoxLayout(orientation='vertical', padding=(10, 10, 10, 10), spacing=10)
-        layout.add_widget(self.info_area_sprite)
-        layout.add_widget(self.info_area_sprite_span)
-        layout.add_widget(layout_raw)
-        layout.add_widget(self.score_wrapper)
+    def build_reconstructed_view(self):
+        layout = VerticalBoxLayout(spacing=10)
+        layout.add_widget(self.build_sprite_info())
+        layout.add_widget(self.build_score())
+        layout.add_widget(self.build_unknowns())
 
         return layout
 
-    def _build_byte_change_notation_area(self):
-        width = int(self.BYTE_CHANGE_NOTATION_AREA_WIDTH * 0.9)
+    def build_score(self):
+        self.score_wrapper = FixedStackLayout()
 
-        next_button = Button(text='->', width=50, size_hint_x=None)
-        next_button.bind(on_press=lambda instance: self._update_byte_change_notation_area_offset(width))
-        prev_button = Button(text='<-', width=50, size_hint_x=None)
-        prev_button.bind(on_press=lambda instance: self._update_byte_change_notation_area_offset(-width))
+        scroll_view = ScrollContainer()
+        scroll_view.add_scrolled_widget(self.score_wrapper)
 
-        action_bar = StackLayout(orientation='rl-tb', height=30, size_hint_y=None)
-        action_bar.add_widget(next_button)
-        action_bar.add_widget(prev_button)
+        return scroll_view
 
-        self.byte_change_notation_area = TextInput(readonly=True, font_name=MonoFont.font_name)
+    def build_sprite_info(self):
+        self.sprite_info = LabelCollection(
+            rows=10,
+            cols=4,
+            col_widths=[(140, 60), (200, 60), (60, 150), 100],
+            labels=[
+                # Row 1
+                {'key': 'cast_member', 'title': 'Cast Member'},
+                {'key': 'x', 'title': 'x'},
+                {'key': 'ink', 'title': 'Ink'},
+                {'key': 'editable', 'title': 'Editable'},
 
-        layout = BoxLayout(orientation='vertical', padding=(10, 10, 10, 10), spacing=10)
-        layout.add_widget(action_bar)
-        layout.add_widget(self.byte_change_notation_area)
+                # Row 2
+                {'key': 'start', 'title': 'Start'},
+                {'key': 'y', 'title': 'y'},
+                {'key': 'blend', 'title': 'Blend'},
+                {'key': 'moveable', 'title': 'Moveable'},
+
+                # Row 3
+                {'key': 'end', 'title': 'End'},
+                {'key': 'width', 'title': 'Width'},
+                {},
+                {'key': 'tails', 'title': 'Trails'},
+
+                # Row 4
+                {'key': 'length', 'title': 'Length'},
+                {'key': 'height', 'title': 'Height'},
+                {},
+                {},
+
+                # Row 5
+                {},
+                {},
+                {},
+                {},
+
+                # Row 6
+                {'key': 'tween_path', 'title': 'Tween Path'},
+                {'key': 'tween_curvature', 'title': 'Curvature'},
+                {'key': 'tween_speed', 'title': 'Speed'},
+                {'key': 'tween_ease_in', 'title': 'Ease-in'},
+
+                # Row 7
+                {'key': 'tween_size', 'title': 'Tween Size'},
+                {'key': 'tween_continuous', 'title': 'Continuous at Endpoints'},
+                {},
+                {'key': 'tween_ease_out', 'title': 'Ease-out'},
+
+                # Row 8
+                {'key': 'tween_blend', 'title': 'Tween Blend'},
+                {},
+                {},
+                {},
+
+                # Row 9
+                {'key': 'tween_fg', 'title': 'Tween Foreground'},
+                {},
+                {},
+                {},
+
+                # Row 10
+                {'key': 'tween_bg', 'title': 'Tween Background'},
+                {},
+                {},
+                {},
+            ]
+        )
+
+        return self.sprite_info
+
+    def build_unknowns(self):
+        self.unknowns_sprite = FixedSizeLabel('', 500, 240, valign='top')
+        self.unknowns_sprite_span = FixedSizeLabel('', 500, 240, valign='top')
+
+        layout_unknowns = HorizontalStackLayout()
+        layout_unknowns.add_widget(self.unknowns_sprite)
+        layout_unknowns.add_widget(self.unknowns_sprite_span)
+
+        return layout_unknowns
+
+    def build_byte_change_notation_area(self):
+        self.byte_change_notation = MonoReadOnlyTextInput()
+
+        width = int(self.BYTE_CHANGE_NOTATION_WIDTH * 0.9)
+        next_button = RightButton(on_click=lambda: self.update_byte_change_notation_offset(width))
+        prev_button = LeftButton(on_click=lambda: self.update_byte_change_notation_offset(-width))
+
+        layout = ActionBarPanel()
+        layout.add_action_bar_widget(next_button)
+        layout.add_action_bar_widget(prev_button)
+        layout.add_widget(self.byte_change_notation)
 
         return layout
 
-    def _update_byte_change_notation_area_offset(self, diff):
+    def update_byte_change_notation_offset(self, diff):
         _min = 0
-        _max = self.score.number_of_bytes_per_frame - self.BYTE_CHANGE_NOTATION_AREA_WIDTH + 1
+        _max = self.score.number_of_bytes_per_frame - self.BYTE_CHANGE_NOTATION_WIDTH + 1
 
-        if self.byte_change_notation_area_offset + diff < _min:
-            self.byte_change_notation_area_offset = _min
-        elif self.byte_change_notation_area_offset + diff > _max:
-            self.byte_change_notation_area_offset = _max
+        if self.byte_change_notation_offset + diff < _min:
+            self.byte_change_notation_offset = _min
+        elif self.byte_change_notation_offset + diff > _max:
+            self.byte_change_notation_offset = _max
         else:
-            self.byte_change_notation_area_offset += diff
+            self.byte_change_notation_offset += diff
 
-    def load(self, file_disassembler: FileDisassembler, score: VideoWorksScore):
+    def load(self, disassembler: FileDisassembler, score: VideoWorksScore):
+        super().load(disassembler, score)
         self.score = score
+        self.load_byte_change_notation()
+        self.render_loading_score_text()
+        Clock.schedule_once(lambda _: self.load_score(), 0.5)
 
-        self.text_area.load(file_disassembler, score)
-        self._load_byte_change_notation_area()
-        self._show_load_score_text()
-
-        Clock.schedule_once(lambda _: self._load_score(), 0.5)
-
-    def _load_byte_change_notation_area(self):
-        if self.byte_change_notation_area_offset == 0:
-            self.on_byte_change_notation_area_offset(self, 0)
+    def load_byte_change_notation(self):
+        if self.byte_change_notation_offset == 0:
+            self.on_byte_change_notation_offset(self, 0)
         else:
-            self.byte_change_notation_area_offset = 0
+            self.byte_change_notation_offset = 0
 
-    def on_byte_change_notation_area_offset(self, _, offset):
-        length = self.BYTE_CHANGE_NOTATION_AREA_WIDTH
-        self.byte_change_notation_area.text = self.score.text_representation_frames(offset, length, True)
-        scroll_to_top(self.byte_change_notation_area)
+    def on_byte_change_notation_offset(self, _, offset):
+        self.byte_change_notation.text = self.score.text_representation_frames(
+            offset,
+            self.BYTE_CHANGE_NOTATION_WIDTH,
+            True
+        )
+        self.byte_change_notation.scroll_to_top()
 
-    def _show_load_score_text(self):
+    def render_loading_score_text(self):
         self.score_wrapper.clear_widgets()
         self.score_wrapper.add_widget(Label(text='Loading score notation...'))
 
-    def _load_score(self):
+    def load_score(self):
         notation = ScoreNotation(self.score)
-        notation.bind(selected=self._display_sprite_data)
+        notation.bind(selected=self.render_sprite_data)
 
         self.score_wrapper.clear_widgets()
         self.score_wrapper.add_widget(notation)
 
-    def _display_sprite_data(self, _, sprite):
+    def render_sprite_data(self, _, sprite):
         if isinstance(sprite, Sprite):
             sprite_span = sprite.sprite_span
 
-            self.info_area_sprite.load({
+            self.unknowns_sprite.text = os.linesep.join(format_unknowns(getattr(sprite, '_data').items()))
+            self.unknowns_sprite_span.text = os.linesep.join(format_unknowns(getattr(sprite_span, '_data').items()))
+
+            self.sprite_info.load({
                 'x': f'{sprite.x:d}',
                 'y': f'{sprite.y:d}',
                 'width': f'{sprite.width:d}',
@@ -174,33 +213,27 @@ class ScoreView(BoxLayout):
                 'end': sprite_span.end + 1,
                 'length': sprite_span.end - sprite_span.start + 1,
                 'ink': sprite.ink,
-                'blend': f'{int(round(sprite.blend*100))}%',
+                'blend': f'{int(round(sprite.blend * 100))}%',
                 'editable': sprite.editable,
                 'moveable': sprite.moveable,
                 'tails': sprite.trails,
-                'cast_member': sprite.cast_member
-            })
-
-            self.info_area_sprite_span.load({
+                'cast_member': sprite.cast_member,
                 'tween_path': sprite_span.tween_path,
                 'tween_size': sprite_span.tween_size,
                 'tween_blend': sprite_span.tween_blend,
                 'tween_fg': sprite_span.tween_foreground_color,
                 'tween_bg': sprite_span.tween_background_color,
-                'tween_curvature': f'{int(round(sprite_span.tween_curvature*100))}%',
+                'tween_curvature': f'{int(round(sprite_span.tween_curvature * 100))}%',
                 'tween_continuous': sprite_span.tween_is_continuous_at_endpoints,
                 'tween_speed': sprite_span.tween_speed,
                 'tween_ease_in': f'{sprite_span.tween_ease_in}%',
                 'tween_ease_out': f'{sprite_span.tween_ease_out}%',
             })
-            # noinspection PyProtectedMember
-            self.raw_area_sprite.text = os.linesep\
-                .join(f'{k}: {v}' for k, v in sprite._data.items() if k.startswith('u') or k.startswith('?'))
-            # noinspection PyProtectedMember
-            self.raw_area_sprite_span.text = os.linesep\
-                .join(f'{k}: {v}' for k, v in sprite_span._data.items() if k.startswith('u') or k.startswith('?'))
         else:
-            self.info_area_sprite.load({
+            self.unknowns_sprite.text = ''
+            self.unknowns_sprite_span.text = ''
+
+            self.sprite_info.load({
                 'x': '',
                 'y': '',
                 'width': '',
@@ -213,9 +246,7 @@ class ScoreView(BoxLayout):
                 'editable': '',
                 'moveable': '',
                 'tails': '',
-                'cast_member': ''
-            })
-            self.info_area_sprite_span.load({
+                'cast_member': '',
                 'tween_path': '',
                 'tween_size': '',
                 'tween_blend': '',
@@ -227,27 +258,25 @@ class ScoreView(BoxLayout):
                 'tween_ease_in': '',
                 'tween_ease_out': '',
             })
-            self.raw_area_sprite.text = ''
-            self.raw_area_sprite_span.text = ''
 
 
-class ScoreNotation(BoxLayout):
+class ScoreNotation(AnchorLayout):
     selected = ObjectProperty(EmptySprite())
+
+    anchor_x = 'left'
+    anchor_y = 'top'
+    size_hint = [None, None]
 
     def __init__(self, score: VideoWorksScore, **kwargs):
         super().__init__(**kwargs)
-        self.orientation = 'vertical'
 
         notation = ScoreNotationCanvas(score)
         notation.bind(selected=lambda _, box: setattr(self, 'selected', box.sprite))
 
-        layout = AnchorLayout(anchor_x='left', anchor_y='top', size=notation.size, size_hint=[None, None])
-        layout.add_widget(notation)
+        self.size = notation.size
+        notation.bind(size=self.setter('size'))
 
-        scroll_view = ScrollView()
-        scroll_view.add_widget(layout)
-
-        self.add_widget(scroll_view)
+        self.add_widget(notation)
 
 
 class ScoreNotationCanvas(FocusBehavior, Widget):
@@ -442,7 +471,7 @@ class ScoreNotationCanvas(FocusBehavior, Widget):
             Color(*self.COLOR_BLACK)
             text_pos = [
                 x_offset - self.spacing - label.texture.size[0] - 5,
-                y_pos + (self.SPRITE_BOX_HEIGHT - label.texture.size[1])/2
+                y_pos + (self.SPRITE_BOX_HEIGHT - label.texture.size[1]) / 2
             ]
             Rectangle(pos=text_pos, size=label.texture.size, texture=label.texture)
 
@@ -472,7 +501,7 @@ class ScoreNotationCanvas(FocusBehavior, Widget):
             return f'Ch. {channel_no - 5}'
 
     def on_touch_down(self, touch):
-        if not self.collide_point(*touch.pos):
+        if not self.collide_point(*touch.pos) or not touch.button == 'left':
             return
 
         for box in self.sprite_box_list_store:

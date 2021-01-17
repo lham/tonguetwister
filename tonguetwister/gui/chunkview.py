@@ -47,8 +47,10 @@ class ChunkView(BoxLayout):
         tabbed_panel = TabbedPanel(do_default_tab=False, tab_width=self.tab_width, tab_height=self.tab_height)
 
         for title, build_view in self.tabs():
+            wrapper = BoxLayout(padding=(10, 10, 10, 10))
+            wrapper.add_widget(build_view())
             tab = TabbedPanelItem(text=title)
-            tab.add_widget(build_view())
+            tab.add_widget(wrapper)
             tabbed_panel.add_widget(tab)
 
         self.raw_view = self.build_raw_view()

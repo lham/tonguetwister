@@ -59,3 +59,7 @@ def flatten(lst):
 
 def chunk(lst, size):
     return [lst[index:index+size] for index in range(0, len(lst), size)]
+
+
+def format_unknowns(items):
+    return [f'{key}: {value}' for key, value in items if key.startswith('u') or key.startswith('?')]

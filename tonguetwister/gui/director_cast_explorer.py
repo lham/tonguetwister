@@ -11,11 +11,11 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 
-from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, ChunkParser
+from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ChunkView, ResourceLink
 from tonguetwister.gui.chunkviewmap import CHUNK_VIEW_MAP
-from tonguetwister.gui.components.score import ScoreNotationCanvas
+from tonguetwister.gui.chunkviews.score import ScoreNotationCanvas
 from tonguetwister.gui.utils import scroll_to_top
 from tonguetwister.gui.widgets.file_dialogs import FileDialogPopup
 from tonguetwister.gui.widgets.listview import ListView, IndexedItem

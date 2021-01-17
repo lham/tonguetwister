@@ -14,6 +14,16 @@ class FixedSizeLabel(MonoFont, Label):
         self.text_size = size
 
 
+class FixedHeightLabel(MonoFont, Label):
+    size_hint = (None, 1)
+
+    def __init__(self, text, height, halign='left', **kwargs):
+        super().__init__(text=text, height=height, halign=halign, **kwargs)
+
+    def on_size(self, _, size):
+        self.text_size = size
+
+
 class FixedSizeLinkLabel(FixedSizeLabel, Highlight):
     underline = True
 
