@@ -1,7 +1,7 @@
 import logging
 
 from tonguetwister.disassembler.chunkparser import UnknownChunkParser
-from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
+from tonguetwister.disassembler.chunks.resource_assoc_table import ResourceAssocTable
 from tonguetwister.disassembler.errors import BadMemoryMapEntry, ResourceAlreadyExists, ResourceNotLocated
 from tonguetwister.disassembler.chunks.initial_map import InitialMap
 from tonguetwister.disassembler.chunks.memory_map import MemoryMapEntry, MemoryMap
@@ -132,7 +132,7 @@ class ResourceEngine:
         return self[self.RESOURCE_ID_MMAP].chunk
 
     @property
-    def resource_key_table(self) -> ResourceKeyTable:
+    def resource_key_table(self) -> ResourceAssocTable:
         return self[self.RESOURCE_ID_KEY_TABLE].chunk
 
     def to_list(self):

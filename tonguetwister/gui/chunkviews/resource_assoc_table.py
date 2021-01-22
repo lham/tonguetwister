@@ -3,7 +3,7 @@ from tonguetwister.gui.chunkview import ResourceLink
 from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
 
 
-class ResourceKeyTableEntryView(EntryView):
+class ResourceAssocTableEntryView(EntryView):
     rows = 1
     cols = 3
     col_widths = [130, 20, 300]
@@ -26,5 +26,5 @@ class ResourceKeyTableEntryView(EntryView):
         self.resource_link = ResourceLink(self.entry.parent_resource_id, self.chunk_type)
 
 
-class ResourceKeyTableView(EntryListView):
-    entry_class = ResourceKeyTableEntryView
+class ResourceAssocTableView(EntryListView):
+    entry_class = ResourceAssocTableEntryView

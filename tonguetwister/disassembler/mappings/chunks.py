@@ -2,7 +2,7 @@ from enum import Enum
 
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
 from tonguetwister.disassembler.chunks.cast_assoc_table import CastAssocTable
-from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
+from tonguetwister.disassembler.chunks.resource_assoc_table import ResourceAssocTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
 from tonguetwister.disassembler.chunkparser import UnknownChunkParser, ChunkParser
@@ -29,7 +29,7 @@ class ChunkType(Enum):
     RIFX = ('RIFX', Rifx)
     InitialMap = ('imap', InitialMap)
     MemoryMap = ('mmap', MemoryMap)
-    ResourceKeyTable = ('KEY*', ResourceKeyTable)
+    ResourceAssocTable = ('KEY*', ResourceAssocTable)
     Junk = ('junk', UnknownChunkParser)
     Free = ('free', UnknownChunkParser)
 

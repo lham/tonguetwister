@@ -2,7 +2,7 @@ from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, Internal
 from tonguetwister.lib.stream import ByteBlockIO
 
 
-class ResourceKeyTableEntry(InternalEntryParser):
+class ResourceAssocTableEntry(InternalEntryParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
 
     public_data_attrs = ['parent_resource_id', 'child_resource_id', 'child_four_cc']
@@ -21,9 +21,9 @@ class ResourceKeyTableEntry(InternalEntryParser):
         return self.parent_resource_id, self.child_four_cc
 
 
-class ResourceKeyTable(EntryMapChunkParser):
+class ResourceAssocTable(EntryMapChunkParser):
     endianess = ByteBlockIO.LITTLE_ENDIAN
-    entry_class = ResourceKeyTableEntry
+    entry_class = ResourceAssocTableEntry
 
     @classmethod
     def parse_header(cls, stream: ByteBlockIO):

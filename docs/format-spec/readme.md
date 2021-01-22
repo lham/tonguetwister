@@ -97,8 +97,8 @@ This also means that an unoptimized Director file data can contain a lot of data
 reality are not. They are just dereferenced chunks that are relics in the dumped memory that is the file. Thus, we can
 not simply loop through the file looking for chunks since we might get false positives.
 
-Finally, we continue loading the file by looking up and loading resource key table chunk, and then loading all resources
-belonging to the Director movie itself. These steps are described further [below](#resources).
+Finally, we continue loading the file by looking up and loading resource assoc table chunk, and then loading all
+resources belonging to the Director movie itself. These steps are described further [below](#resources).
 
 ## Resources
 
@@ -122,7 +122,7 @@ The first four resources of the memory map are always the same, pointing to the 
 1. The [RIFX](./chunks/RIFX.md) chunk.
 2. The [initial map](./chunks/imap.md) chunk.
 3. The [memory map](./chunks/mmap.md) chunk (i.e. a self reference).
-4. The [resource key table](./chunks/KEY*.md) chunk.
+4. The [resource assoc table](./chunks/KEY*.md) chunk.
 
 ### Resource relationships
 
@@ -137,7 +137,7 @@ relationship would be that between a [bitmap cast member chunk](./chunks/castmem
 metadata) and a [bitmap data chunk](./chunks/BITD.md) (which only contains raw encoded image data). So in order for us
 to read the image in the chunk correctly we need to connect it with its image data chunk, hence the tight coupling.
 
-This is done using the [resource key table chunk](./chunks/KEY*.md), given by the fourth resource in the memory map.
+This is done using the [resource assoc table chunk](./chunks/KEY*.md), given by the fourth resource in the memory map.
 This is a relationship mapping table, where each entry represents a [belongs-to relationship](#TODO). Such an entry
 consists of a resource id, a FourCC and the resource id of parent resource to which it belongs.
 
@@ -147,10 +147,10 @@ image would only have a single data resource, namely the image data, but other c
 
 ### Movie resources
 
-Inside the resource key table there are a couple of resources belonging to the movie itself. They all have a fixed
+Inside the resource assoc table there are a couple of resources belonging to the movie itself. They all have a fixed
 parent resource id, namely the `INTERNAL_RESOURCE_ID = 1024`. All saved Director movie data in the loaded file can be
 traced back to these resources through nested belongs-to relationships. Hence, once the memory map chunk and the
-resource key table chunk are identified and parsed, the rest of the data follows by loading the resources having this
+resource assoc table chunk are identified and parsed, the rest of the data follows by loading the resources having this
 parent resource id.
 
 The movie resources listed below can be present in a Director file and are loaded in the following order:
@@ -184,7 +184,7 @@ specification.
 - [`FXmp` Font Xtra Map](./chunks/FXmp.md)
 - [`imap` Initial Map](./chunks/imap.md)
 - [`junk` Dummy](./chunks/mmap.md#special-fourccs)
-- [`KEY*` Resource Key Table](./chunks/KEY*.md)
+- [`KEY*` Resource Assoc Table](./chunks/KEY*.md)
 - [`Lctx` Lingo Context](./chunks/Lctx.md)
 - [`Lnam` Lingo Name List](./chunks/Lnam.md)
 - [`Lscr` Lingo Script](./chunks/Lscr.md)

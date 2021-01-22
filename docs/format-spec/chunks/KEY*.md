@@ -1,6 +1,6 @@
-# Resource Key Table
+# Resource Assoc Table
 
-The resource key table is an array, each entry representing a parent-child [belongs-to relationship](#TODO)
+The resource assoc table is an array, each entry representing a parent-child [belongs-to relationship](#TODO)
 for [resources](../readme.md#resource-relationships) within the file. Each entry has a primary key consisting of the
 resource id of the parent and the [FourCC](#TODO) of the child. The other entry data is simply the resource id of the
 child.
@@ -12,7 +12,7 @@ The [FourCC](#TODO) of the chunk is `KEY*`.
 
 ## Structure
 
-The resource key table chunk is saved in **little-endian**.
+The resource assoc table chunk is saved in **little-endian**.
 
 The structure is described by:
 
@@ -39,7 +39,7 @@ elements actually contains real entries, so we must not parse more than `UAE` en
 
 ### Array entries
 
-The structure of a resource key table array entry is:
+The structure of a resource assoc table array entry is:
 
 Ref.   | Bytes | Type(s) | Name                           | Description
 ---    | ---:  | ---     | ---                            | ---
