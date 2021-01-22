@@ -35,3 +35,13 @@ class FixedSizeLinkLabel(FixedSizeLabel, Highlight):
         if self.link_target is not None and self.collide_point(*touch.pos) and touch.button == 'left':
             self.link_target()
             return True
+
+
+class InactiveFixedSizeLabel(FixedSizeLabel):
+    color = (1, 1, 1, 0.2)
+
+    def __init__(self, *args, **kwargs):
+        if 'link_target' in kwargs:
+            kwargs.pop('link_target')
+
+        super().__init__(*args, **kwargs)

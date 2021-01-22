@@ -1,17 +1,7 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
 from tonguetwister.gui.chunkview import ResourceLink
-from tonguetwister.gui.widgets.generic.labels import FixedSizeLinkLabel, FixedSizeLabel
+from tonguetwister.gui.widgets.generic.labels import FixedSizeLinkLabel, FixedSizeLabel, InactiveFixedSizeLabel
 from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
-
-
-class InactiveFixedSizeLabel(FixedSizeLabel):
-    color = (1, 1, 1, 0.2)
-
-    def __init__(self, *args, **kwargs):
-        if 'link_target' in kwargs:
-            kwargs.pop('link_target')
-
-        super().__init__(*args, **kwargs)
 
 
 class MemoryMapEntryView(EntryView):

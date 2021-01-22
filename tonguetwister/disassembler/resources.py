@@ -82,6 +82,8 @@ class ResourceEngine:
     RESOURCE_ID_MMAP = 2
     RESOURCE_ID_KEY_TABLE = 3
 
+    RESOURCE_MOVIE = AbstractResource(AbstractResource.INTERNAL_RESOURCE_ID)
+
     def __init__(self):
         self._resources = {}
         self._relationships = {}
@@ -95,6 +97,13 @@ class ResourceEngine:
             return None
 
         return self._relationships[primary_key]
+
+    def reverse_lookup_parent_id(self, child_resource_id: int, child_chunk_type: ChunkType):
+        for (parent_resource_id, child_four_cc), linked_child_resource in self._relationships.items():
+            if child_resource_id == linked_child_resource.resource_id and child_four_cc == child_chunk_type.four_cc:
+                return parent_resource_id
+
+        return None
 
     def __getitem__(self, resource_id):
         if resource_id not in self._resources:

@@ -49,3 +49,13 @@ class CastMember(ChunkParser):
     @classmethod
     def _parse_member_footer(cls, stream: ByteBlockIO, length):
         return None
+
+    @property
+    def type_name(self):
+        mapping = CastMemberTypeMapping.get()
+        type_specific_parser = mapping[self._header['media_type']]
+
+        if type_specific_parser is not None:
+            return type_specific_parser.__name__
+
+        return 'Unknown'

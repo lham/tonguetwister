@@ -1,4 +1,4 @@
-from tonguetwister.disassembler.chunkparser import ChunkParser, EntryMapChunkParser, InternalEntryParser
+from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, InternalEntryParser
 from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.lib.property_reader import PropertyReader, property_reader
 
@@ -56,6 +56,13 @@ class MovieCastLibraries(EntryMapChunkParser):
 
         return [CastEntry.parse(stream, entry) for entry in data.values()]
 
+    def find_cast_by_resource_id(self, resource_id: int):
+        for entry in self._entries:
+            if entry.cast_resource_id == resource_id:
+                return entry
+
+        return None
+
 
 class CastEntry(InternalEntryParser):
     public_data_attrs = ['name', 'cast_resource_id', 'cast_member_id_first', 'cast_member_id_last']
@@ -76,4 +83,3 @@ class CastEntry(InternalEntryParser):
             return self._data['external_path']
 
         return None
-

@@ -2,16 +2,18 @@ from tonguetwister.disassembler.chunkparser import EntryMapChunkParser, Internal
 from tonguetwister.lib.stream import ByteBlockIO
 
 
-class MapEntry(InternalEntryParser):
+class CastAssocEntry(InternalEntryParser):
+    public_data_attrs = ['resource_id']
+
     @classmethod
     def parse_data(cls, stream: ByteBlockIO):
         data = {}
-        data['mmap_idx'] = stream.uint32()
+        data['resource_id'] = stream.uint32()
 
         return data
 
 
-class CastAssociationMap(EntryMapChunkParser):
+class CastAssocTable(EntryMapChunkParser):
     sections = ['entries']
 
     # noinspection PyMethodOverriding
@@ -19,6 +21,6 @@ class CastAssociationMap(EntryMapChunkParser):
     def parse_entries(cls, stream: ByteBlockIO):
         data = []
         while stream.tell() < stream.size():
-            data.append(MapEntry.parse(stream))
+            data.append(CastAssocEntry.parse(stream))
 
         return data

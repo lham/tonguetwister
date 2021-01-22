@@ -14,7 +14,7 @@ class MovieCastLibrariesEntryView(EntryView):
             [
                 {'text': self.entry.name},
                 {'text': '->', 'halign': 'center'},
-                {'text': self.entry.external_path} if self.entry.is_linked() else self.link(ChunkType.CastKeyTable),
+                {'text': self.entry.external_path} if self.entry.is_linked() else self.link(ChunkType.CastAssocTable),
                 {'text': f'Cast member slots -- first: {self.entry.cast_member_id_first:2d}'}
             ],
             [

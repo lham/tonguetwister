@@ -7,7 +7,7 @@ from kivy.uix.scrollview import ScrollView
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ChunkView, ResourceLink
 from tonguetwister.gui.widgets.generic.labels import FixedSizeLabel, FixedSizeLinkLabel
-from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout
+from tonguetwister.gui.widgets.generic.layouts import VerticalStackLayout, SideScrollView
 from tonguetwister.gui.widgets.generic.props import FixedSize
 
 
@@ -61,7 +61,7 @@ class EntryListView(ChunkView):
     entry_class = EntryView
 
     def __init__(self, *args, **kwargs):
-        self.layout = None
+        self.reconstructed_layout = None
         super().__init__(*args, **kwargs)
 
     def tabs(self):
@@ -70,10 +70,10 @@ class EntryListView(ChunkView):
         ]
 
     def build_reconstructed_view(self):
-        self.layout = self.build_reconstructed_view_layout()
+        self.reconstructed_layout = self.build_reconstructed_view_layout()
 
-        scroll_view = ScrollView(scroll_type=['bars'], bar_width=10)
-        scroll_view.add_widget(self.layout)
+        scroll_view = SideScrollView()
+        scroll_view.add_widget(self.reconstructed_layout)
 
         return scroll_view
 
@@ -83,16 +83,19 @@ class EntryListView(ChunkView):
 
     def load(self, disassembler: FileDisassembler, chunk):
         super().load(disassembler, chunk)
-        self.load_reconstructed_view(chunk)
+        self.load_entries_view(self.reconstructed_layout, self.create_entry_view, chunk)
 
-    def load_reconstructed_view(self, chunk):
-        self.layout.clear_widgets()
+    def load_entries_view(self, layout, create_entry_view, chunk):
+        layout.clear_widgets()
 
         for index, entry in enumerate(chunk.entries):
-            widget = self.entry_class(index, entry)
+            widget = create_entry_view(index, entry)
             widget.bind(resource_link=self.on_child_resource_link)
 
-            self.layout.add_widget(widget)
+            layout.add_widget(widget)
+
+    def create_entry_view(self, index, entry):
+        return self.entry_class(index, entry)
 
     def on_child_resource_link(self, widget: entry_class, resource_link: Optional[ResourceLink]):
         if resource_link is None:

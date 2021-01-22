@@ -73,16 +73,29 @@ class FileDisassembler:
     def _parse_relationships(self):
         self.resources.build_relationships()
 
+    def get_resource(self, chunk: ChunkParser, as_chunk=True):
+        return self.get_resource_by_id(chunk.resource.resource_id, as_chunk)
+
+    def get_resource_by_id(self, resource_id: int, as_chunk=True):
+        resource = self.resources[resource_id]
+        return self._chunk_or_resource(resource, as_chunk)
+
     def get_linked_resource(self, parent: ChunkParser, child_type: ChunkType, as_chunk=True):
         return self.get_linked_resource_by_id(parent.resource.resource_id, child_type, as_chunk)
 
     def get_linked_resource_by_id(self, parent_resource_id, child_type: ChunkType, as_chunk=True):
         resource = self.resources.get_child_resource(parent_resource_id, child_type)
+        return self._chunk_or_resource(resource, as_chunk)
 
+    @staticmethod
+    def _chunk_or_resource(resource, as_chunk):
         if as_chunk and resource is not None:
             return resource.chunk
 
         return resource
+
+    def reverse_lookup_parent_resource_id(self, chunk: ChunkParser):
+        return self.resources.reverse_lookup_parent_id(chunk.resource.resource_id, chunk.resource.chunk_type)
 
     @property
     def chunk_resources(self):
@@ -106,22 +119,6 @@ class FileDisassembler:
         # return self.resources.get_director_config_chunk()
         pass
 
-    # def _create_cast_lib(self):
-    #     """
-    #     Iterate the CAS*:
-    #       Add CASt to cast library AS entry:
-    #         i = mmap-index of CASt in mmap
-    #         Lookup mmap[i], add CASt data to entry
-    #
-    #         k = mmap-index of key*(cast_mmap_idx=i)
-    #         Lookup mmap[k] and add media type data to entry
-    #     """
-    #     pass
-    #
-    # @property
-    # def lingo_scripts(self) -> list:
-    #     return [chunk for _, chunk in self.chunks if isinstance(chunk, LingoScript)]
-    #
     # @property
     # def namelist(self) -> Union[LingoNamelist, None]:
     #     namelists = [chunk for _, chunk in self.chunks if isinstance(chunk, LingoNamelist)]

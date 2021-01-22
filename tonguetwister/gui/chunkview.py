@@ -38,6 +38,7 @@ class ChunkView(BoxLayout):
         super().__init__(**kwargs)
         self.tab_width = tab_width
         self.tab_height = tab_height
+        self.disassembler = None
 
         self.raw_view = None
         self.add_widget(self.build())
@@ -68,5 +69,6 @@ class ChunkView(BoxLayout):
         return []
 
     def load(self, disassembler: FileDisassembler, chunk: ChunkParser):
+        self.disassembler = disassembler
         self.raw_view.load(disassembler, chunk)
         self.raw_view.scroll_to_top()

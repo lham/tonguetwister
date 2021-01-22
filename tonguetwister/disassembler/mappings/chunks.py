@@ -1,7 +1,7 @@
 from enum import Enum
 
 from tonguetwister.disassembler.chunks.bitmap_data import BitmapData
-from tonguetwister.disassembler.chunks.cast_association_map import CastAssociationMap
+from tonguetwister.disassembler.chunks.cast_assoc_table import CastAssocTable
 from tonguetwister.disassembler.chunks.resource_key_table import ResourceKeyTable
 from tonguetwister.disassembler.chunks.cast_library_info import CastLibraryInfo
 from tonguetwister.disassembler.chunks.cast_member import CastMember
@@ -40,7 +40,7 @@ class ChunkType(Enum):
     FontXtraMap = ('FXmp', FontXtraMap)
 
     # Cast
-    CastKeyTable = ('CAS*', CastAssociationMap)
+    CastAssocTable = ('CAS*', CastAssocTable)
     CastLibraryInfo = ('Cinf', CastLibraryInfo)
     MovieCastLibraries = ('MCsL', MovieCastLibraries)
     CastSortOrder = ('Sord', SortOrder)
