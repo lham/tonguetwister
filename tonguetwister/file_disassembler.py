@@ -84,7 +84,7 @@ class FileDisassembler:
         return self.get_linked_resource_by_id(parent.resource.resource_id, child_type, as_chunk)
 
     def get_linked_resource_by_id(self, parent_resource_id, child_type: ChunkType, as_chunk=True):
-        resource = self.resources.get_child_resource(parent_resource_id, child_type)
+        resource = self.resources.lookup_child_resource(parent_resource_id, child_type)
         return self._chunk_or_resource(resource, as_chunk)
 
     @staticmethod
