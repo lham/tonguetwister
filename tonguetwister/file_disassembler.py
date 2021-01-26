@@ -3,7 +3,7 @@ import logging
 from tonguetwister.disassembler.chunkparser import ChunkParser
 from tonguetwister.disassembler.errors import UnexpectedChunkClass, InvalidDirectorFile
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.disassembler.resources import ChunkResource, ResourceEngine
+from tonguetwister.disassembler.resources import ChunkResource, ResourceEngine, AbstractResource
 from tonguetwister.lib.stream import ByteBlockIO
 from tonguetwister.xformat.movie import MovieFormat
 from tonguetwister.xformat.rect import Rect
@@ -96,6 +96,9 @@ class FileDisassembler:
 
     def reverse_lookup_parent_resource_id(self, chunk: ChunkParser):
         return self.resources.reverse_lookup_parent_id(chunk.resource.resource_id, chunk.resource.chunk_type)
+
+    def lookup_movie_resource(self, chunk_type: ChunkType, as_chunk=True):
+        return self.get_linked_resource_by_id(ResourceEngine.RESOURCE_MOVIE.resource_id, chunk_type, as_chunk)
 
     @property
     def chunk_resources(self):

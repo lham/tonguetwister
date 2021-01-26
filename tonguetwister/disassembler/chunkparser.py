@@ -51,6 +51,12 @@ class ChunkParser(ByteBlockParser):
     def parse(cls, stream: ByteBlockIO):
         return cls(**cls._parse_byte_block_stream(stream))
 
+    def __repr__(self):
+        if self.resource is not None:
+            return repr(self.resource)
+        else:
+            return super().__repr__()
+
 
 class InternalEntryParser(ByteBlockParser):
     sections = ['data']

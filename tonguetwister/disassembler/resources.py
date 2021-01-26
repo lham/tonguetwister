@@ -80,7 +80,7 @@ class ResourceEngine:
     RESOURCE_ID_RIFX = 0
     RESOURCE_ID_IMAP = 1
     RESOURCE_ID_MMAP = 2
-    RESOURCE_ID_KEY_TABLE = 3
+    RESOURCE_ID_KEY_STAR = 3
 
     RESOURCE_MOVIE = AbstractResource(AbstractResource.INTERNAL_RESOURCE_ID)
 
@@ -133,7 +133,7 @@ class ResourceEngine:
 
     @property
     def resource_key_table(self) -> ResourceAssocTable:
-        return self[self.RESOURCE_ID_KEY_TABLE].chunk
+        return self[self.RESOURCE_ID_KEY_STAR].chunk
 
     def to_list(self):
         return self._resources.values()

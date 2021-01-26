@@ -17,7 +17,7 @@ The structure is described by:
 Ref.   | Bytes              | Description
 ---    | ---:               | ---
 &nbsp; | `HL`               | [Chunk header](#chunk-header)
-&nbsp; | `DL` &times; `AAE` | [Array data](#array-data)
+&nbsp; | `EL` &times; `AAE` | [Array data](#array-data)
 
 ## Chunk header
 
@@ -26,7 +26,7 @@ The structure of the chunk header is:
 Ref.   | Bytes | Type(s) | Name                                 | Description
 ---    | ---:  | ---     | ---                                  | ---
 `HL`   | 2     | uint16  | header&#8209;length                  | Length of the header data.
-`DL`   | 2     | uint16  | entry&#8209;length                   | The length of a single [entry](#array-entries).
+`EL`   | 2     | uint16  | entry&#8209;length                   | The length of a single [entry](#array-entries).
 `AAE`  | 4     | uint32  | allocated&#8209;array&#8209;elements | The number of allocated array slots.
 `UAE`  | 4     | uint32  | used&#8209;array&#8209;elements      | The number of array slots filled by entries.
 &nbsp; | 4     | int32   | ?junk&#8209;entry&#8209;position     | Probably something related to `junk` entries (position always seems to be pointing to a `junk` entry). Defaults to `-1`.

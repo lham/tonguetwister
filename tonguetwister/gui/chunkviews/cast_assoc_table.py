@@ -1,5 +1,4 @@
 from tonguetwister.disassembler.mappings.chunks import ChunkType
-from tonguetwister.disassembler.resources import ResourceEngine
 from tonguetwister.file_disassembler import FileDisassembler
 from tonguetwister.gui.chunkview import ResourceLink
 from tonguetwister.gui.widgets.entrylistview import EntryListView, EntryView
@@ -113,9 +112,6 @@ class CastAssocTableView(EntryListView):
 
     def lookup_cast(self, chunk):
         parent_resource_id = self.disassembler.reverse_lookup_parent_resource_id(chunk)
-        casts = self.disassembler.get_linked_resource_by_id(
-            ResourceEngine.RESOURCE_MOVIE.resource_id,
-            ChunkType.MovieCastLibraries
-        )
+        casts = self.disassembler.lookup_movie_resource(ChunkType.MovieCastLibraries)
 
         return casts.find_cast_by_resource_id(parent_resource_id)

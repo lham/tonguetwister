@@ -40,10 +40,10 @@ class ChunkType(Enum):
     FontXtraMap = ('FXmp', FontXtraMap)
 
     # Cast
+    MovieCastLibraries = ('MCsL', MovieCastLibraries)
     CastAssocTable = ('CAS*', CastAssocTable)
     CastLibraryInfo = ('Cinf', CastLibraryInfo)
-    MovieCastLibraries = ('MCsL', MovieCastLibraries)
-    CastSortOrder = ('Sord', SortOrder)
+    SortOrder = ('Sord', SortOrder)
     CastMember = ('CASt', CastMember)
     CastThumbnail = ('THUM', Thumbnail)
 
